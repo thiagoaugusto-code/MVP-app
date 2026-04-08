@@ -15,6 +15,8 @@ model User {
   name      String
   email     String   @unique
   password  String
+  avatar    String?
+  streak    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -22,40 +24,76 @@ model User {
   workoutLogs  WorkoutLog[]
   progressLogs ProgressLog[]
   dailyChecks  DailyCheck[]
+  insights     Insight[]
+  notifications Notification[]
 }
 
 model MealLog {
   id        Int      @id @default(autoincrement())
   name      String
   calories  Int
+  protein   Int?
+  carbs     Int?
+  fat       Int?
+  mealType  String   // breakfast, lunch, dinner, snack
   date      DateTime @default(now())
+  completed Boolean  @default(true)
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model WorkoutLog {
-  id       Int      @id @default(autoincrement())
-  name     String
-  duration Int
-  date     DateTime @default(now())
-  userId   Int
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  name      String
+  duration  Int      // in minutes
+  intensity String?  // light, moderate, high
+  exercises String?  // JSON stringified array
+  completed Boolean  @default(true)
+  date      DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProgressLog {
   id     Int      @id @default(autoincrement())
-  weight Float
+  weight Float?
+  bodyFat Float?
   notes  String?
   date   DateTime @default(now())
   userId Int
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Insight {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  type      String   // motivation, achievement, tip, warning
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String
+  type      String   // reminder, achievement, tip
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model DailyCheck {
   id     Int      @id @default(autoincrement())
-  item   String
+  type   String   // water, sleep, meal, workout, custom
+  value  Int?     // for water (ml), sleep (hours)
   done   Boolean  @default(false)
   date   DateTime @default(now())
   userId Int
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, type])
 }
