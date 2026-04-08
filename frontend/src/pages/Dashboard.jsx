@@ -1,46 +1,133 @@
+import { useState } from 'react';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
+import BottomNavigation from '../components/BottomNavigation';
+import StatCard from '../components/StatCard';
+import CheckItem from '../components/CheckItem';
 import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
-import DailyChecklist from '../components/DailyChecklist';
+import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
-  const streak = 5; // Exemplo
+  const [dailyChecks, setDailyChecks] = useState({
+    meal: false,
+    workout: false,
+    water: 0,
+    sleep: 0,
+  });
+
+  const handleCheckChange = (key, value) => {
+    setDailyChecks(prev => ({ ...prev, [key]: value }));
+  };
+
+  const streak = 5;
   const insight = "Você está indo bem! Continue assim.";
-  const checklistItems = [
-    { id: 1, text: 'Beber 2L de água' },
-    { id: 2, text: 'Fazer refeições' },
-    { id: 3, text: 'Treino diário' },
-  ];
+  const todayCalories = 1800;
+  const mealPercentage = 75;
+  const workoutComplete = true;
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1">
-        <Header />
-        <main className="p-6">
-          <h2 className="text-2xl mb-6">Dashboard</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white p-4 rounded shadow-md">
-              <h3 className="text-lg font-semibold">Kcal do Dia</h3>
-              <p className="text-2xl font-bold">1800</p>
-            </div>
-            <div className="bg-white p-4 rounded shadow-md">
-              <h3 className="text-lg font-semibold">Refeições Concluídas</h3>
-              <p className="text-2xl font-bold">3/5</p>
-            </div>
-            <div className="bg-white p-4 rounded shadow-md">
-              <h3 className="text-lg font-semibold">Treino do Dia</h3>
-              <p className="text-2xl font-bold">Concluído</p>
-            </div>
+    <div className={styles.dashboard}>
+      <Header />
+      
+      <main className={styles.main}>
+        <div className={styles.container}>
+          {/* Greeting */}
+          <section className={styles.greeting}>
+            <h1>Bem-vindo de volta! 👋</h1>
+            <p>Hoje é um ótimo dia para se cuidar</p>
+          </section>
+
+          {/* Stats Grid */}
+          <section className={styles.statsGrid}>
+            <StatCard
+              icon="🔥"
+              title="Kcal"
+              value={todayCalories}
+              unit="kcal"
+              trend={{ positive: true, value: '+150 vs ontem' }}
+            />
+            <StatCard
+              icon="🍽️"
+              title="Refeições"
+              value={`${mealPercentage}%`}
+              trend={{ positive: mealPercentage === 100, value: '3 de 4' }}
+            />
+            <StatCard
+              icon="💪"
+              title="Treino"
+              value={workoutComplete ? '✓' : '○'}
+              trend={workoutComplete ? { positive: true, value: '45 min' } : null}
+            />
             <StreakCard streak={streak} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          </section>
+
+          {/* Daily Checklist */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Checklist Diário</h2>
+            <div className={styles.checklist}>
+              <CheckItem
+                id="meal"
+                type="meal"
+                label="Refeições do dia"
+                checked={dailyChecks.meal}
+                onChange={(checked) => handleCheckChange('meal', checked)}
+              />
+              <CheckItem
+                id="workout"
+                type="workout"
+                label="Treino concluído"
+                checked={dailyChecks.workout}
+                onChange={(checked) => handleCheckChange('workout', checked)}
+              />
+              <CheckItem
+                id="water"
+                type="water"
+                label="Água"
+                value={dailyChecks.water}
+                maxValue={2}
+                onChange={(val) => handleCheckChange('water', val)}
+              />
+              <CheckItem
+                id="sleep"
+                type="sleep"
+                label="Sono"
+                value={dailyChecks.sleep}
+                maxValue={8}
+                onChange={(val) => handleCheckChange('sleep', val)}
+              />
+            </div>
+          </section>
+
+          {/* Insight */}
+          <section className={styles.section}>
             <InsightCard insight={insight} />
-            <DailyChecklist items={checklistItems} />
-          </div>
-        </main>
-      </div>
+          </section>
+
+          {/* Quick Links */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Ações Rápidas</h2>
+            <div className={styles.quickLinks}>
+              <button className={styles.quickLink}>
+                <span>🥗</span>
+                <span>Adicionar Refeição</span>
+              </button>
+              <button className={styles.quickLink}>
+                <span>🏃</span>
+                <span>Registrar Treino</span>
+              </button>
+              <button className={styles.quickLink}>
+                <span>📸</span>
+                <span>Tirar Foto</span>
+              </button>
+            </div>
+          </section>
+
+          {/* Spacer for bottom nav */}
+          <div className={styles.spacer} />
+        </div>
+      </main>
+
+      <BottomNavigation />
     </div>
   );
 };

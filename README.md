@@ -12,8 +12,7 @@ Este MVP ajuda usuários a seguirem dieta, treino e rotina diária de forma aut�
 
 ### Pré-requisitos
 - Node.js (versão 18+)
-- PostgreSQL
-- Git
+- SQLite (incluído com Prisma)
 
 ### Backend
 1. Navegue para a pasta `backend`:
@@ -24,12 +23,11 @@ Este MVP ajuda usuários a seguirem dieta, treino e rotina diária de forma aut�
    ```bash
    npm install
    ```
-3. Configure o banco de dados PostgreSQL e atualize o arquivo `.env` com a string de conexão.
-4. Execute as migrações do Prisma:
+3. Execute as migrações do Prisma:
    ```bash
    npx prisma migrate dev
    ```
-5. Rode o servidor:
+4. Rode o servidor:
    ```bash
    npm run dev
    ```
