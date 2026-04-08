@@ -16,16 +16,23 @@ model User {
   email     String   @unique
   password  String
   avatar    String?
+  role      String   @default("USER")  // USER, COLLABORATOR, NUTRITIONIST, PERSONAL, INSTRUCTOR, COACH
   streak    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  mealLogs     MealLog[]
-  workoutLogs  WorkoutLog[]
-  progressLogs ProgressLog[]
-  dailyChecks  DailyCheck[]
-  insights     Insight[]
-  notifications Notification[]
+  mealLogs           MealLog[]
+  workoutLogs        WorkoutLog[]
+  progressLogs       ProgressLog[]
+  dailyChecks        DailyCheck[]
+  insights           Insight[]
+  notifications      Notification[]
+  
+  studentProfile     StudentProfile?
+  collaboratorProfile CollaboratorProfile?
+  
+  // Relação para colaborador que acompanha múltiplos alunos
+  managedStudents    StudentProfile[]  @relation("CollaboratorStudents")
 }
 
 model MealLog {
@@ -96,4 +103,32 @@ model DailyCheck {
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date, type])
+}
+
+model StudentProfile {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal            String?  // weight loss, muscle gain, maintenance
+  currentWeight   Float?
+  targetWeight    Float?
+  height          Float?
+  collaboratorId  Int?     // FK para colaborador que acompanha
+  collaborator    User?    @relation("CollaboratorStudents", fields: [collaboratorId], references: [id], onDelete: SetNull)
+  joinedAt        DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CollaboratorProfile {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty    String   // nutritionist, personal trainer, instructor, coach
+  codeOrCRM    String?  // CREF, CRN, etc
+  bio          String?
+  experience   Int?     // years
+  phone        String?
+  studentsCount Int    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

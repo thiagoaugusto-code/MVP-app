@@ -1,0 +1,85 @@
+.card {
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid;
+}
+
+.card_green {
+  background-color: #f0fdf4;
+  border-left-color: #16a34a;
+}
+
+.card_yellow {
+  background-color: #fffbeb;
+  border-left-color: #eab308;
+}
+
+.card_red {
+  background-color: #fef2f2;
+  border-left-color: #dc2626;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.percentage {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.percentage.green {
+  color: #16a34a;
+}
+
+.percentage.yellow {
+  color: #eab308;
+}
+
+.percentage.red {
+  color: #dc2626;
+}
+
+.bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.fill.green {
+  background-color: #16a34a;
+}
+
+.fill.yellow {
+  background-color: #eab308;
+}
+
+.fill.red {
+  background-color: #dc2626;
+}
+
+.label {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}

@@ -7,7 +7,13 @@ import DietPlan from './pages/DietPlan';
 import Workout from './pages/Workout';
 import Progress from './pages/Progress';
 import Profile from './pages/Profile';
+import CollaboratorDashboard from './pages/CollaboratorDashboard';
+import StudentProgress from './pages/StudentProgress';
+import Adherence from './pages/Adherence';
+import Schedule from './pages/Schedule';
+import ProfessionalProfile from './pages/ProfessionalProfile';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleBasedRoute from './components/RoleBasedRoute';
 import './App.css';
 
 function App() {
@@ -16,13 +22,66 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            {/* Públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/diet" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
-            <Route path="/workout" element={<ProtectedRoute><Workout /></ProtectedRoute>} />
-            <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+            {/* Rotas de Aluno (USER) */}
+            <Route path="/" element={<RoleBasedRoute role="USER"><Dashboard /></RoleBasedRoute>} />
+            <Route path="/diet" element={<RoleBasedRoute role="USER"><DietPlan /></RoleBasedRoute>} />
+            <Route path="/workout" element={<RoleBasedRoute role="USER"><Workout /></RoleBasedRoute>} />
+            <Route path="/progress" element={<RoleBasedRoute role="USER"><Progress /></RoleBasedRoute>} />
+            <Route path="/profile" element={<RoleBasedRoute role="USER"><Profile /></RoleBasedRoute>} />
+
+            {/* Rotas de Colaborador (COLLABORATOR e outros) */}
+            <Route 
+              path="/collaborator" 
+              element={
+                <ProtectedRoute>
+                  <CollaboratorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/:studentId" 
+              element={
+                <ProtectedRoute>
+                  <StudentProgress />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/:studentId/progress" 
+              element={
+                <ProtectedRoute>
+                  <StudentProgress />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/collaborator/adherence" 
+              element={
+                <ProtectedRoute>
+                  <Adherence />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/collaborator/schedule" 
+              element={
+                <ProtectedRoute>
+                  <Schedule />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/collaborator/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfessionalProfile />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
       </Router>
