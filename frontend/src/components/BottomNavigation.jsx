@@ -24,34 +24,18 @@ const BottomNavigation = () => {
         <Link 
           to="/marketplace" 
           className={`${styles.navItem} ${isActive('/marketplace') ? styles.active : ''}`}
-          title="Marketplace"
+          title="Profissionais"
         >
           <span className={styles.icon}>🛒</span>
           <span className={styles.label}>Profissionais</span>
         </Link>
         <Link 
-          to="/marketplace" 
-          className={`${styles.navItem} ${isActive('/marketplace') ? styles.active : ''}`}
-          title="Marketplace"
+          to="/chat" 
+          className={`${styles.navItem} ${isActive('/chat') ? styles.active : ''}`}
+          title="Chat"
         >
-          <span className={styles.icon}>🛒</span>
-          <span className={styles.label}>Profissionais</span>
-        </Link>
-        <Link 
-          to="/workout" 
-          className={`${styles.navItem} ${isActive('/workout') ? styles.active : ''}`}
-          title="Treino"
-        >
-          <span className={styles.icon}>💪</span>
-          <span className={styles.label}>Treino</span>
-        </Link>
-        <Link 
-          to="/progress" 
-          className={`${styles.navItem} ${isActive('/progress') ? styles.active : ''}`}
-          title="Progresso"
-        >
-          <span className={styles.icon}>📈</span>
-          <span className={styles.label}>Progresso</span>
+          <span className={styles.icon}>💬</span>
+          <span className={styles.label}>Chat</span>
         </Link>
         <Link 
           to="/calendar" 
@@ -60,6 +44,14 @@ const BottomNavigation = () => {
         >
           <span className={styles.icon}>📅</span>
           <span className={styles.label}>Calendário</span>
+        </Link>
+        <Link 
+          to="/progress" 
+          className={`${styles.navItem} ${isActive('/progress') ? styles.active : ''}`}
+          title="Progresso"
+        >
+          <span className={styles.icon}>📈</span>
+          <span className={styles.label}>Progresso</span>
         </Link>
         <Link 
           to="/profile" 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://localhost:3001/api',
 });
 
 api.interceptors.request.use((config) => {
@@ -67,6 +67,16 @@ export const progressAPI = {
 export const dailyChecksAPI = {
   getChecks: (date) => api.get('/daily-checks', { params: { date } }),
   updateCheck: (type, data) => api.patch(`/daily-checks/${type}`, data),
+};
+
+// Chat
+export const chatAPI = {
+  getConversations: () => api.get('/chat'),
+  createConversation: (collaboratorId) => api.post('/chat', { collaboratorId }),
+  getMessages: (conversationId, limit = 50) => api.get(`/chat/${conversationId}/messages`, { params: { limit } }),
+  sendMessage: (conversationId, data) => api.post(`/chat/${conversationId}/messages`, data),
+  markAsRead: (conversationId) => api.patch(`/chat/${conversationId}/read`),
+  sendAIChat: (conversationId, data) => api.post(`/chat/${conversationId}/ai`, data),
 };
 
 export default api;

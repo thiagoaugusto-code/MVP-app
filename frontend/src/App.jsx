@@ -14,6 +14,7 @@ import StudentProgress from './pages/StudentProgress';
 import Adherence from './pages/Adherence';
 import Schedule from './pages/Schedule';
 import ProfessionalProfile from './pages/ProfessionalProfile';
+import ChatPage from './pages/ChatPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import './App.css';
@@ -32,6 +33,7 @@ function App() {
             <Route path="/" element={<RoleBasedRoute role="USER"><Dashboard /></RoleBasedRoute>} />
             <Route path="/marketplace" element={<RoleBasedRoute role="USER"><Marketplace /></RoleBasedRoute>} />
             <Route path="/calendar" element={<RoleBasedRoute role="USER"><Calendar /></RoleBasedRoute>} />
+            <Route path="/chat" element={<RoleBasedRoute role="USER"><ChatPage /></RoleBasedRoute>} />
             <Route path="/diet" element={<RoleBasedRoute role="USER"><DietPlan /></RoleBasedRoute>} />
             <Route path="/workout" element={<RoleBasedRoute role="USER"><Workout /></RoleBasedRoute>} />
             <Route path="/progress" element={<RoleBasedRoute role="USER"><Progress /></RoleBasedRoute>} />
