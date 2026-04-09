@@ -10,6 +10,8 @@ const progressRoutes = require('./routes/progress');
 const collaboratorRoutes = require('./routes/collaborators');
 const dailyChecksRoutes = require('./routes/daily-checks');
 const chatRoutes = require('./routes/chat');
+const adminRoutes = require('./routes/admin');
+const notificationsRoutes = require('./routes/notifications');
 const socketService = require('./services/socketService');
 
 const app = express();
@@ -30,7 +32,13 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/collaborators', collaboratorRoutes);
 app.use('/api/daily-checks', dailyChecksRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/admin', adminRoutes);
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} with Socket.io`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} with Socket.io`);
+  });
+}
+
+module.exports = { app, server };

@@ -6,6 +6,7 @@ const AIChatService = require('../services/aiChatService');
 const router = express.Router();
 const prisma = new PrismaClient();
 const aiChatService = new AIChatService();
+const socketService = require('../services/socketService');
 
 // Listar conversas do usuário
 router.get('/', authMiddleware, async (req, res) => {
@@ -222,6 +223,12 @@ router.post('/:conversationId/ai', authMiddleware, async (req, res) => {
         dailyTokensDate: new Date(),
         totalCost: response.cost
       }
+    });
+
+    // Emitir a resposta de IA em tempo real para a conversa
+    socketService.emitToConversation(conversationId, 'new_message', {
+      ...message,
+      metadata: message.metadata ? JSON.parse(message.metadata) : null
     });
     
     res.json(message);

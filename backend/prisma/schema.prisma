@@ -27,6 +27,7 @@ model User {
   dailyChecks        DailyCheck[]
   insights           Insight[]
   notifications      Notification[]
+  pushSubscriptions  PushSubscription[]
   
   studentProfile     StudentProfile?
   collaboratorProfile CollaboratorProfile?
@@ -100,10 +101,22 @@ model Notification {
   title     String
   message   String
   type      String   // reminder, achievement, tip
+  priority  String?  @default("normal")
+  metadata  String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint     String   @unique
+  subscription String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model DailyCheck {
