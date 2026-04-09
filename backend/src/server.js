@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const mealRoutes = require('./routes/meals');
@@ -9,9 +10,14 @@ const progressRoutes = require('./routes/progress');
 const collaboratorRoutes = require('./routes/collaborators');
 const dailyChecksRoutes = require('./routes/daily-checks');
 const chatRoutes = require('./routes/chat');
+const socketService = require('./services/socketService');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
+
+// Initialize Socket.io
+socketService.initialize(server);
 
 app.use(cors());
 app.use(express.json());
@@ -25,6 +31,6 @@ app.use('/api/collaborators', collaboratorRoutes);
 app.use('/api/daily-checks', dailyChecksRoutes);
 app.use('/api/chat', chatRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} with Socket.io`);
 });
