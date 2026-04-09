@@ -39,6 +39,13 @@ model User {
   collaboratorStudents StudentCollaborator[] @relation("CollaboratorStudents")
   meals               Meal[]
   mealSuggestions     MealSuggestion[]
+  
+  // Chat relacionamentos
+  studentConversations    Conversation[] @relation("StudentConversations")
+  collaboratorConversations Conversation[] @relation("CollaboratorConversations")
+  sentMessages            Message[]
+  aiChats                 AIChat[]
+  chatMetrics             ChatMetrics?
 }
 
 model MealLog {
@@ -198,4 +205,59 @@ model MealSuggestion {
   aiMode     String?  // objective, motivational, hardcore, welcoming
   suggestions String? // JSON string of suggested foods
   createdAt  DateTime @default(now())
+}
+
+model Conversation {
+  id                Int       @id @default(autoincrement())
+  studentId         Int
+  student           User      @relation("StudentConversations", fields: [studentId], references: [id], onDelete: Cascade)
+  collaboratorId    Int
+  collaborator      User      @relation("CollaboratorConversations", fields: [collaboratorId], references: [id], onDelete: Cascade)
+  messages          Message[]
+  lastMessage       String?
+  lastMessageAt     DateTime?
+  studentUnread     Int       @default(0)
+  collaboratorUnread Int     @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([studentId, collaboratorId])
+}
+
+model Message {
+  id              Int         @id @default(autoincrement())
+  conversationId  Int
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId        Int
+  sender          User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content         String
+  type            String      @default("text") // text, quick_action, suggestion
+  metadata        String?     // JSON for quick actions or suggestions
+  isAI            Boolean     @default(false)
+  aiMode          String?     // mode used if isAI=true
+  readAt          DateTime?
+  createdAt       DateTime    @default(now())
+}
+
+model AIChat {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode            String    // direct, welcoming, hardcore, preventive, celebration
+  prompt          String
+  response        String
+  tokensUsed      Int       @default(0)
+  cost            Float     @default(0)
+  cached          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+}
+
+model ChatMetrics {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyTokens     Int       @default(0)
+  dailyTokensDate DateTime?
+  lastResetAt     DateTime  @default(now())
+  totalCost       Float     @default(0)
 }
