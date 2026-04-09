@@ -124,9 +124,17 @@ React 18 (UI Framework)
 - Auto-refresh on token expiry
 
 ### Admin Access
-- Credentials stored in `.env` (never git-committed)
-- Backend-only validation
-- Session tokens with expiry
+- **Unified Login:** Use the same login form as regular users
+- **Auto-Detection:** System automatically detects admin credentials
+- **Credentials:** Configured in `.env` (ADMIN_EMAIL, ADMIN_PASSWORD)
+- **Security:** Backend-only validation, never exposed to frontend
+- **Session:** JWT tokens with ADMIN role and expiry
+
+**Login Process:**
+1. Go to login page
+2. Enter admin email/password from `.env`
+3. System automatically grants ADMIN role
+4. Access admin-only features
 
 ### Data Privacy
 ```
@@ -191,8 +199,7 @@ VITE_API_URL=http://localhost:3001
 
 ### Authentication
 - `POST /api/auth/register` - Create account
-- `POST /api/auth/login` - Get JWT token
-- `POST /api/admin/login` - Admin login
+- `POST /api/auth/login` - Get JWT token (unified for users & admin)
 
 ### Chat  
 - `POST /api/chat/ai` - Get AI insight

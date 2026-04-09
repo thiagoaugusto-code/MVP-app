@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const adminService = require('../services/adminService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -48,6 +49,16 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
+    // Primeiro verificar se são credenciais de admin
+    if (adminService.validateAdminCredentials(email, password)) {
+      const token = adminService.createAdminToken();
+      return res.json({
+        token,
+        user: { id: 0, email, role: 'ADMIN' }
+      });
+    }
+
+    // Se não for admin, verificar no banco como usuário normal
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Credenciais inválidas' });
