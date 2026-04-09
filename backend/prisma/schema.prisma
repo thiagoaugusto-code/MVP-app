@@ -33,6 +33,12 @@ model User {
   
   // Relação para colaborador que acompanha múltiplos alunos
   managedStudents    StudentProfile[]  @relation("CollaboratorStudents")
+  
+  // Novos relacionamentos
+  studentCollaborators StudentCollaborator[] @relation("StudentCollaborators")
+  collaboratorStudents StudentCollaborator[] @relation("CollaboratorStudents")
+  meals               Meal[]
+  mealSuggestions     MealSuggestion[]
 }
 
 model MealLog {
@@ -128,7 +134,68 @@ model CollaboratorProfile {
   bio          String?
   experience   Int?     // years
   phone        String?
+  price        Float?   // placeholder price
+  focus        String?  // specialty focus
   studentsCount Int    @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model StudentCollaborator {
+  id             Int      @id @default(autoincrement())
+  studentId      Int
+  student        User     @relation("StudentCollaborators", fields: [studentId], references: [id], onDelete: Cascade)
+  collaboratorId Int
+  collaborator   User     @relation("CollaboratorStudents", fields: [collaboratorId], references: [id], onDelete: Cascade)
+  specialty      String   // nutritionist, personal, instructor, coach
+  status         String   @default("pending") // pending, approved, rejected
+  active         Boolean  @default(false)
+  requestedAt    DateTime @default(now())
+  approvedAt     DateTime?
+  rejectedAt     DateTime?
+  updatedAt      DateTime @updatedAt
+
+  @@unique([studentId, specialty, active]) // only one active per specialty
+}
+
+model Meal {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime  @default(now())
+  mealType      String    // breakfast, lunch, dinner, snack, pre_workout, post_workout
+  completed     Boolean   @default(false)
+  totalCalories Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  foodItems     FoodItem[]
+
+  @@unique([userId, date, mealType])
+}
+
+model FoodItem {
+  id        Int     @id @default(autoincrement())
+  mealId    Int
+  meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  name      String
+  quantity  Float
+  unit      String  // g, ml, unit
+  calories  Int
+  protein   Int?
+  carbs     Int?
+  fat       Int?
+  time      String? // horário, e.g., "08:00"
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model MealSuggestion {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealType   String
+  aiMode     String?  // objective, motivational, hardcore, welcoming
+  suggestions String? // JSON string of suggested foods
+  createdAt  DateTime @default(now())
 }

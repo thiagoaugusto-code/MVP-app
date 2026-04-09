@@ -6,6 +6,7 @@ const userRoutes = require('./routes/users');
 const mealRoutes = require('./routes/meals');
 const workoutRoutes = require('./routes/workouts');
 const progressRoutes = require('./routes/progress');
+const collaboratorRoutes = require('./routes/collaborators');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/collaborators', collaboratorRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
