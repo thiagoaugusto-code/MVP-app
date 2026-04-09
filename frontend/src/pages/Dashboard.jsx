@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import StatCard from '../components/StatCard';
 import CheckItem from '../components/CheckItem';
 import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
+import { dietAPI, usersAPI } from '../services/api';
 import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
@@ -14,16 +15,41 @@ const Dashboard = () => {
     water: 0,
     sleep: 0,
   });
+  const [meals, setMeals] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [mealsRes, userRes] = await Promise.all([
+        dietAPI.getMeals(new Date().toISOString().split('T')[0]),
+        usersAPI.getProfile()
+      ]);
+      setMeals(mealsRes.data);
+      setUser(userRes.data);
+    } catch (err) {
+      console.error('Erro ao carregar dados');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCheckChange = (key, value) => {
     setDailyChecks(prev => ({ ...prev, [key]: value }));
   };
 
-  const streak = 5;
-  const insight = "Você está indo bem! Continue assim.";
-  const todayCalories = 1800;
-  const mealPercentage = 75;
-  const workoutComplete = true;
+  const totalCalories = meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
+  const completedMeals = meals.filter(m => m.completed).length;
+  const mealPercentage = meals.length > 0 ? Math.round((completedMeals / meals.length) * 100) : 0;
+  const streak = user?.streak || 0;
+
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <div className={styles.dashboard}>
@@ -42,7 +68,7 @@ const Dashboard = () => {
             <StatCard
               icon="🔥"
               title="Kcal"
-              value={todayCalories}
+              value={totalCalories}
               unit="kcal"
               trend={{ positive: true, value: '+150 vs ontem' }}
             />
@@ -50,13 +76,13 @@ const Dashboard = () => {
               icon="🍽️"
               title="Refeições"
               value={`${mealPercentage}%`}
-              trend={{ positive: mealPercentage === 100, value: '3 de 4' }}
+              trend={{ positive: mealPercentage === 100, value: `${completedMeals} de ${meals.length}` }}
             />
             <StatCard
               icon="💪"
               title="Treino"
-              value={workoutComplete ? '✓' : '○'}
-              trend={workoutComplete ? { positive: true, value: '45 min' } : null}
+              value={dailyChecks.workout ? '✓' : '○'}
+              trend={dailyChecks.workout ? { positive: true, value: '45 min' } : null}
             />
             <StreakCard streak={streak} />
           </section>
@@ -69,7 +95,7 @@ const Dashboard = () => {
                 id="meal"
                 type="meal"
                 label="Refeições do dia"
-                checked={dailyChecks.meal}
+                checked={mealPercentage === 100}
                 onChange={(checked) => handleCheckChange('meal', checked)}
               />
               <CheckItem

@@ -75,95 +75,193 @@
 .meals {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.mealItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
+.mealSection {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-
-  &.completed {
-    background: #dbeafe;
-    border-color: #3b82f6;
-
-    .mealName {
-      opacity: 0.7;
-      text-decoration: line-through;
-    }
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
+  padding: 1rem;
 }
 
-.mealInfo {
+.mealHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  flex: 1;
+  margin-bottom: 0.75rem;
 }
 
-.mealTime {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
-  width: 50px;
-  text-align: center;
-}
-
-.mealName {
-  font-size: 0.95rem;
+.mealHeader h3 {
+  font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
   margin: 0;
 }
 
-.mealCalories {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin: 0.25rem 0 0 0;
-}
-
-.checkbox {
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-  accent-color: #3b82f6;
-}
-
-.actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.button {
-  flex: 1;
-  padding: 0.875rem;
+.addMealBtn {
+  padding: 0.5rem 1rem;
   background: #3b82f6;
   color: white;
   border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.mealActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mealActions span {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.foodItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.foodItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.foodInfo {
+  flex: 1;
+}
+
+.foodName {
+  font-weight: 600;
+  color: #1f2937;
+  display: block;
+}
+
+.foodDetails {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: block;
+}
+
+.foodNotes {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: block;
+  font-style: italic;
+}
+
+.removeBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.addFoodBtn {
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 1.5rem;
   border-radius: 0.75rem;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modalContent h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.modalContent form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modalContent input,
+.modalContent select,
+.modalContent textarea {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.quantityRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quantityRow input {
+  flex: 1;
+}
+
+.quantityRow select {
+  width: 80px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.modalActions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+}
 
-  &:active {
-    transform: scale(0.95);
-    opacity: 0.9;
-  }
+.modalActions button:first-child {
+  background: #6b7280;
+  color: white;
+}
 
-  &:hover {
-    background: #1e40af;
-  }
+.modalActions button:last-child {
+  background: #3b82f6;
+  color: white;
 }
 
 .spacer {

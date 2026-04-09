@@ -22,12 +22,20 @@ const BottomNavigation = () => {
           <span className={styles.label}>Dashboard</span>
         </Link>
         <Link 
-          to="/diet" 
-          className={`${styles.navItem} ${isActive('/diet') ? styles.active : ''}`}
-          title="Alimentação"
+          to="/marketplace" 
+          className={`${styles.navItem} ${isActive('/marketplace') ? styles.active : ''}`}
+          title="Marketplace"
         >
-          <span className={styles.icon}>🍽️</span>
-          <span className={styles.label}>Dieta</span>
+          <span className={styles.icon}>🛒</span>
+          <span className={styles.label}>Profissionais</span>
+        </Link>
+        <Link 
+          to="/marketplace" 
+          className={`${styles.navItem} ${isActive('/marketplace') ? styles.active : ''}`}
+          title="Marketplace"
+        >
+          <span className={styles.icon}>🛒</span>
+          <span className={styles.label}>Profissionais</span>
         </Link>
         <Link 
           to="/workout" 

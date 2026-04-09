@@ -1,0 +1,71 @@
+.marketplace {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.marketplace h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.filters {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.filters select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.collaboratorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.collaboratorCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.collaboratorCard img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.collaboratorCard h3 {
+  margin: 10px 0;
+}
+
+.collaboratorCard p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.collaboratorCard button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.collaboratorCard button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
