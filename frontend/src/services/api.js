@@ -63,4 +63,10 @@ export const progressAPI = {
   createLog: (data) => api.post('/progress', data),
 };
 
+// Daily Checks
+export const dailyChecksAPI = {
+  getChecks: (date) => api.get('/daily-checks', { params: { date } }),
+  updateCheck: (type, data) => api.patch(`/daily-checks/${type}`, data),
+};
+
 export default api;

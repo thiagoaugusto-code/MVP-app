@@ -54,6 +54,14 @@ const BottomNavigation = () => {
           <span className={styles.label}>Progresso</span>
         </Link>
         <Link 
+          to="/calendar" 
+          className={`${styles.navItem} ${isActive('/calendar') ? styles.active : ''}`}
+          title="Calendário"
+        >
+          <span className={styles.icon}>📅</span>
+          <span className={styles.label}>Calendário</span>
+        </Link>
+        <Link 
           to="/profile" 
           className={`${styles.navItem} ${isActive('/profile') ? styles.active : ''}`}
           title="Perfil"

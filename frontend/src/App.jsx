@@ -8,6 +8,7 @@ import Workout from './pages/Workout';
 import Progress from './pages/Progress';
 import Profile from './pages/Profile';
 import Marketplace from './pages/Marketplace';
+import Calendar from './pages/Calendar';
 import CollaboratorDashboard from './pages/CollaboratorDashboard';
 import StudentProgress from './pages/StudentProgress';
 import Adherence from './pages/Adherence';
@@ -30,6 +31,7 @@ function App() {
             {/* Rotas de Aluno (USER) */}
             <Route path="/" element={<RoleBasedRoute role="USER"><Dashboard /></RoleBasedRoute>} />
             <Route path="/marketplace" element={<RoleBasedRoute role="USER"><Marketplace /></RoleBasedRoute>} />
+            <Route path="/calendar" element={<RoleBasedRoute role="USER"><Calendar /></RoleBasedRoute>} />
             <Route path="/diet" element={<RoleBasedRoute role="USER"><DietPlan /></RoleBasedRoute>} />
             <Route path="/workout" element={<RoleBasedRoute role="USER"><Workout /></RoleBasedRoute>} />
             <Route path="/progress" element={<RoleBasedRoute role="USER"><Progress /></RoleBasedRoute>} />

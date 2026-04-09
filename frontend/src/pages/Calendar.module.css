@@ -1,0 +1,149 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.calendar h1 {
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.calendar-header h2 {
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.calendar-header button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0.5rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.calendar-day.other-month {
+  color: #9ca3af;
+}
+
+.calendar-day.today {
+  border: 2px solid #3b82f6;
+}
+
+.calendar-day.green {
+  background: #10b981;
+  color: white;
+}
+
+.calendar-day.yellow {
+  background: #f59e0b;
+  color: white;
+}
+
+.calendar-day.red {
+  background: #ef4444;
+  color: white;
+}
+
+.calendar-day:hover {
+  transform: scale(1.05);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.modal-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  padding: 0.5rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.modal-content button {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}

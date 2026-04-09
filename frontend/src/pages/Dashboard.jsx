@@ -5,12 +5,14 @@ import StatCard from '../components/StatCard';
 import CheckItem from '../components/CheckItem';
 import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
-import { dietAPI, usersAPI } from '../services/api';
+import { dietAPI, usersAPI, dailyChecksAPI } from '../services/api';
 import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const [dailyChecks, setDailyChecks] = useState({
-    meal: false,
+    breakfast: false,
+    lunch: false,
+    dinner: false,
     workout: false,
     water: 0,
     sleep: 0,
@@ -25,12 +27,24 @@ const Dashboard = () => {
 
   const loadData = async () => {
     try {
-      const [mealsRes, userRes] = await Promise.all([
+      const [mealsRes, userRes, checksRes] = await Promise.all([
         dietAPI.getMeals(new Date().toISOString().split('T')[0]),
-        usersAPI.getProfile()
+        usersAPI.getProfile(),
+        dailyChecksAPI.getChecks()
       ]);
       setMeals(mealsRes.data);
       setUser(userRes.data);
+      
+      // Mapear checks
+      const checks = checksRes.data;
+      setDailyChecks({
+        breakfast: checks.breakfast?.done || false,
+        lunch: checks.lunch?.done || false,
+        dinner: checks.dinner?.done || false,
+        workout: checks.workout?.done || false,
+        water: checks.water?.value || 0,
+        sleep: checks.sleep?.value || 0,
+      });
     } catch (err) {
       console.error('Erro ao carregar dados');
     } finally {
@@ -38,8 +52,23 @@ const Dashboard = () => {
     }
   };
 
-  const handleCheckChange = (key, value) => {
-    setDailyChecks(prev => ({ ...prev, [key]: value }));
+  const handleCheckChange = async (key, value) => {
+    try {
+      setDailyChecks(prev => ({ ...prev, [key]: value }));
+      
+      if (key === 'breakfast' || key === 'lunch' || key === 'dinner') {
+        await dailyChecksAPI.updateCheck(key, { done: value });
+      } else if (key === 'workout') {
+        await dailyChecksAPI.updateCheck('workout', { done: value });
+      } else if (key === 'water' || key === 'sleep') {
+        await dailyChecksAPI.updateCheck(key, { value });
+      }
+      
+      // Recarregar dados para atualizar streak e stats
+      loadData();
+    } catch (err) {
+      console.error('Erro ao salvar check');
+    }
   };
 
   const totalCalories = meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
@@ -92,11 +121,25 @@ const Dashboard = () => {
             <h2 className={styles.sectionTitle}>Checklist Diário</h2>
             <div className={styles.checklist}>
               <CheckItem
-                id="meal"
+                id="breakfast"
                 type="meal"
-                label="Refeições do dia"
-                checked={mealPercentage === 100}
-                onChange={(checked) => handleCheckChange('meal', checked)}
+                label="Café da Manhã"
+                checked={dailyChecks.breakfast}
+                onChange={(checked) => handleCheckChange('breakfast', checked)}
+              />
+              <CheckItem
+                id="lunch"
+                type="meal"
+                label="Almoço"
+                checked={dailyChecks.lunch}
+                onChange={(checked) => handleCheckChange('lunch', checked)}
+              />
+              <CheckItem
+                id="dinner"
+                type="meal"
+                label="Jantar"
+                checked={dailyChecks.dinner}
+                onChange={(checked) => handleCheckChange('dinner', checked)}
               />
               <CheckItem
                 id="workout"
@@ -122,6 +165,11 @@ const Dashboard = () => {
                 onChange={(val) => handleCheckChange('sleep', val)}
               />
             </div>
+          </section>
+
+          {/* Insights */}
+          <section className={styles.section}>
+            <InsightCard />
           </section>
 
           {/* Insight */}

@@ -7,6 +7,7 @@ const mealRoutes = require('./routes/meals');
 const workoutRoutes = require('./routes/workouts');
 const progressRoutes = require('./routes/progress');
 const collaboratorRoutes = require('./routes/collaborators');
+const dailyChecksRoutes = require('./routes/daily-checks');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use('/api/meals', mealRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/collaborators', collaboratorRoutes);
+app.use('/api/daily-checks', dailyChecksRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
