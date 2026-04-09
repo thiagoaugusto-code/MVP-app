@@ -1,17 +1,18 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import api from '../services/api';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    if (token && userData) {
-      // Verificar token e setar user
+    if (storedToken && userData) {
+      setToken(storedToken);
       setUser(JSON.parse(userData));
     }
     setLoading(false);
@@ -20,9 +21,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { token, user: userData } = response.data;
-      localStorage.setItem('token', token);
+      const { token: authToken, user: userData } = response.data;
+      localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      setToken(authToken);
       setUser(userData);
       return { success: true };
     } catch (error) {
@@ -33,9 +35,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, role = 'USER', specialty = 'instructor') => {
     try {
       const response = await api.post('/auth/register', { name, email, password, role, specialty });
-      const { token, user: userData } = response.data;
-      localStorage.setItem('token', token);
+      const { token: authToken, user: userData } = response.data;
+      localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      setToken(authToken);
       setUser(userData);
       return { success: true };
     } catch (error) {
@@ -46,12 +49,15 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);

@@ -2,19 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { chatAPI } from '../services/api';
 import socketService from '../services/socketService';
 import { useAuth } from '../context/AuthContext';
+import ConnectionStatus from './ConnectionStatus';
+import AILoadingMessage from './AILoadingMessage';
 import styles from './Chat.module.css';
 
 const Chat = ({ conversationId, collaboratorProfile }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState('');
-  const [aiMode, setAiMode] = useState('direct');
+  const [aiMode, setAiMode] = useState('coach');
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [connectionError, setConnectionError] = useState(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const { user } = useAuth();
+
+  // Socket connection status
+  const connectionStatus = socketService.getConnectionStatus();
+
 
   useEffect(() => {
     // Connect to socket if not connected
@@ -130,14 +138,35 @@ const Chat = ({ conversationId, collaboratorProfile }) => {
   };
 
   const handleAIChat = async () => {
-    setLoading(true);
-    try {
-      await chatAPI.sendAIChat(conversationId, { mode: aiMode });
-      // AI response will come through socket
-    } catch (err) {
-      setError('Erro ao enviar mensagem IA');
-    } finally {
-      setLoading(false);
+    if (!newMessage.trim() && aiMode) {
+      // If no manual message, generate AI response for current context
+      setAiLoading(true);
+      try {
+        const response = await chatAPI.sendAIChat(conversationId, { 
+          mode: aiMode,
+          prompt: 'Analyze my current status and provide insight'
+        });
+        
+        // Add AI response to messages
+        if (response.data) {
+          const aiMessage = {
+            id: Date.now(),
+            conversationId,
+            senderId: 0, // System/AI
+            content: response.data.text,
+            type: 'text',
+            isAI: true,
+            createdAt: new Date(),
+            readAt: null
+          };
+          setMessages(prev => [...prev, aiMessage]);
+          scrollToBottom();
+        }
+      } catch (err) {
+        setError('Erro ao gerar resposta IA: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setAiLoading(false);
+      }
     }
   };
 
@@ -176,30 +205,50 @@ const Chat = ({ conversationId, collaboratorProfile }) => {
           <div>
             <h3>{collaboratorProfile?.name || 'Colaborador'}</h3>
             <span className={`${styles.status} ${isOnline ? styles.online : styles.offline}`}>
-              {isOnline ? 'Online' : 'Offline'}
+              {isOnline ? '● Online' : '○ Offline'}
             </span>
           </div>
         </div>
+        <ConnectionStatus 
+          isConnected={connectionStatus.isConnected}
+          socketId={connectionStatus.socketId}
+          error={connectionError}
+        />
       </div>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <div className={styles.error}>
+          <span>{error}</span>
+          <button onClick={() => setError('')} className={styles.closeError}>✕</button>
+        </div>
+      )}
 
       <div className={styles.messages}>
+        {messages.length === 0 && (
+          <div className={styles.emptyState}>
+            <p>Sem mensagens ainda</p>
+            <small>Inicie uma conversa ou solicite um insight IA</small>
+          </div>
+        )}
+
         {messages.map((message) => (
           <div
             key={message.id}
             className={`${styles.message} ${
               message.senderId === user.id ? styles.own : styles.other
-            }`}
+            } ${message.isAI ? styles.aiMessage : ''}`}
           >
+            {message.isAI && <span className={styles.aiBadge}>🤖 IA</span>}
             <div className={styles.messageContent}>
               {message.content}
-              {message.isAI && <span className={styles.aiBadge}>IA</span>}
             </div>
             <div className={styles.messageTime}>
-              {new Date(message.createdAt).toLocaleTimeString()}
+              {new Date(message.createdAt).toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
               {message.readAt && message.senderId === user.id && (
-                <span className={styles.readIndicator}>✓</span>
+                <span className={styles.readIndicator}>✓✓</span>
               )}
             </div>
           </div>
@@ -207,32 +256,41 @@ const Chat = ({ conversationId, collaboratorProfile }) => {
 
         {isTyping && (
           <div className={styles.typingIndicator}>
-            {collaboratorProfile?.name} está digitando...
+            <div className={styles.typingDots}>
+              <span></span><span></span><span></span>
+            </div>
+            <span>{collaboratorProfile?.name} está digitando...</span>
           </div>
         )}
+
+        {aiLoading && <AILoadingMessage mode={aiMode} />}
 
         <div ref={messagesEndRef} />
       </div>
 
       <div className={styles.controls}>
-        <select
-          value={aiMode}
-          onChange={(e) => setAiMode(e.target.value)}
-          className={styles.aiModeSelect}
-        >
-          <option value="coach">Coach Motivacional</option>
-          <option value="preventive">Preventivo</option>
-          <option value="celebration">Celebração</option>
-          <option value="welcoming">Acolhedor</option>
-        </select>
+        <div className={styles.aiModeGroup}>
+          <select
+            value={aiMode}
+            onChange={(e) => setAiMode(e.target.value)}
+            className={styles.aiModeSelect}
+            disabled={aiLoading}
+          >
+            <option value="coach">💪 Coach</option>
+            <option value="preventive">🛡️ Preventivo</option>
+            <option value="celebration">🎉 Celebração</option>
+            <option value="welcoming">🤝 Acolhedor</option>
+          </select>
 
-        <button
-          onClick={handleAIChat}
-          disabled={loading}
-          className={styles.aiButton}
-        >
-          💬 IA
-        </button>
+          <button
+            onClick={handleAIChat}
+            disabled={aiLoading || loading}
+            className={styles.aiButton}
+            title="Solicitar insight IA"
+          >
+            {aiLoading ? '⏳' : '💬'} IA
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSendMessage} className={styles.messageForm}>
@@ -242,88 +300,17 @@ const Chat = ({ conversationId, collaboratorProfile }) => {
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           placeholder="Digite sua mensagem..."
-          disabled={loading}
+          disabled={loading || !connectionStatus.isConnected}
           className={styles.messageInput}
+          autoFocus
         />
         <button
           type="submit"
-          disabled={loading || !newMessage.trim()}
+          disabled={loading || !newMessage.trim() || !connectionStatus.isConnected}
           className={styles.sendButton}
+          title={!connectionStatus.isConnected ? 'Conectando...' : 'Enviar'}
         >
-          {loading ? '...' : 'Enviar'}
-        </button>
-      </form>
-    </div>
-  );
-};
-
-export default Chat;
-      await loadMessages();
-    } catch (err) {
-      setError('Erro ao enviar para IA');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className={styles.chatContainer}>
-      <div className={styles.chatHeader}>
-        <img
-          src={collaboratorProfile?.user?.avatar || '/default-avatar.png'}
-          alt={collaboratorProfile?.user?.name}
-          className={styles.avatar}
-        />
-        <div>
-          <h3>{collaboratorProfile?.user?.name}</h3>
-          <p>{collaboratorProfile?.specialty}</p>
-        </div>
-      </div>
-
-      <div className={styles.messagesContainer}>
-        {messages.map(msg => (
-          <div
-            key={msg.id}
-            className={`${styles.message} ${msg.isAI ? styles.aiMessage : styles.userMessage}`}
-          >
-            <div className={styles.messageBubble}>
-              <p>{msg.content}</p>
-              <span className={styles.timestamp}>
-                {new Date(msg.createdAt).toLocaleTimeString('pt-BR', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {error && <div className={styles.error}>{error}</div>}
-
-      <div className={styles.aiControls}>
-        <select value={aiMode} onChange={(e) => setAiMode(e.target.value)}>
-          <option value="direct">Direto</option>
-          <option value="welcoming">Acolhedor</option>
-          <option value="hardcore">Coach Hardcore</option>
-          <option value="preventive">Preventivo</option>
-          <option value="celebration">Celebração</option>
-        </select>
-        <button onClick={handleAIChat} disabled={loading}>
-          💡 IA
-        </button>
-      </div>
-
-      <form onSubmit={handleSendMessage} className={styles.messageForm}>
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          disabled={loading}
-        />
-        <button type="submit" disabled={loading || !newMessage.trim()}>
-          Enviar
+          {loading ? '⏳' : '📤'}
         </button>
       </form>
     </div>
