@@ -2,7 +2,8 @@ const AIChatService = require('../src/services/aiChatService');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
-const aiService = new AIChatService();
+let aiService;
+const uniqueSuffix = Math.random().toString(36).substring(2, 10);
 
 // Mock axios para testes
 jest.mock('axios');
@@ -10,6 +11,10 @@ const axios = require('axios');
 
 describe('AIChatService', () => {
   beforeAll(async () => {
+    process.env.OPENAI_API_KEY = 'test-openai-key';
+    process.env.OPENAI_MODEL = 'gpt-4';
+    aiService = new AIChatService();
+
     // Limpar dados de teste
     await prisma.aIChat.deleteMany({});
     await prisma.chatMetrics.deleteMany({});
@@ -24,14 +29,16 @@ describe('AIChatService', () => {
       // Criar usuário de teste
       const user = await prisma.user.create({
         data: {
-          email: 'test@example.com',
+          name: 'Test User',
+          email: `test-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER',
           studentProfile: {
             create: {
-              name: 'Test User',
-              budget: 50,
-              preferences: 'low carb'
+              goal: 'weight loss',
+              currentWeight: 70,
+              targetWeight: 65,
+              height: 175
             }
           }
         },
@@ -41,7 +48,7 @@ describe('AIChatService', () => {
       const context = await aiService.getUserContext(user.id);
 
       expect(context).toHaveProperty('profile');
-      expect(context.profile.name).toBe('Test User');
+      expect(context.profile.goal).toBe('weight loss');
       expect(context).toHaveProperty('recentMeals');
       expect(context).toHaveProperty('recentChecks');
       expect(context).toHaveProperty('currentStreak');
@@ -58,7 +65,8 @@ describe('AIChatService', () => {
 
       const user = await prisma.user.create({
         data: {
-          email: 'fallback@example.com',
+          name: 'Fallback User',
+          email: `fallback-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER'
         }
@@ -77,7 +85,8 @@ describe('AIChatService', () => {
     test('deve respeitar limite diário de tokens', async () => {
       const user = await prisma.user.create({
         data: {
-          email: 'limit@example.com',
+          name: 'Limit User',
+          email: `limit-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER',
           chatMetrics: {
@@ -104,7 +113,8 @@ describe('AIChatService', () => {
     test('deve usar cache para sugestões similares', async () => {
       const user = await prisma.user.create({
         data: {
-          email: 'cache@example.com',
+          name: 'Cache User',
+          email: `cache-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER'
         }
@@ -122,6 +132,9 @@ describe('AIChatService', () => {
       const response1 = await aiService.generateResponse(user.id, 'coach', 'Sugira uma refeição saudável');
       expect(response1.cached).toBe(false);
 
+      // Reset debounce state so we can verify cache behavior on the second call.
+      aiService.debounceMap.delete(user.id);
+
       // Segunda chamada similar deve usar cache
       const response2 = await aiService.generateResponse(user.id, 'coach', 'Sugira uma refeição saudável');
       expect(response2.cached).toBe(true);
@@ -136,13 +149,16 @@ describe('AIChatService', () => {
     test('deve gerar sugestões baseadas em orçamento', async () => {
       const user = await prisma.user.create({
         data: {
-          email: 'budget@example.com',
+          name: 'Budget User',
+          email: `budget-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER',
           studentProfile: {
             create: {
-              name: 'Budget User',
-              budget: 30
+              goal: 'maintenance',
+              currentWeight: 72,
+              targetWeight: 72,
+              height: 175
             }
           }
         },
@@ -179,7 +195,8 @@ describe('AIChatService', () => {
     test('deve lidar com debounce', async () => {
       const user = await prisma.user.create({
         data: {
-          email: 'debounce@example.com',
+          name: 'Debounce User',
+          email: `debounce-${uniqueSuffix}@example.com`,
           password: 'hashed',
           role: 'USER'
         }
