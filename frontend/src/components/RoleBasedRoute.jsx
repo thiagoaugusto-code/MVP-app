@@ -3,15 +3,17 @@ import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const RoleBasedRoute = ({ children, role }) => {
-  const { user, loading } = useContext(AuthContext);
+  const { user, loading, getEffectiveRole } = useContext(AuthContext);
 
   if (loading) return <div>Loading...</div>;
 
   if (!user) return <Navigate to="/login" />;
 
-  if (role && user.role !== role) {
-    // Redirecionar para o dashboard correto baseado no role
-    return <Navigate to={user.role === 'USER' ? '/' : '/collaborator'} />;
+  const effectiveRole = getEffectiveRole();
+
+  if (role && effectiveRole !== role) {
+    // Redirecionar para o dashboard correto baseado no role efetivo
+    return <Navigate to={effectiveRole === 'USER' ? '/' : '/collaborator'} />;
   }
 
   return children;

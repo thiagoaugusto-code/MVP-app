@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('admin'); // 'admin' or 'student'
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -51,10 +52,34 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
+    setViewMode('admin'); // Reset to admin mode on logout
+  };
+
+  const switchViewMode = (mode) => {
+    if (user?.role === 'ADMIN') {
+      setViewMode(mode);
+    }
+  };
+
+  const getEffectiveRole = () => {
+    if (user?.role === 'ADMIN') {
+      return viewMode === 'student' ? 'USER' : user.role;
+    }
+    return user?.role;
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      login, 
+      register, 
+      logout, 
+      loading,
+      viewMode,
+      switchViewMode,
+      getEffectiveRole
+    }}>
       {children}
     </AuthContext.Provider>
   );

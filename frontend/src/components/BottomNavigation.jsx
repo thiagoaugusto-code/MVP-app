@@ -5,12 +5,14 @@ import styles from './BottomNavigation.module.css';
 
 const BottomNavigation = () => {
   const location = useLocation();
-  const { user } = useContext(AuthContext);
+  const { user, getEffectiveRole } = useContext(AuthContext);
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
+  const effectiveRole = getEffectiveRole();
+
   // Menu para alunos (USER)
-  if (user?.role === 'USER') {
+  if (effectiveRole === 'USER') {
     return (
       <nav className={styles.bottomNav}>
         <Link 
