@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`,
 });
 
 api.interceptors.request.use((config) => {
@@ -67,6 +67,14 @@ export const progressAPI = {
 export const dailyChecksAPI = {
   getChecks: (date) => api.get('/daily-checks', { params: { date } }),
   updateCheck: (type, data) => api.patch(`/daily-checks/${type}`, data),
+};
+
+/** Materialized daily state — single read model + actions */
+export const dailyStateAPI = {
+  get: (date) => api.get('/daily-state', { params: { date } }),
+  applyAction: (body) => api.post('/daily-state/actions', body),
+  getMonth: (year, month) => api.get('/daily-state/month', { params: { year, month } }),
+  getRecent: (days = 7) => api.get('/daily-state/recent', { params: { days } }),
 };
 
 // Chat

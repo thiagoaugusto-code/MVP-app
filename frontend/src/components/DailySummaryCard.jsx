@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DailySummaryCard.module.css';
 
-const DEFAULT_CALORIE_GOAL = 2000;
-
 function mealLabel(mealType) {
   switch (mealType) {
     case 'breakfast':
@@ -32,24 +30,30 @@ function getMealOrderByTime(now = new Date()) {
 }
 
 export default function DailySummaryCard({
-  totalCalories,
-  meals,
-  dailyChecks,
-  goals,
+  dailyState,
   weeklyActiveDays,
   onQuickWater,
   onQuickWorkoutToggle,
   onEditGoals,
 }) {
   const navigate = useNavigate();
+  const goals = dailyState?.goals || {};
+  const calorieGoal = goals.caloriesGoal || 2000;
+  const waterGoalMl = goals.waterGoalMl || 2000;
+  const mealGoal = goals.mealsGoal || 3;
+  const caloriesConsumed = dailyState?.caloriesConsumed || 0;
+  const waterMl = dailyState?.waterMl || 0;
+  const meals = dailyState?.meals || [];
+  const workoutCompleted = Boolean(dailyState?.workout?.completed);
 
-  const calorieGoal = goals?.calories || DEFAULT_CALORIE_GOAL;
-  const hydrationTarget = goals?.water || 2;
-  const mealGoal = goals?.meals || 3;
-  const kcalRemaining = Math.max(calorieGoal - (totalCalories || 0), 0);
-  const hydrationPending = Math.max(hydrationTarget - (dailyChecks?.water || 0), 0);
-  const workoutPending = !dailyChecks?.workout;
-  const mealsProgress = Math.min(meals.filter((m) => m.completed).length, mealGoal);
+  const kcalRemaining = Math.max(calorieGoal - caloriesConsumed, 0);
+  const hydrationPendingL = Math.max((waterGoalMl - waterMl) / 1000, 0);
+  const mealsProgress = Math.min(
+    ['breakfast', 'lunch', 'dinner'].filter((mt) => meals.find((m) => m.mealType === mt)?.completed).length,
+    mealGoal
+  );
+
+  const breakfastDone = Boolean(meals.find((m) => m.mealType === 'breakfast')?.completed);
 
   const nextMeal = useMemo(() => {
     const order = getMealOrderByTime();
@@ -66,27 +70,29 @@ export default function DailySummaryCard({
 
   const cta = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 11 && !dailyChecks?.breakfast) {
+    if (h < 11 && !breakfastDone) {
       return { label: 'Registrar Café da Manhã', action: () => navigate('/diet?meal=breakfast') };
     }
-    if (hydrationPending > 0) {
+    if (hydrationPendingL > 0.05) {
       return { label: 'Beber 1 copo de água', action: onQuickWater };
     }
-    if (workoutPending) {
+    if (!workoutCompleted) {
       return { label: 'Registrar treino', action: () => navigate('/workout') };
     }
     if (nextMeal) {
       return { label: `Abrir ${mealLabel(nextMeal.type)}`, action: () => navigate(`/diet?meal=${nextMeal.type}`) };
     }
     return { label: 'Ver calendário', action: () => navigate('/calendar') };
-  }, [dailyChecks?.breakfast, hydrationPending, navigate, nextMeal, onQuickWater, workoutPending]);
+  }, [breakfastDone, hydrationPendingL, navigate, nextMeal, onQuickWater, workoutCompleted]);
+
+  if (!dailyState) return null;
 
   return (
     <section className={styles.wrap} aria-label="Resumo do dia">
       <div className={styles.header}>
         <div>
           <h2 className={styles.title}>Resumo do Dia</h2>
-          <p className={styles.subtitle}>1 toque para seguir com o que importa agora</p>
+          <p className={styles.subtitle}>Estado sincronizado com o servidor</p>
         </div>
         <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
           📅
@@ -121,20 +127,22 @@ export default function DailySummaryCard({
 
         <div className={styles.kpi}>
           <div className={styles.kpiLabel}>Meta de refeições</div>
-          <div className={styles.kpiValueSmall}>{mealsProgress}/{mealGoal}</div>
-          <div className={styles.kpiHint}>Concluídas hoje</div>
+          <div className={styles.kpiValueSmall}>
+            {mealsProgress}/{mealGoal}
+          </div>
+          <div className={styles.kpiHint}>Principais refeições concluídas</div>
         </div>
 
         <div className={styles.kpi}>
           <div className={styles.kpiLabel}>Hidratação pendente</div>
           <div className={styles.kpiValueSmall}>
-            {hydrationPending > 0 ? `${hydrationPending}L` : 'OK'}
+            {hydrationPendingL > 0.05 ? `${hydrationPendingL.toFixed(1)} L` : 'OK'}
           </div>
           <button
             type="button"
             className={styles.secondaryBtn}
             onClick={onQuickWater}
-            disabled={hydrationPending <= 0}
+            disabled={hydrationPendingL <= 0.05}
           >
             + água
           </button>
@@ -142,13 +150,9 @@ export default function DailySummaryCard({
 
         <div className={styles.kpi}>
           <div className={styles.kpiLabel}>Treino</div>
-          <div className={styles.kpiValueSmall}>{workoutPending ? 'Pendente' : 'Concluído'}</div>
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={onQuickWorkoutToggle}
-          >
-            {workoutPending ? 'Marcar como feito' : 'Desmarcar'}
+          <div className={styles.kpiValueSmall}>{workoutCompleted ? 'Concluído' : 'Pendente'}</div>
+          <button type="button" className={styles.secondaryBtn} onClick={onQuickWorkoutToggle}>
+            {workoutCompleted ? 'Desmarcar' : 'Marcar como feito'}
           </button>
         </div>
       </div>
@@ -159,4 +163,3 @@ export default function DailySummaryCard({
     </section>
   );
 }
-
