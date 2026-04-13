@@ -1,0 +1,145 @@
+.wrap {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.10), rgba(255, 255, 255, 0.92));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.65);
+  font-weight: 600;
+}
+
+.habitRow {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.habitText {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.editGoalsBtn {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.calendarBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.kpi {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  padding: 10px;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpiLabel {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.65);
+  font-weight: 700;
+}
+
+.kpiValue {
+  font-size: 26px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.kpiValueSmall {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.kpiHint {
+  font-size: 11px;
+  color: rgba(15, 23, 42, 0.55);
+  font-weight: 600;
+}
+
+.linkBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: #2563eb;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.secondaryBtn {
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: rgba(15, 23, 42, 0.04);
+  font-weight: 800;
+  font-size: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.secondaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primaryCta {
+  margin-top: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
