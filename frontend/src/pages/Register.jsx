@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useToast } from '../components/toast/ToastProvider';
 
 const Register = () => {
   const [step, setStep] = useState('role'); // role, form, specialty
@@ -11,6 +12,7 @@ const Register = () => {
   const [specialty, setSpecialty] = useState('instructor');
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const specialties = [
     { value: 'nutritionist', label: 'Nutricionista' },
@@ -44,7 +46,7 @@ const Register = () => {
         navigate('/collaborator');
       }
     } else {
-      alert(result.message);
+      toast.error(result.message);
     }
   };
 

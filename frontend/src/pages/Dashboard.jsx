@@ -1,158 +1,105 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import StatCard from '../components/StatCard';
 import CheckItem from '../components/CheckItem';
 import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
-import DailySummaryCard from '../components/DailySummaryCard';
-import { usersAPI, dailyStateAPI } from '../services/api';
-import { useToast } from '../components/toast/ToastProvider';
+import { dietAPI, usersAPI, dailyChecksAPI } from '../services/api';
 import styles from './Dashboard.module.css';
 
-function toDateKey(d = new Date()) {
-  const x = new Date(d);
-  const y = x.getFullYear();
-  const m = String(x.getMonth() + 1).padStart(2, '0');
-  const day = String(x.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const toast = useToast();
-  const [dailyState, setDailyState] = useState(null);
-  const [user, setUser] = useState(null);
-  const [weeklyActiveDays, setWeeklyActiveDays] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [showGoalsModal, setShowGoalsModal] = useState(false);
-  const [goalForm, setGoalForm] = useState({
-    caloriesGoal: 2000,
-    waterGoalMl: 2000,
-    mealsGoal: 3,
+  const [dailyChecks, setDailyChecks] = useState({
+    breakfast: false,
+    lunch: false,
+    dinner: false,
+    workout: false,
+    water: 0,
+    sleep: 0,
   });
-
-  const dateKey = toDateKey();
-
-  const loadData = useCallback(async () => {
-    try {
-      const [stateRes, userRes, recentRes] = await Promise.all([
-        dailyStateAPI.get(dateKey),
-        usersAPI.getProfile(),
-        dailyStateAPI.getRecent(7),
-      ]);
-      setDailyState(stateRes.data.state);
-      setUser(userRes.data);
-      const active = (recentRes.data.days || []).filter((d) => d.progressScore > 0).length;
-      setWeeklyActiveDays(active);
-    } catch (err) {
-      console.error(err);
-      toast.error('Erro ao carregar seu dia');
-    } finally {
-      setLoading(false);
-    }
-  }, [dateKey, toast]);
+  const [meals, setMeals] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, []);
 
-  const applyAction = async (action, payload = {}) => {
+  const loadData = async () => {
     try {
-      const res = await dailyStateAPI.applyAction({ date: dateKey, action, payload });
-      setDailyState(res.data.state);
-    } catch (e) {
-      toast.error(e.response?.data?.error || 'Não foi possível salvar');
+      const [mealsRes, userRes, checksRes] = await Promise.all([
+        dietAPI.getMeals(new Date().toISOString().split('T')[0]),
+        usersAPI.getProfile(),
+        dailyChecksAPI.getChecks()
+      ]);
+      setMeals(mealsRes.data);
+      setUser(userRes.data);
+      
+      // Mapear checks
+      const checks = checksRes.data;
+      setDailyChecks({
+        breakfast: checks.breakfast?.done || false,
+        lunch: checks.lunch?.done || false,
+        dinner: checks.dinner?.done || false,
+        workout: checks.workout?.done || false,
+        water: checks.water?.value || 0,
+        sleep: checks.sleep?.value || 0,
+      });
+    } catch (err) {
+      console.error('Erro ao carregar dados');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCheckChange = async (key, value) => {
-    if (key === 'breakfast' || key === 'lunch' || key === 'dinner') {
-      await applyAction('COMPLETE_MEAL', { mealType: key, done: value });
-      return;
-    }
-    if (key === 'workout') {
-      await applyAction('COMPLETE_WORKOUT', { done: value });
-      return;
-    }
-    if (key === 'water') {
-      await applyAction('SET_WATER_LITERS', { liters: value });
-      return;
-    }
-    if (key === 'sleep') {
-      await applyAction('UPDATE_SLEEP', { hours: value });
+    try {
+      setDailyChecks(prev => ({ ...prev, [key]: value }));
+      
+      if (key === 'breakfast' || key === 'lunch' || key === 'dinner') {
+        await dailyChecksAPI.updateCheck(key, { done: value });
+      } else if (key === 'workout') {
+        await dailyChecksAPI.updateCheck('workout', { done: value });
+      } else if (key === 'water' || key === 'sleep') {
+        await dailyChecksAPI.updateCheck(key, { value });
+      }
+      
+      // Recarregar dados para atualizar streak e stats
+      loadData();
+    } catch (err) {
+      console.error('Erro ao salvar check');
     }
   };
 
-  const openGoals = () => {
-    if (dailyState?.goals) {
-      setGoalForm({
-        caloriesGoal: dailyState.goals.caloriesGoal,
-        waterGoalMl: dailyState.goals.waterGoalMl,
-        mealsGoal: dailyState.goals.mealsGoal,
-      });
-    }
-    setShowGoalsModal(true);
-  };
-
-  const saveGoals = async () => {
-    await applyAction('UPDATE_GOAL', {
-      caloriesGoal: Number(goalForm.caloriesGoal),
-      waterGoalMl: Number(goalForm.waterGoalMl),
-      mealsGoal: Number(goalForm.mealsGoal),
-    });
-    setShowGoalsModal(false);
-    toast.success('Metas atualizadas');
-  };
-
-  const meals = dailyState?.meals || [];
-  const totalCalories = dailyState?.caloriesConsumed ?? 0;
-  const completedMeals = meals.filter((m) => m.completed).length;
+  const totalCalories = meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
+  const completedMeals = meals.filter(m => m.completed).length;
   const mealPercentage = meals.length > 0 ? Math.round((completedMeals / meals.length) * 100) : 0;
   const streak = user?.streak || 0;
 
-  const waterGoalMl = dailyState?.goals?.waterGoalMl || 2000;
-  const waterLitersMax = Math.max(1, Math.ceil(waterGoalMl / 1000));
-  const waterLitersValue = Math.min(waterLitersMax, Math.round((dailyState?.waterMl || 0) / 1000));
-
-  const sleepHours = dailyState?.sleepHours ?? 0;
-
-  if (loading || !dailyState) {
+  if (loading) {
     return <div>Carregando...</div>;
   }
 
   return (
     <div className={styles.dashboard}>
       <Header />
-
+      
       <main className={styles.main}>
         <div className={styles.container}>
+          {/* Greeting */}
           <section className={styles.greeting}>
             <h1>Bem-vindo de volta! 👋</h1>
             <p>Hoje é um ótimo dia para se cuidar</p>
           </section>
 
-          <DailySummaryCard
-            dailyState={dailyState}
-            weeklyActiveDays={weeklyActiveDays}
-            onQuickWater={() => applyAction('ADD_WATER', { ml: 250 })}
-            onQuickWorkoutToggle={() =>
-              applyAction('COMPLETE_WORKOUT', { done: !dailyState.workout?.completed })
-            }
-            onEditGoals={openGoals}
-          />
-
+          {/* Stats Grid */}
           <section className={styles.statsGrid}>
             <StatCard
               icon="🔥"
               title="Kcal"
               value={totalCalories}
               unit="kcal"
-              trend={{
-                positive: totalCalories <= (dailyState.goals?.caloriesGoal || 2000),
-                value: `Meta ${dailyState.goals?.caloriesGoal || 2000}`,
-              }}
+              trend={{ positive: true, value: '+150 vs ontem' }}
             />
             <StatCard
               icon="🍽️"
@@ -163,12 +110,13 @@ const Dashboard = () => {
             <StatCard
               icon="💪"
               title="Treino"
-              value={dailyState.workout?.completed ? '✓' : '○'}
-              trend={dailyState.workout?.completed ? { positive: true, value: 'Concluído' } : null}
+              value={dailyChecks.workout ? '✓' : '○'}
+              trend={dailyChecks.workout ? { positive: true, value: '45 min' } : null}
             />
             <StreakCard streak={streak} />
           </section>
 
+          {/* Daily Checklist */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Checklist Diário</h2>
             <div className={styles.checklist}>
@@ -176,126 +124,77 @@ const Dashboard = () => {
                 id="breakfast"
                 type="meal"
                 label="Café da Manhã"
-                checked={Boolean(meals.find((m) => m.mealType === 'breakfast')?.completed)}
+                checked={dailyChecks.breakfast}
                 onChange={(checked) => handleCheckChange('breakfast', checked)}
-                onLabelClick={() => navigate('/diet?meal=breakfast')}
               />
               <CheckItem
                 id="lunch"
                 type="meal"
                 label="Almoço"
-                checked={Boolean(meals.find((m) => m.mealType === 'lunch')?.completed)}
+                checked={dailyChecks.lunch}
                 onChange={(checked) => handleCheckChange('lunch', checked)}
-                onLabelClick={() => navigate('/diet?meal=lunch')}
               />
               <CheckItem
                 id="dinner"
                 type="meal"
                 label="Jantar"
-                checked={Boolean(meals.find((m) => m.mealType === 'dinner')?.completed)}
+                checked={dailyChecks.dinner}
                 onChange={(checked) => handleCheckChange('dinner', checked)}
-                onLabelClick={() => navigate('/diet?meal=dinner')}
               />
               <CheckItem
                 id="workout"
                 type="workout"
                 label="Treino concluído"
-                checked={Boolean(dailyState.workout?.completed)}
+                checked={dailyChecks.workout}
                 onChange={(checked) => handleCheckChange('workout', checked)}
-                onLabelClick={() => navigate('/workout')}
               />
               <CheckItem
                 id="water"
                 type="water"
                 label="Água"
-                value={waterLitersValue}
-                maxValue={waterLitersMax}
+                value={dailyChecks.water}
+                maxValue={2}
                 onChange={(val) => handleCheckChange('water', val)}
               />
               <CheckItem
                 id="sleep"
                 type="sleep"
                 label="Sono"
-                value={sleepHours}
+                value={dailyChecks.sleep}
                 maxValue={8}
                 onChange={(val) => handleCheckChange('sleep', val)}
               />
             </div>
           </section>
 
+          {/* Insights */}
           <section className={styles.section}>
             <InsightCard />
           </section>
 
+          {/* Quick Links */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Ações Rápidas</h2>
             <div className={styles.quickLinks}>
-              <button className={styles.quickLink} onClick={() => navigate('/diet?meal=breakfast')} type="button">
+              <button className={styles.quickLink}>
                 <span>🥗</span>
                 <span>Adicionar Refeição</span>
               </button>
-              <button className={styles.quickLink} onClick={() => navigate('/workout')} type="button">
+              <button className={styles.quickLink}>
                 <span>🏃</span>
                 <span>Registrar Treino</span>
               </button>
-              <button className={styles.quickLink} onClick={() => navigate('/progress')} type="button">
+              <button className={styles.quickLink}>
                 <span>📸</span>
-                <span>Registrar Progresso</span>
+                <span>Tirar Foto</span>
               </button>
             </div>
           </section>
 
+          {/* Spacer for bottom nav */}
           <div className={styles.spacer} />
         </div>
       </main>
-
-      {showGoalsModal && (
-        <div className={styles.goalsOverlay}>
-          <div className={styles.goalsModal}>
-            <h3>Personalizar metas diárias</h3>
-            <p>As metas ficam salvas no servidor e alimentam o seu resumo diário.</p>
-            <label>
-              Meta de calorias
-              <input
-                type="number"
-                min="1200"
-                max="4500"
-                value={goalForm.caloriesGoal}
-                onChange={(e) => setGoalForm((prev) => ({ ...prev, caloriesGoal: e.target.value }))}
-              />
-            </label>
-            <label>
-              Meta de água (ml)
-              <input
-                type="number"
-                min="500"
-                max="6000"
-                step="100"
-                value={goalForm.waterGoalMl}
-                onChange={(e) => setGoalForm((prev) => ({ ...prev, waterGoalMl: e.target.value }))}
-              />
-            </label>
-            <label>
-              Meta de refeições principais
-              <input
-                type="number"
-                min="1"
-                max="6"
-                value={goalForm.mealsGoal}
-                onChange={(e) => setGoalForm((prev) => ({ ...prev, mealsGoal: e.target.value }))}
-              />
-            </label>
-            <div className={styles.goalsActions}>
-              <button type="button" onClick={() => setShowGoalsModal(false)}>
-                Cancelar
-              </button>
-              <button type="button" className={styles.primaryBtn} onClick={saveGoals}>
-                Salvar metas
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <BottomNavigation />
     </div>
