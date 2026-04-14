@@ -2,16 +2,10 @@ const express = require('express');
 const authMiddleware = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
 const MealSuggestionService = require('../services/mealSuggestionService');
-const { rebuildDailyUserState, toDateKey } = require('../services/dailyStateService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 const mealSuggestionService = new MealSuggestionService();
-
-async function syncDailyStateForMeal(userId, mealDate) {
-  const dk = toDateKey(mealDate instanceof Date ? mealDate : new Date(mealDate));
-  await rebuildDailyUserState(userId, dk);
-}
 
 // Mantendo MealLog para compatibilidade
 router.get('/logs', authMiddleware, async (req, res) => {
@@ -63,7 +57,6 @@ router.post('/', authMiddleware, async (req, res) => {
     const meal = await prisma.meal.create({
       data: { mealType, date: date ? new Date(date) : new Date(), userId: req.user.id },
     });
-    await syncDailyStateForMeal(req.user.id, meal.date);
     res.json(meal);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao criar refeição' });
@@ -82,7 +75,6 @@ router.patch('/:id', authMiddleware, async (req, res) => {
       where: { id: parseInt(id) },
       data: { completed, updatedAt: new Date() },
     });
-    await syncDailyStateForMeal(req.user.id, updated.date);
     res.json(updated);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao atualizar refeição' });
@@ -96,9 +88,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     if (!meal || meal.userId !== req.user.id) {
       return res.status(403).json({ error: 'Acesso negado' });
     }
-    const mealDate = meal.date;
     await prisma.meal.delete({ where: { id: parseInt(id) } });
-    await syncDailyStateForMeal(req.user.id, mealDate);
     res.json({ message: 'Refeição deletada' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao deletar refeição' });
@@ -122,11 +112,10 @@ router.post('/:mealId/food', authMiddleware, async (req, res) => {
       where: { mealId: parseInt(mealId) },
       _sum: { calories: true },
     });
-    const updatedMeal = await prisma.meal.update({
+    await prisma.meal.update({
       where: { id: parseInt(mealId) },
       data: { totalCalories: totalCalories._sum.calories || 0 },
     });
-    await syncDailyStateForMeal(req.user.id, updatedMeal.date);
     res.json(foodItem);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao adicionar alimento' });
@@ -150,11 +139,10 @@ router.delete('/:mealId/food/:id', authMiddleware, async (req, res) => {
       where: { mealId: parseInt(mealId) },
       _sum: { calories: true },
     });
-    const updatedMeal = await prisma.meal.update({
+    await prisma.meal.update({
       where: { id: parseInt(mealId) },
       data: { totalCalories: totalCalories._sum.calories || 0 },
     });
-    await syncDailyStateForMeal(req.user.id, updatedMeal.date);
     res.json({ message: 'Alimento removido' });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao remover alimento' });
