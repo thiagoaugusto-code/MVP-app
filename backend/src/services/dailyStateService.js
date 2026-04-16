@@ -69,27 +69,28 @@ function scoreAndCalendarStatus({
   return { progressScore, calendarStatus };
 }
 
-function buildChecklist({ mealsByType, workoutCompleted, waterMl, waterGoalMl, sleepHours }) {
-  const mealTypes = ['breakfast', 'lunch', 'dinner'];
+function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHours }) {
   const checklist = [];
-  for (const mt of mealTypes) {
-    const meal = mealsByType.get(mt);
+
+  // 🔥 todas as refeições do banco
+  for (const meal of meals) {
     checklist.push({
-      id: mt,
+      id: meal.id,
       kind: 'meal',
-      mealType: mt,
-      label:
-        mt === 'breakfast' ? 'Café da Manhã' : mt === 'lunch' ? 'Almoço' : 'Jantar',
-      done: Boolean(meal?.completed),
-      mealId: meal?.id ?? null,
+      mealType: meal.mealType,
+      label: meal.mealType,
+      done: Boolean(meal.completed),
+      mealId: meal.id,
     });
   }
+
   checklist.push({
     id: 'workout',
     kind: 'workout',
     label: 'Treino concluído',
     done: workoutCompleted,
   });
+
   checklist.push({
     id: 'water',
     kind: 'water',
@@ -98,12 +99,14 @@ function buildChecklist({ mealsByType, workoutCompleted, waterMl, waterGoalMl, s
     waterGoalMl,
     litersProgress: waterGoalMl > 0 ? Math.min(waterMl / waterGoalMl, 1) : 0,
   });
+
   checklist.push({
     id: 'sleep',
     kind: 'sleep',
     label: 'Sono',
     hours: sleepHours ?? null,
   });
+
   return checklist;
 }
 
@@ -208,7 +211,7 @@ async function rebuildDailyUserState(userId, dateKey) {
   });
 
   const checklist = buildChecklist({
-    mealsByType,
+    meals,
     workoutCompleted,
     waterMl: row.waterMl,
     waterGoalMl: row.waterGoalMl,
@@ -435,7 +438,27 @@ async function applyDailyAction(userId, dateKey, action, payload = {}) {
       await upsertDailyCheck(userId, start, 'workout', { done: true });
       break;
     }
-    default:
+    
+
+    case 'COMPLETE_MEAL_BY_ID': {
+      const { mealId, done } = payload;
+
+      const meal = await prisma.meal.findUnique({
+        where: { id: mealId },
+      });
+
+      if (!meal || meal.userId !== userId) {
+        throw new Error('Acesso negado');
+      }
+
+      await prisma.meal.update({
+        where: { id: mealId },
+        data: { completed: done },
+      });
+
+      break;
+    }
+   default:
       throw new Error(`Ação desconhecida: ${action}`);
   }
 

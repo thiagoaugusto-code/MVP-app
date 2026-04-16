@@ -16,8 +16,12 @@ router.get('/', authMiddleware, async (req, res) => {
     const state = await getDailyState(req.user.id, dateKey);
     res.json({ state });
   } catch (e) {
-    res.status(500).json({ error: e.message || 'Erro ao carregar estado diário' });
-  }
+  console.error('🔥 DAILY STATE ERROR:', e); // 👈 AQUI
+
+  res.status(500).json({
+    error: e.message || 'Erro ao carregar estado diário'
+  });
+}
 });
 
 router.get('/month', authMiddleware, async (req, res) => {
@@ -30,8 +34,9 @@ router.get('/month', authMiddleware, async (req, res) => {
     const days = await getMonthSummary(req.user.id, year, month - 1);
     res.json({ days });
   } catch (e) {
-    res.status(500).json({ error: e.message || 'Erro ao carregar mês' });
-  }
+  console.error('🔥 MONTH ERROR:', e);
+  res.status(500).json({ error: e.message || 'Erro ao carregar mês' });
+}
 });
 
 router.get('/recent', authMiddleware, async (req, res) => {
@@ -40,8 +45,9 @@ router.get('/recent', authMiddleware, async (req, res) => {
     const items = await getRecentSummary(req.user.id, days);
     res.json({ days: items });
   } catch (e) {
-    res.status(500).json({ error: e.message || 'Erro ao carregar resumo recente' });
-  }
+  console.error('🔥 RECENT ERROR:', e);
+  res.status(500).json({ error: e.message || 'Erro ao carregar resumo recente' });
+}
 });
 
 router.post('/actions', authMiddleware, async (req, res) => {
@@ -52,8 +58,9 @@ router.post('/actions', authMiddleware, async (req, res) => {
     const state = await applyDailyAction(req.user.id, dateKey, action, payload || {});
     res.json({ state });
   } catch (e) {
-    res.status(400).json({ error: e.message || 'Erro ao aplicar ação' });
-  }
+  console.error('🔥 ACTION ERROR:', e);
+  res.status(400).json({ error: e.message || 'Erro ao aplicar ação' });
+}
 });
 
 module.exports = router;

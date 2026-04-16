@@ -47,6 +47,36 @@ model User {
   sentMessages            Message[]
   aiChats                 AIChat[]
   chatMetrics             ChatMetrics?
+  dailyUserStates         DailyUserState[]
+}
+
+/// Materialized per-day aggregate: single read model for dashboard, checklist, calendar.
+model DailyUserState {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Local calendar day key YYYY-MM-DD (server interprets with local dayRange helpers).
+  dateKey          String
+  waterMl          Int      @default(0)
+  waterGoalMl      Int      @default(2000)
+  sleepHours       Float?
+  caloriesGoal     Int      @default(2000)
+  mealsGoal        Int      @default(3)
+  caloriesConsumed Int      @default(0)
+  progressScore    Int      @default(0)
+  calendarStatus   String   @default("red") // green | yellow | red
+  workoutCompleted Boolean  @default(false)
+  workoutLogId     Int?
+  /// JSON string: [{ id, name, durationMin, completed, secondsDone }]
+  exercises        String?
+  /// JSON string: snapshot of meals
+  mealsSnapshot    String?
+  /// JSON string: checklist items
+  checklist        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, dateKey])
 }
 
 model MealLog {
@@ -205,7 +235,7 @@ model FoodItem {
   protein   Int?
   carbs     Int?
   fat       Int?
-  time      String? // horário, e.g., "08:00"
+  time      DateTime? // horário, e.g., "08:00"
   notes     String?
   createdAt DateTime @default(now())
 }
