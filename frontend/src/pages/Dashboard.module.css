@@ -103,6 +103,75 @@
 .spacer {
   height: 2rem;
 }
+.goalsOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(15, 23, 42, 0.52);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.goalsModal {
+  width: 100%;
+  max-width: 640px;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.goalsModal h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.goalsModal p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.goalsModal label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.goalsModal input {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 0.95rem;
+}
+
+.goalsActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.goalsActions button {
+  flex: 1;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  height: 40px;
+  background: #f8fafc;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primaryBtn {
+  border: none;
+  background: #2563eb;
+  color: white;
+}
 
 @keyframes slideDown {
   from {
@@ -130,5 +199,8 @@
 
   .sectionTitle {
     font-size: 1rem;
+  }
+  .goalsModal {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
 }

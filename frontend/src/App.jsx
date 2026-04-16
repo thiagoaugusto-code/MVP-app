@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './components/toast/ToastProvider';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -22,6 +23,7 @@ import './App.css';
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <Router>
         <div className="App">
           <Routes>
@@ -89,8 +91,9 @@ function App() {
               } 
             />
           </Routes>
-        </div>
-      </Router>
+          </div>
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 }

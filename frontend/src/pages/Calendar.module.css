@@ -25,19 +25,32 @@
   color: #1f2937;
 }
 
-.calendar-header {
+.lead {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem;
+}
+
+.loading {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.calendarHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 1rem 0;
 }
 
-.calendar-header h2 {
+.calendarHeader h2 {
   font-size: 1.25rem;
   color: #1f2937;
 }
 
-.calendar-header button {
+.calendarHeader button {
   background: #3b82f6;
   color: white;
   border: none;
@@ -46,7 +59,7 @@
   cursor: pointer;
 }
 
-.calendar-grid {
+.calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0.5rem;
@@ -60,7 +73,7 @@
   padding: 0.5rem;
 }
 
-.calendar-day {
+.calendarDay {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -71,30 +84,53 @@
   transition: all 0.2s;
 }
 
-.calendar-day.other-month {
+.otherMonth {
   color: #9ca3af;
 }
 
-.calendar-day.today {
+.calendarDay.otherMonth {
+  color: #9ca3af;
+}
+
+.today {
   border: 2px solid #3b82f6;
 }
 
-.calendar-day.green {
+.calendarDay.today {
+  border: 2px solid #3b82f6;
+}
+
+.green {
   background: #10b981;
   color: white;
 }
 
-.calendar-day.yellow {
+.calendarDay.green {
+  background: #10b981;
+  color: white;
+}
+
+.yellow {
   background: #f59e0b;
   color: white;
 }
 
-.calendar-day.red {
+.calendarDay.yellow {
+  background: #f59e0b;
+  color: white;
+}
+
+.red {
   background: #ef4444;
   color: white;
 }
 
-.calendar-day:hover {
+.calendarDay.red {
+  background: #ef4444;
+  color: white;
+}
+
+.calendarDay:hover {
   transform: scale(1.05);
 }
 
@@ -111,7 +147,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.modalContent {
   background: white;
   padding: 1.5rem;
   border-radius: 0.75rem;
@@ -120,13 +156,13 @@
   text-align: center;
 }
 
-.modal-content h3 {
+.modalContent h3 {
   margin: 0 0 1rem 0;
   font-size: 1.25rem;
   color: #1f2937;
 }
 
-.modal-stats {
+.modalStats {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -139,11 +175,44 @@
   border-radius: 0.5rem;
 }
 
-.modal-content button {
+.modalContent button {
   background: #6b7280;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   cursor: pointer;
+}
+
+.modalMeta {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 0.75rem;
+}
+
+.closeBtn {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.quickActionBtn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.quickActionBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
