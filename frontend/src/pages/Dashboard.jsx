@@ -156,7 +156,7 @@ const Dashboard = () => {
           <DailySummaryCard
             dailyState={dailyState}
             weeklyActiveDays={weeklyActiveDays}
-            onQuickWater={() => applyAction('ADD_WATER', { ml: 250 })}
+            onQuickWater={() => applyAction('ADD_WATER', { ml: 50 })}
             onQuickWorkoutToggle={() =>
               applyAction('COMPLETE_WORKOUT', { done: !dailyState.workout?.completed })
             }
