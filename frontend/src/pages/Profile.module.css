@@ -156,4 +156,13 @@
 
 .spacer {
   height: 2rem;
+  
+}
+.backButton {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: #3b82f6;
 }

@@ -23,6 +23,7 @@ const BottomNavigation = () => {
           <span className={styles.icon}>📊</span>
           <span className={styles.label}>Dashboard</span>
         </Link>
+        {/* O menu de marketplace só aparece para alunos que não têm um profissional atribuído 
         <Link 
           to="/marketplace" 
           className={`${styles.navItem} ${isActive('/marketplace') ? styles.active : ''}`}
@@ -30,7 +31,8 @@ const BottomNavigation = () => {
         >
           <span className={styles.icon}>🛒</span>
           <span className={styles.label}>Profissionais</span>
-        </Link>
+        </Link>*/}
+        {/* O menu de chat só aparece para alunos que têm um profissional atribuído 
         <Link 
           to="/chat" 
           className={`${styles.navItem} ${isActive('/chat') ? styles.active : ''}`}
@@ -38,7 +40,8 @@ const BottomNavigation = () => {
         >
           <span className={styles.icon}>💬</span>
           <span className={styles.label}>Chat</span>
-        </Link>
+        </Link>*/}
+
         <Link 
           to="/calendar" 
           className={`${styles.navItem} ${isActive('/calendar') ? styles.active : ''}`}
@@ -54,14 +57,6 @@ const BottomNavigation = () => {
         >
           <span className={styles.icon}>📈</span>
           <span className={styles.label}>Progresso</span>
-        </Link>
-        <Link 
-          to="/profile" 
-          className={`${styles.navItem} ${isActive('/profile') ? styles.active : ''}`}
-          title="Perfil"
-        >
-          <span className={styles.icon}>👤</span>
-          <span className={styles.label}>Perfil</span>
         </Link>
       </nav>
     );

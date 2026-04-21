@@ -1,9 +1,28 @@
-import { useContext } from 'react';
+import { useContext, useState, useRef, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './Header.module.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const Header = () => {
-  const { user, viewMode, switchViewMode } = useContext(AuthContext);
+  const { user, viewMode, switchViewMode, logout } = useContext(AuthContext);
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const menuRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <header className={styles.header}>
@@ -28,6 +47,36 @@ const Header = () => {
             </div>
           )}
           <span className={styles.badge}>Mobile First</span>
+          <div className={styles.avatarContainer} ref={menuRef}>
+            <div className={styles.avatar}
+              onClick={() => setOpen(!open)}
+            >
+              {user?.name?.[0] || 'U'}
+          </div>
+            {open && (
+              <div className={styles.menu}>
+                <p className={styles.menuItem}>Olá, {user?.name || 'Usuário'}</p>
+
+              <hr className={styles.divider} />
+
+                <button onClick={() => {navigate('/profile');
+                    setOpen(false); }}> 👤 Perfil
+                </button>
+
+                <button onClick={() => navigate('/settings')}> ⚙️ Configurações</button>
+
+                <button > 🌙 Tema</button>
+
+                <button className={styles.logout} onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}>
+                  🚪 Sair
+                </button>
+              </div>
+            )}
+          </div>
+           
         </div>
       </div>
     </header>

@@ -16,13 +16,16 @@ const Profile = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
+      {/* <Header /> */}
       
       <main className={styles.main}>
+        <button className={styles.backButton} onClick={() => navigate(-1)}>
+          ← Voltar
+        </button>
         <div className={styles.content}>
           <section className={styles.profileHeader}>
             <div className={styles.avatar}>
-              {user?.name?.charAt(0).toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <h1 className={styles.name}>{user?.name}</h1>
             <p className={styles.email}>{user?.email}</p>
@@ -82,7 +85,7 @@ const Profile = () => {
         </div>
       </main>
 
-      <BottomNavigation />
+      {/**<BottomNavigation />*/}
     </div>
   );
 };
