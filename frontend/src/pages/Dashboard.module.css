@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f9fafb;
+  background: transparent;
 }
 
 .main {
@@ -93,11 +93,16 @@
     transform: scale(0.95);
   }
 
-  &:hover {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-  }
+}
+.quickLink:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.dark .quickLink {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
 }
 
 .spacer {
@@ -121,6 +126,10 @@
   padding: 16px;
   display: grid;
   gap: 10px;
+}
+.dark .goalsModal {
+  background: #1f2937;
+  color: #f9fafb;
 }
 
 .goalsModal h3 {
@@ -149,6 +158,13 @@
   height: 40px;
   padding: 0 10px;
   font-size: 0.95rem;
+  background: white;
+}
+
+.dark .goalsModal input {
+  background: #111827;
+  color: #f9fafb;
+  border-color: #374151;
 }
 
 .goalsActions {
@@ -200,6 +216,7 @@
 
   .sectionTitle {
     font-size: 1rem;
+    color: #1f2937;
   }
   .goalsModal {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));

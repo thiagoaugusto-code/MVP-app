@@ -11,6 +11,14 @@
     <meta name="apple-mobile-web-app-title" content="MVP App" />
     <meta name="theme-color" content="#3b82f6" />
     <meta name="description" content="Aplicativo mobile-first para controle de dieta, treino e aderência" />
+
+    <script>
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+    
     <title>MVP App - Controle de Cardápio, Treino e Aderência</title>
   </head>
   <body>

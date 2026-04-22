@@ -25,7 +25,9 @@ const Header = () => {
 
 
   return (
-    <header className={styles.header}>
+    <header className="bg-gradient-to-r from-blue-500 to-blue-700 
+                   dark:from-gray-900 dark:to-gray-800 
+                   text-white transition-colors">
       <div className={styles.container}>
         <h1 className={styles.title}>MVP App</h1>
         <div className={styles.headerRight}>

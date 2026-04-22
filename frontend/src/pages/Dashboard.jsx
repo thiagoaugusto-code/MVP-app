@@ -139,18 +139,18 @@ const Dashboard = () => {
   const sleepHours = dailyState?.sleepHours ?? 0;
 
   if (loading || !dailyState) {
-    return <div>Carregando...</div>;
+    return <div className="text-gray-900 dark:text-white">Carregando...</div>;
   }
 
   return (
-    <div className={styles.dashboard}>
+    <div className={`${styles.dashboard} bg-gray-100 dark:bg-gray-900`}>
       <Header />
 
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.greeting}>
-            <h1>Bem-vindo de volta! 👋</h1>
-            <p>Hoje é um ótimo dia para se cuidar</p>
+            <h1 className="text-gray-900 dark:text-white">Bem-vindo de volta! 👋</h1>
+            <p className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar</p>
           </section>
 
           <DailySummaryCard
@@ -190,7 +190,7 @@ const Dashboard = () => {
           </section>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Checklist Diário</h2>
+            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
             <div className={styles.checklist}>
               {meals.map((meal) => (
                 <CheckItem
@@ -235,7 +235,7 @@ const Dashboard = () => {
           </section>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Ações Rápidas</h2>
+            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
             <div className={styles.quickLinks}>
               <button className={styles.quickLink} onClick={() => navigate('/diet?meal=breakfast')} type="button">
                 <span>🥗</span>

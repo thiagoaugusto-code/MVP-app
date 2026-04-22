@@ -32,24 +32,6 @@ const Profile = () => {
           </section>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Configurações</h2>
-            <div className={styles.settingsList}>
-              <div className={styles.settingItem}>
-                <span>📱 Notificações</span>
-                <input type="checkbox" defaultChecked className={styles.toggle} />
-              </div>
-              <div className={styles.settingItem}>
-                <span>🌙 Modo escuro</span>
-                <input type="checkbox" className={styles.toggle} />
-              </div>
-              <div className={styles.settingItem}>
-                <span>📊 Compartilhar dados</span>
-                <input type="checkbox" className={styles.toggle} />
-              </div>
-            </div>
-          </section>
-
-          <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Metas</h2>
             <div className={styles.goals}>
               <div className={styles.goalItem}>
