@@ -44,7 +44,15 @@ export default function DailySummaryCard({
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
-  const workoutCompleted = Boolean(dailyState?.workout?.completed);
+  const activities = dailyState?.workout?.activities || [];
+
+  const totalActivities = activities.length;
+
+  const completedActivities = activities.filter(a => a.completed).length;
+
+  const workoutPercentage = totalActivities
+    ? Math.round((completedActivities / totalActivities) * 100)
+    : 0;
 
   const kcalRemaining = Math.max(calorieGoal - caloriesConsumed, 0);
   const hydrationPendingL = Math.max((waterGoalMl - waterMl) / 1000, 0);
@@ -76,14 +84,14 @@ export default function DailySummaryCard({
     if (hydrationPendingL > 0.05) {
       return { label: 'Beber 1 copo de água', action: onQuickWater };
     }
-    if (!workoutCompleted) {
-      return { label: 'Registrar treino', action: () => navigate('/workout') };
+    if (completedActivities < totalActivities) {
+      return { label: 'Continuar treino', action: () => navigate('/workout') };
     }
     if (nextMeal) {
       return { label: `Abrir ${mealLabel(nextMeal.type)}`, action: () => navigate(`/diet?meal=${nextMeal.type}`) };
     }
     return { label: 'Ver calendário', action: () => navigate('/calendar') };
-  }, [breakfastDone, hydrationPendingL, navigate, nextMeal, onQuickWater, workoutCompleted]);
+  }, [breakfastDone, hydrationPendingL, navigate, nextMeal, onQuickWater, completedActivities, totalActivities]);
 
   if (!dailyState) return null;
 
@@ -149,11 +157,39 @@ export default function DailySummaryCard({
         </div>
 
         <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Metas de treino</div>
+
+          <div className={styles.kpiValueSmall}>
+            {totalActivities === 0
+              ? '-'
+              : `${completedActivities}/${totalActivities}`}
+          </div>
+
+          <div className={styles.kpiHint}>
+            Principais treinos concluídos
+          </div>
+        </div>
+
+         <div
+          className={`${styles.kpi} ${styles.clickable}`}
+          onClick={() => navigate('/workout')}
+          role='button'
+        >
           <div className={styles.kpiLabel}>Treino</div>
-          <div className={styles.kpiValueSmall}>{workoutCompleted ? 'Concluído' : 'Pendente'}</div>
-          <button type="button" className={styles.secondaryBtn} onClick={onQuickWorkoutToggle}>
-            {workoutCompleted ? 'Desmarcar' : 'Marcar como feito'}
-          </button>
+
+          <div className={styles.kpiValueSmall}>
+            {totalActivities === 0
+              ? '-'
+              : `${completedActivities}/${totalActivities}`}
+          </div>
+
+          <div className={`${styles.kpiHint} ${styles.linkBtn}`}>
+            {totalActivities === 0
+              ? 'Abrir treino →'
+              : workoutPercentage === 100
+                ? 'Treino concluído ✔'
+                : `${completedActivities} de ${totalActivities} feitos`}
+          </div>
         </div>
       </div>
 

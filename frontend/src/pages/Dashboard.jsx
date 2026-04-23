@@ -79,10 +79,6 @@ const Dashboard = () => {
   };
 
   const handleCheckChange = async (key, value) => {
-    if (key === 'workout') {
-      await applyAction('COMPLETE_WORKOUT', { done: value });
-      return;
-    }
     if (key === 'water') {
       await applyAction('SET_WATER_LITERS', { liters: value });
       return;
@@ -102,6 +98,23 @@ const Dashboard = () => {
       loadData();
     } catch (e) {
       toast.error('Erro ao atualizar refeição');
+    }
+  };
+
+  const handleWorkoutToggle = async (activityId, value) => {
+    try {
+      await dailyStateAPI.applyAction({
+        date: dateKey,
+        action: 'TOGGLE_WORKOUT_ACTIVITY',
+        payload: {
+          activityId,
+          done: value,
+        },
+      });
+
+      loadData(); // 🔥 ESSENCIAL
+    } catch (e) {
+      toast.error('Erro ao atualizar treino');
     }
   };
 
@@ -142,6 +155,13 @@ const Dashboard = () => {
     return <div className="text-gray-900 dark:text-white">Carregando...</div>;
   }
 
+  const activities = dailyState?.workout?.activities || [];
+  const totalActivities = activities.length;
+  const completedActivities = activities.filter(a => a.completed).length;
+  const workoutPercentage = totalActivities
+    ? Math.round((completedActivities / totalActivities) * 100)
+    : 0;
+
   return (
     <div className={`${styles.dashboard} bg-gray-100 dark:bg-gray-900`}>
       <Header />
@@ -156,7 +176,7 @@ const Dashboard = () => {
           <DailySummaryCard
             dailyState={dailyState}
             weeklyActiveDays={weeklyActiveDays}
-            onQuickWater={() => applyAction('ADD_WATER', { ml: 50 })}
+            onQuickWater={() => applyAction('ADD_WATER', { ml: 100 })}
             onQuickWorkoutToggle={() =>
               applyAction('COMPLETE_WORKOUT', { done: !dailyState.workout?.completed })
             }
@@ -183,8 +203,14 @@ const Dashboard = () => {
             <StatCard
               icon="💪"
               title="Treino"
-              value={dailyState.workout?.completed ? '✓' : '○'}
-              trend={dailyState.workout?.completed ? { positive: true, value: 'Concluído' } : null}
+              value={totalActivities === 0 ? '—' : `${workoutPercentage}%`}
+              trend={{
+                positive: workoutPercentage === 100,
+                value:
+                  totalActivities === 0
+                    ? 'Sem treino'
+                    : `${completedActivities} de ${totalActivities}`,
+              }}
             />
             <StreakCard streak={streak} />
           </section>
@@ -203,14 +229,17 @@ const Dashboard = () => {
                   onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
                 />
               ))}
-              <CheckItem
-                id="workout"
-                type="workout"
-                label="Treino concluído"
-                checked={Boolean(dailyState.workout?.completed)}
-                onChange={(checked) => handleCheckChange('workout', checked)}
-                onLabelClick={() => navigate('/workout')}
-              />
+              {activities.map((activity) => (
+                <CheckItem
+                  key={activity.id}
+                  id={activity.id}
+                  type="workout"
+                  label={activity.name}
+                  checked={Boolean(activity.completed)}
+                  onChange={(checked) => handleWorkoutToggle(activity.id, checked)}
+                  onLabelClick={() => navigate('/workout')}
+                />
+              ))}
               <CheckItem
                 id="water"
                 type="water"
@@ -235,7 +264,7 @@ const Dashboard = () => {
           </section>
 
           <section className={styles.section}>
-            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
+            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist</h2>
             <div className={styles.quickLinks}>
               <button className={styles.quickLink} onClick={() => navigate('/diet?meal=breakfast')} type="button">
                 <span>🥗</span>

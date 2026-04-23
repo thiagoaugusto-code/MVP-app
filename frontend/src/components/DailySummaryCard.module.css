@@ -143,3 +143,16 @@
   color: white;
 }
 
+
+.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable:hover {
+  background-color: rgba(59, 130, 246, 0.08); /* azul leve */
+}
+
+.clickable:active {
+  transform: scale(0.98);
+}
