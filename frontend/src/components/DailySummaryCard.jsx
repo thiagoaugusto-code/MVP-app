@@ -115,11 +115,6 @@ export default function DailySummaryCard({
       </div>
 
       <div className={styles.grid}>
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Kcal restantes</div>
-          <div className={styles.kpiValue}>{kcalRemaining}</div>
-          <div className={styles.kpiHint}>Meta: {calorieGoal} kcal</div>
-        </div>
 
         <div className={styles.kpi}>
           <div className={styles.kpiLabel}>Próxima refeição</div>
@@ -141,35 +136,7 @@ export default function DailySummaryCard({
           <div className={styles.kpiHint}>Principais refeições concluídas</div>
         </div>
 
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Hidratação pendente</div>
-          <div className={styles.kpiValueSmall}>
-            {hydrationPendingL > 0.05 ? `${hydrationPendingL.toFixed(1)} L` : 'OK'}
-          </div>
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={onQuickWater}
-            disabled={hydrationPendingL <= 0.05}
-          >
-            + água
-          </button>
-        </div>
-
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Metas de treino</div>
-
-          <div className={styles.kpiValueSmall}>
-            {totalActivities === 0
-              ? '-'
-              : `${completedActivities}/${totalActivities}`}
-          </div>
-
-          <div className={styles.kpiHint}>
-            Principais treinos concluídos
-          </div>
-        </div>
-
+      
          <div
           className={`${styles.kpi} ${styles.clickable}`}
           onClick={() => navigate('/workout')}
@@ -191,10 +158,23 @@ export default function DailySummaryCard({
                 : `${completedActivities} de ${totalActivities} feitos`}
           </div>
         </div>
+        <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Metas de treino</div>
+
+          <div className={styles.kpiValueSmall}>
+            {totalActivities === 0
+              ? '-'
+              : `${completedActivities}/${totalActivities}`}
+          </div>
+
+          <div className={styles.kpiHint}>
+            Principais treinos concluídos
+          </div>
+        </div>
       </div>
 
       <button type="button" className={styles.primaryCta} onClick={cta.action}>
-        {cta.label}
+        {cta.label}Fazer virar uma barra gradual, cada clique se torna +50ml de agua bebida até completar meta pessoal da pessoa +-4L
       </button>
     </section>
   );

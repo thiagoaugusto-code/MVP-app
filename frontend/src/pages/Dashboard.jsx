@@ -194,24 +194,6 @@ const Dashboard = () => {
                 value: `Meta ${dailyState.goals?.caloriesGoal || 2000}`,
               }}
             />
-            <StatCard
-              icon="🍽️"
-              title="Refeições"
-              value={`${mealPercentage}%`}
-              trend={{ positive: mealPercentage === 100, value: `${completedMeals} de ${meals.length}` }}
-            />
-            <StatCard
-              icon="💪"
-              title="Treino"
-              value={totalActivities === 0 ? '—' : `${workoutPercentage}%`}
-              trend={{
-                positive: workoutPercentage === 100,
-                value:
-                  totalActivities === 0
-                    ? 'Sem treino'
-                    : `${completedActivities} de ${totalActivities}`,
-              }}
-            />
             <StreakCard streak={streak} />
           </section>
 
