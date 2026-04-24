@@ -22,7 +22,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   mealLogs           MealLog[]
-  workoutLogs        WorkoutLog[]
+  workouts           Workout[]
   progressLogs       ProgressLog[]
   dailyChecks        DailyCheck[]
   insights           Insight[]
@@ -56,7 +56,7 @@ model DailyUserState {
   userId           Int
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// Local calendar day key YYYY-MM-DD (server interprets with local dayRange helpers).
-  dateKey          String
+  date            DateTime
   waterMl          Int      @default(0)
   waterGoalMl      Int      @default(2000)
   sleepHours       Float?
@@ -66,7 +66,7 @@ model DailyUserState {
   progressScore    Int      @default(0)
   calendarStatus   String   @default("red") // green | yellow | red
   workoutCompleted Boolean  @default(false)
-  workoutLogId     Int?
+
   /// JSON string: [{ id, name, durationMin, completed, secondsDone }]
   exercises        String?
   /// JSON string: snapshot of meals
@@ -76,7 +76,8 @@ model DailyUserState {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  @@unique([userId, dateKey])
+  @@unique([userId, date])
+  @@index([userId, date])
 }
 
 model MealLog {
@@ -93,16 +94,36 @@ model MealLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model WorkoutLog {
-  id        Int      @id @default(autoincrement())
-  name      String
-  duration  Int      // in minutes
-  intensity String?  // light, moderate, high
-  exercises String?  // JSON stringified array
-  completed Boolean  @default(true)
-  date      DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Workout {
+  id         Int      @id @default(autoincrement())
+
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date       DateTime @default(now())
+  completed  Boolean  @default(false)
+
+  activities WorkoutActivity[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model WorkoutActivity {
+  id         Int      @id @default(autoincrement())
+  workoutId  Int
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  name       String
+  sets       Int?
+  reps       Int?
+  duration   Int? // segundos ou minutos
+
+  completed  Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
 }
 
 model ProgressLog {

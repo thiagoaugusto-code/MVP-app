@@ -2,15 +2,14 @@ const express = require('express');
 const authMiddleware = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
 const MealSuggestionService = require('../services/mealSuggestionService');
-const { rebuildDailyUserState, toDateKey } = require('../services/dailyStateService');
+const { rebuildDailyUserState } = require('../services/dailyStateService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 const mealSuggestionService = new MealSuggestionService();
 
 async function syncDailyStateForMeal(userId, mealDate) {
-  const dk = toDateKey(mealDate instanceof Date ? mealDate : new Date(mealDate));
-  await rebuildDailyUserState(userId, dk);
+  await rebuildDailyUserState(userId, new Date(mealDate));
 }
 
 // Mantendo MealLog para compatibilidade
@@ -63,7 +62,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const meal = await prisma.meal.create({
       data: { mealType, date: date ? new Date(date) : new Date(), userId: req.user.id },
     });
-    await syncDailyStateForMeal(req.user.id, meal.date);
+    await rebuildDailyUserState(req.user.id, new Date(meal.date));
     res.json(meal);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao criar refeição' });
