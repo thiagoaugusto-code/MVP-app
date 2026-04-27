@@ -4,6 +4,7 @@ const {
   getDailyState,
   applyDailyAction,
   getRecentSummary,
+  getMonthSummary,
 } = require('../services/dailyStateService');
 
 const router = express.Router();

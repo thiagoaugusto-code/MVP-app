@@ -151,7 +151,6 @@ async function rebuildDailyUserState(userId, date) {
     ['breakfast', 'lunch', 'dinner'].includes(m.mealType) && m.completed
   ).length;
 
-  const waterMl = checkMap.water?.value ? checkMap.water.value * 1000 : 0;
   const sleepHours = checkMap.sleep?.value ?? null;
 
   const workoutCompleted = Boolean(workout?.completed);
@@ -171,11 +170,12 @@ async function rebuildDailyUserState(userId, date) {
       data: {
         userId,
         date: dayStart,
-        waterMl,
+        waterMl:0,
         sleepHours,
       },
     });
   }
+  const waterMl = row?.waterMl ?? 0;
 
   // --------------------
   // SCORE
@@ -323,16 +323,27 @@ async function applyDailyAction(userId, date, action, payload = {}) {
 
   switch (action) {
     case 'ADD_WATER': {
-      const ml = payload.ml || 250;
+      const ml = payload.ml || 100;
+
+      const current = await prisma.dailyUserState.findUnique({
+        where: {
+          userId_date: { userId, date: day },
+        },
+      });
+
+      const goal = current.waterGoalMl || 2000;
+
+      const newValue = Math.min(current.waterMl + ml, goal);
 
       await prisma.dailyUserState.update({
         where: {
           userId_date: { userId, date: day },
         },
         data: {
-          waterMl: { increment: ml },
+          waterMl: newValue,
         },
       });
+
       break;
     }
 
