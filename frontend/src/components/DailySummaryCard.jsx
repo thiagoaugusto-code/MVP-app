@@ -45,6 +45,8 @@ export default function DailySummaryCard({
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
   const activities = dailyState?.workout?.activities || [];
+  const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
+  const isDone = waterMl >= waterGoalMl;
 
   const totalActivities = activities.length;
 
@@ -75,6 +77,10 @@ export default function DailySummaryCard({
     if (pending) return { type: pending.mealType, status: 'pending' };
     return null;
   }, [meals]);
+
+  const handleWaterClick = () => {
+  onQuickWater(100); // ou 50
+};
 
   const cta = useMemo(() => {
     const h = new Date().getHours();
@@ -173,8 +179,26 @@ export default function DailySummaryCard({
         </div>
       </div>
 
-      <button type="button" className={styles.primaryCta} onClick={cta.action}>
-        {cta.label}Fazer virar uma barra gradual, cada clique se torna +50ml de agua bebida até completar meta pessoal da pessoa +-4L
+      <button
+        type="button"
+        className={`${styles.waterButton} ${waterMl >= waterGoalMl ? styles.filled : ''}`}
+        onClick={handleWaterClick}
+      >
+        <div
+          className={styles.waterProgress}
+          style={{ width: `${progress}%` }}
+        />
+
+        <span className={styles.waterText}>
+          {waterMl >= waterGoalMl
+            ? "Meta concluída 💧"
+            : "Adicionar 100ml"}
+        </span>
+
+        {/* 👇 NOVO */}
+        <span className={styles.waterMini}>
+          {Math.floor(waterMl / 1000)}.{Math.floor((waterMl % 1000) / 100)}L / {(waterGoalMl / 1000)}L
+        </span>
       </button>
     </section>
   );
