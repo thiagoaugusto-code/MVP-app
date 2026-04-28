@@ -229,6 +229,7 @@ async function rebuildDailyUserState(userId, date) {
       caloriesGoal: updated.caloriesGoal,
       waterGoalMl: updated.waterGoalMl,
       mealsGoal: updated.mealsGoal,
+      workoutGoal: updated.workoutGoal,
     },
     caloriesConsumed,
     waterMl,
@@ -355,6 +356,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           caloriesGoal: payload.caloriesGoal,
           waterGoalMl: payload.waterGoalMl,
           mealsGoal: payload.mealsGoal,
+          workoutGoal: payload.workoutGoal,
         },
       });
 
