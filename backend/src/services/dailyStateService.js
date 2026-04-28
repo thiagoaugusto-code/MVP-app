@@ -346,6 +346,20 @@ async function applyDailyAction(userId, date, action, payload = {}) {
 
       break;
     }
+    case 'UPDATE_GOAL': {
+      await prisma.dailyUserState.update({
+        where: {
+          userId_date: { userId, date: day },
+        },
+        data: {
+          caloriesGoal: payload.caloriesGoal,
+          waterGoalMl: payload.waterGoalMl,
+          mealsGoal: payload.mealsGoal,
+        },
+      });
+
+      break;
+    }
 
     case 'UPDATE_SLEEP': {
       await prisma.dailyUserState.update({
