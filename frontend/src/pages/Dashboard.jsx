@@ -135,6 +135,9 @@ const Dashboard = () => {
       waterGoalMl: Number(goalForm.waterGoalMl),
       mealsGoal: Number(goalForm.mealsGoal),
     });
+
+    await loadData();
+
     setShowGoalsModal(false);
     toast.success('Metas atualizadas');
   };
@@ -222,14 +225,7 @@ const Dashboard = () => {
                   onLabelClick={() => navigate('/workout')}
                 />
               ))}
-              <CheckItem
-                id="water"
-                type="water"
-                label="Água"
-                value={waterLitersValue}
-                maxValue={waterLitersMax}
-                onChange={(val) => handleCheckChange('water', val)}
-              />
+              
               <CheckItem
                 id="sleep"
                 type="sleep"
