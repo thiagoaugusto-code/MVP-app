@@ -31,6 +31,7 @@ const Dashboard = () => {
     caloriesGoal: 2000,
     waterGoalMl: 2000,
     mealsGoal: 3,
+    workoutGoal: 1,
   });
   const formatMealType = (type) => {
   const map = {
@@ -124,6 +125,7 @@ const Dashboard = () => {
         caloriesGoal: dailyState.goals.caloriesGoal,
         waterGoalMl: dailyState.goals.waterGoalMl,
         mealsGoal: dailyState.goals.mealsGoal,
+        workoutGoal: dailyState.goals.workoutGoal,
       });
     }
     setShowGoalsModal(true);
@@ -134,6 +136,7 @@ const Dashboard = () => {
       caloriesGoal: Number(goalForm.caloriesGoal),
       waterGoalMl: Number(goalForm.waterGoalMl),
       mealsGoal: Number(goalForm.mealsGoal),
+      workoutGoal: Number(goalForm.workoutGoal),
     });
 
     await loadData();
@@ -290,13 +293,23 @@ const Dashboard = () => {
               />
             </label>
             <label>
-              Meta de refeições principais
+              Meta de refeições principais 
               <input
                 type="number"
                 min="1"
                 max="6"
                 value={goalForm.mealsGoal}
                 onChange={(e) => setGoalForm((prev) => ({ ...prev, mealsGoal: e.target.value }))}
+              />
+            </label>
+            <label>
+              Meta de treinos principais
+              <input
+                type="number"
+                min="0"
+                max="6"
+                value={goalForm.workoutGoal}
+                onChange={(e) => setGoalForm((prev) => ({ ...prev, workoutGoal: e.target.value }))}
               />
             </label>
             <div className={styles.goalsActions}>

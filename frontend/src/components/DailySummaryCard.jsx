@@ -41,6 +41,7 @@ export default function DailySummaryCard({
   const calorieGoal = goals.caloriesGoal || 2000;
   const waterGoalMl = goals.waterGoalMl || 2000;
   const mealGoal = goals.mealsGoal || 3;
+  const workoutGoal = goals.workoutGoal || 0;
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
@@ -55,6 +56,8 @@ export default function DailySummaryCard({
   const workoutPercentage = totalActivities
     ? Math.round((completedActivities / totalActivities) * 100)
     : 0;
+
+  const workoutProgress = Math.min(completedActivities, workoutGoal);
 
   const kcalRemaining = Math.max(calorieGoal - caloriesConsumed, 0);
   const hydrationPendingL = Math.max((waterGoalMl - waterMl) / 1000, 0);
@@ -141,42 +144,40 @@ export default function DailySummaryCard({
           </div>
           <div className={styles.kpiHint}>Principais refeições concluídas</div>
         </div>
-
       
-         <div
+        <div
           className={`${styles.kpi} ${styles.clickable}`}
           onClick={() => navigate('/workout')}
           role='button'
         >
-          <div className={styles.kpiLabel}>Treino</div>
+          <div className={styles.kpiLabel}>Próximo treino</div>
 
+          {/* // NOVO comportamento contextual */}
           <div className={styles.kpiValueSmall}>
             {totalActivities === 0
-              ? '-'
-              : `${completedActivities}/${totalActivities}`}
+              ? 'Nenhum'
+              : workoutPercentage === 100
+                ? 'Concluído'
+                : 'Em andamento'}
           </div>
 
           <div className={`${styles.kpiHint} ${styles.linkBtn}`}>
             {totalActivities === 0
-              ? 'Abrir treino →'
+              ? 'Registrar treino →'
               : workoutPercentage === 100
-                ? 'Treino concluído ✔'
-                : `${completedActivities} de ${totalActivities} feitos`}
+                ? 'Treino finalizado ✔'
+                : `${completedActivities} de ${totalActivities} exercícios`}
           </div>
         </div>
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Metas de treino</div>
 
+          <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Meta de treinos</div>
           <div className={styles.kpiValueSmall}>
-            {totalActivities === 0
-              ? '-'
-              : `${completedActivities}/${totalActivities}`}
+            {completedActivities}/{workoutGoal}
           </div>
+          <div className={styles.kpiHint}>Principais treinos concluídos</div>
+        </div> 
 
-          <div className={styles.kpiHint}>
-            Principais treinos concluídos
-          </div>
-        </div>
       </div>
 
       <button
