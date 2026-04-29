@@ -2,12 +2,11 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const DEFAULT_EXERCISES = [
+/*const DEFAULT_EXERCISES = [
   { id: 'ex-1', name: 'Aquecimento', durationMin: 5, completed: false, secondsDone: 0 },
   { id: 'ex-2', name: 'Treino principal', durationMin: 30, completed: false, secondsDone: 0 },
   { id: 'ex-3', name: 'Volta à calma', durationMin: 5, completed: false, secondsDone: 0 },
-];
-
+];*/
 // --------------------
 // HELPERS (DATE ONLY)
 // --------------------
@@ -111,53 +110,6 @@ async function rebuildDailyUserState(userId, date) {
   const dayStart = startOfDay(date);
   const dayEnd = endOfDay(date);
 
-  // --------------------
-  // LOAD DATA
-  // --------------------
-  const meals = await prisma.meal.findMany({
-    where: {
-      userId,
-      date: { gte: dayStart, lte: dayEnd },
-    },
-    include: { foodItems: true },
-  });
-
-  const workout = await prisma.workout.findFirst({
-    where: {
-      userId,
-      date: { gte: dayStart, lte: dayEnd },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  const checks = await prisma.dailyCheck.findMany({
-    where: {
-      userId,
-      date: { gte: dayStart, lte: dayEnd },
-    },
-  });
-
-  const checkMap = Object.fromEntries(checks.map(c => [c.type, c]));
-
-  // --------------------
-  // DERIVED VALUES
-  // --------------------
-  const caloriesConsumed = meals.reduce(
-    (sum, m) => sum + (m.totalCalories || 0),
-    0
-  );
-
-  const mealsCompleted = meals.filter(m =>
-    ['breakfast', 'lunch', 'dinner'].includes(m.mealType) && m.completed
-  ).length;
-
-  const sleepHours = checkMap.sleep?.value ?? null;
-
-  const workoutCompleted = Boolean(workout?.completed);
-
-  // --------------------
-  // LOAD OR CREATE STATE
-  // --------------------
   let row = await prisma.dailyUserState.findFirst({
     where: {
       userId,
@@ -170,80 +122,60 @@ async function rebuildDailyUserState(userId, date) {
       data: {
         userId,
         date: dayStart,
-        waterMl:0,
-        sleepHours,
+        waterMl: 0,
+        sleepHours: null,
+        exercises: JSON.stringify([]),
       },
     });
   }
-  const waterMl = row?.waterMl ?? 0;
+  const waterMl = row.waterMl ?? 0; 
 
-  // --------------------
-  // SCORE
-  // --------------------
-  const { progressScore, calendarStatus } = scoreAndCalendarStatus({
-    mealsCompleted,
-    mealsGoal: row.mealsGoal,
-    waterMl,
-    waterGoalMl: row.waterGoalMl,
-    workoutCompleted,
-    sleepHours,
-    caloriesConsumed,
-    caloriesGoal: row.caloriesGoal,
-  });
+  const meals = []; // (placeholder se não tiver meal aqui)
+
+  const workoutCompleted = Boolean(row.workoutCompleted);
 
   const checklist = buildChecklist({
     meals,
     workoutCompleted,
     waterMl,
     waterGoalMl: row.waterGoalMl,
-    sleepHours,
+    sleepHours: row.sleepHours,
   });
 
-  const mealsSnapshot = meals.map(m => ({
-    id: m.id,
-    mealType: m.mealType,
-    completed: m.completed,
-    totalCalories: m.totalCalories || 0,
-    foodCount: m.foodItems?.length || 0,
-  }));
-
-  // --------------------
-  // UPDATE STATE
-  // --------------------
-  const updated = await prisma.dailyUserState.update({
-    where: { id: row.id },
-    data: {
-      caloriesConsumed,
-      progressScore,
-      calendarStatus,
-      workoutCompleted,
-      exercises: JSON.stringify(DEFAULT_EXERCISES),
-      mealsSnapshot: JSON.stringify(mealsSnapshot),
-      checklist: JSON.stringify(checklist),
-    },
+  const { progressScore, calendarStatus } = scoreAndCalendarStatus({
+    mealsCompleted: 0,
+    mealsGoal: row.mealsGoal,
+    waterMl,
+    waterGoalMl: row.waterGoalMl,
+    workoutCompleted,
+    sleepHours: row.sleepHours,
+    caloriesConsumed: row.caloriesConsumed,
+    caloriesGoal: row.caloriesGoal,
   });
+
+  const exercises = row.exercises
+    ? JSON.parse(row.exercises)
+    : [];
 
   return {
     date,
     goals: {
-      caloriesGoal: updated.caloriesGoal,
-      waterGoalMl: updated.waterGoalMl,
-      mealsGoal: updated.mealsGoal,
-      workoutGoal: updated.workoutGoal,
+      caloriesGoal: row.caloriesGoal,
+      waterGoalMl: row.waterGoalMl,
+      mealsGoal: row.mealsGoal,
+      workoutGoal: row.workoutGoal,
     },
-    caloriesConsumed,
     waterMl,
-    sleepHours,
     progressScore,
     calendarStatus,
     workout: {
       completed: workoutCompleted,
-      exercises: DEFAULT_EXERCISES,
+      exercises,
     },
-    meals,
     checklist,
   };
 }
+
 
 // --------------------
 // GET STATE
@@ -375,6 +307,40 @@ async function applyDailyAction(userId, date, action, payload = {}) {
       break;
     }
 
+    case 'ADD_WORKOUT_ACTIVITY': {
+      const current = await prisma.dailyUserState.findUnique({
+        where: {
+          userId_date: { userId, date: day },
+        },
+      });
+
+      const exercises =
+        current?.exercises
+          ? JSON.parse(current.exercises)
+          : [];
+
+      const newExercise = {
+        id: Date.now().toString(),
+        name: payload.name,
+        duration: Number(payload.duration),
+        intensity: payload.intensity,
+        completed: false,
+        secondsDone: 0,
+      };
+
+      await prisma.dailyUserState.update({
+        where: {
+          userId_date: { userId, date: day },
+        },
+        data: {
+          exercises: JSON.stringify([...exercises, newExercise]),
+        },
+      });
+
+      break;
+    }
+
+
     case 'COMPLETE_WORKOUT': {
       await prisma.dailyUserState.update({
         where: {
@@ -384,6 +350,35 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           workoutCompleted: Boolean(payload.done),
         },
       });
+      break;
+    }
+    case 'TOGGLE_WORKOUT_ACTIVITY': {
+      const current = await prisma.dailyUserState.findUnique({
+        where: {
+          userId_date: { userId, date: day },
+        },
+      });
+
+      const exercises =
+        current?.exercises
+          ? JSON.parse(current.exercises)
+          : [];
+
+      const updated = exercises.map(ex =>
+        ex.id === payload.activityId
+          ? { ...ex, completed: payload.done }
+          : ex
+      );
+
+      await prisma.dailyUserState.update({
+        where: {
+          userId_date: { userId, date: day },
+        },
+        data: {
+          exercises: JSON.stringify(updated),
+        },
+      });
+
       break;
     }
 
