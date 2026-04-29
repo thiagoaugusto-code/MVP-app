@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DailySummaryCard.module.css';
-import { useWorkoutStore } from '../stores/workoutStore';
+
 
 function mealLabel(mealType) {
   switch (mealType) {
@@ -37,7 +37,10 @@ export default function DailySummaryCard({
   onQuickWorkoutToggle,
   onEditGoals,
 }) {
+
   const navigate = useNavigate();
+
+  const [pulse, setPulse] = useState(false);
   const goals = dailyState?.goals || {};
   const calorieGoal = goals.caloriesGoal || 2000;
   const waterGoalMl = goals.waterGoalMl || 2000;
@@ -45,28 +48,46 @@ export default function DailySummaryCard({
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
-  const { workouts } = useWorkoutStore();
+  const activities = dailyState?.workout?.exercises || [];
   const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
   const isDone = waterMl >= waterGoalMl;
+  
 
-  const activities = workouts;
-
-  const workoutGoal = activities.length;
-
+  const workoutGoal = activities.length || 1;
+  
   const nextWorkout = activities.find(
     (activity) => !activity.completed
   );
 
 
   const totalActivities = activities.length;
+    const completedActivities = activities.filter(a => a.completed).length;
 
-  const completedActivities = activities.filter(a => a.completed).length;
+    const workoutFill =
+      totalActivities > 0
+        ? completedActivities / totalActivities
+        : 0;
 
-  const workoutPercentage = totalActivities
-    ? Math.round((completedActivities / totalActivities) * 100)
-    : 0;
+    const workoutState =
+      workoutFill === 0
+        ? 'empty'
+        : workoutFill < 0.3
+        ? 'low'
+        : workoutFill < 0.7
+        ? 'mid'
+        : workoutFill < 1
+        ? 'high'
+        : 'done';
 
-  const workoutProgress = Math.min(completedActivities, workoutGoal);
+    useEffect(() => {
+      if (workoutFill > 0) {
+        setPulse(true);
+        const t = setTimeout(() => setPulse(false), 400);
+        return () => clearTimeout(t);
+      }
+    }, [workoutFill]);
+
+          
 
   const kcalRemaining = Math.max(calorieGoal - caloriesConsumed, 0);
   const hydrationPendingL = Math.max((waterGoalMl - waterMl) / 1000, 0);
@@ -164,7 +185,7 @@ export default function DailySummaryCard({
           {/* // NOVO comportamento contextual */}
           <div className={styles.kpiValueSmall}>
             {nextWorkout ? nextWorkout.name 
-            : 'Nenhum treino registrado'}
+            : 'Registre + treinos'}
           </div>
 
           <div className={`${styles.kpiHint} ${styles.linkBtn}`}>
@@ -172,18 +193,26 @@ export default function DailySummaryCard({
           </div>
         </div>
 
-          <div className={styles.kpi}>
+          <div
+            className={`${styles.kpi} ${styles.workoutKpi} ${styles[workoutState]} ${
+              pulse ? styles.pulse : ''
+            }`}
+          >
             <div className={styles.kpiLabel}>Meta de treinos</div>
-            <div className={styles.kpiValueSmall}>
-              {workoutGoal === 0
-                ? 'Registre treinos p/ definir meta'
-                : `${completedActivities}/${workoutGoal}`}
-            </div>
-            <div className={styles.kpiHint}>
-              {workoutGoal === 0
-                ? 'Defina sua rotina diária'
-                : 'Treinos concluídos'}
-            </div>
+
+              <div className={styles.kpiValueSmall}>
+                {workoutGoal === 0
+                  ? 'Registre treinos'
+                  : `${Math.round(workoutFill * 100)}%`}
+              </div>
+
+              <div className={styles.kpiHint}>
+                {workoutGoal === 0
+                  ? 'Defina sua rotina diária'
+                  : workoutFill === 1
+                  ? 'Treino concluído'
+                  : 'Em progresso'}
+              </div>
           </div> 
 
       </div>
@@ -211,4 +240,4 @@ export default function DailySummaryCard({
       </button>
     </section>
   );
-}
+};

@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
-import { useWorkoutStore } from '../stores/workoutStore';
+import { dailyStateAPI } from '../services/api';
 import styles from './Workout.module.css';
 
-const Workout = () => {
-  const { workouts, toggleWorkout, addWorkout } = useWorkoutStore();
+const dateKey = new Date().toISOString().split('T')[0]; // 🔥 FALTAVA ISSO
 
+const Workout = () => {
+  const [workouts, setWorkouts] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const [newWorkout, setNewWorkout] = useState({
@@ -15,6 +16,66 @@ const Workout = () => {
     intensity: 'moderado',
   });
 
+  // -----------------------------
+  // LOAD
+  // -----------------------------
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function load() {
+    const res = await dailyStateAPI.get(dateKey);
+    setWorkouts(res.data.state.workout?.exercises || []);
+  }
+
+  // -----------------------------
+  // TOGGLE WORKOUT
+  // -----------------------------
+  const toggleWorkout = async (id, done) => {
+    await dailyStateAPI.applyAction({
+      date: dateKey,
+      action: 'TOGGLE_WORKOUT_ACTIVITY',
+      payload: {
+        activityId: id,
+        done,
+      },
+    });
+
+    const res = await dailyStateAPI.get(dateKey);
+    setWorkouts(res.data.state.workout?.exercises || []);
+  };
+
+  // -----------------------------
+  // ADD WORKOUT
+  // -----------------------------
+  const handleSaveWorkout = async () => {
+    if (!newWorkout.name || !newWorkout.duration) return;
+
+    await dailyStateAPI.applyAction({
+      date: dateKey,
+      action: 'ADD_WORKOUT_ACTIVITY', // 🔥 AGORA É BACKEND
+      payload: {
+        name: newWorkout.name,
+        duration: Number(newWorkout.duration),
+        intensity: newWorkout.intensity,    
+      },
+    });
+
+    const res = await dailyStateAPI.get(dateKey);
+    setWorkouts(res.data.state.workout?.exercises || []);
+
+    setNewWorkout({
+      name: '',
+      duration: '',
+      intensity: 'moderado',
+    });
+
+    setShowModal(false);
+  };
+
+  // -----------------------------
+  // UI HELPERS
+  // -----------------------------
   const totalDuration = workouts.reduce((sum, w) => sum + w.duration, 0);
   const completedDuration = workouts
     .filter(w => w.completed)
@@ -32,42 +93,17 @@ const Workout = () => {
         return '';
     }
   };
-  const handleAddWorkout = () => {
-    setShowModal(true);
-  };
 
-  const handleSaveWorkout = () => {
-  if (!newWorkout.name || !newWorkout.duration) return;
-
-  addWorkout({
-    name: newWorkout.name
-      .split(' ')
-      .map(
-        (word) =>
-          word.charAt(0).toUpperCase() +
-          word.slice(1).toLowerCase()
-      )
-      .join(' '),
-      
-    duration: Number(newWorkout.duration),
-    intensity: newWorkout.intensity,
-  });
-
-  setNewWorkout({
-    name: '',
-    duration: '',
-    intensity: 'moderado',
-  });
-
-  setShowModal(false);
-};
-
+  // -----------------------------
+  // RENDER
+  // -----------------------------
   return (
     <div className={styles.container}>
       <Header />
-      
+
       <main className={styles.main}>
         <div className={styles.content}>
+
           <section className={styles.header}>
             <h1>Treino do Dia</h1>
             <p>Acompanhe sua atividade física</p>
@@ -78,9 +114,12 @@ const Workout = () => {
               <span className={styles.icon}>⏱️</span>
               <div>
                 <p className={styles.label}>Tempo Gasto</p>
-                <p className={styles.value}>{completedDuration}/{totalDuration} min</p>
+                <p className={styles.value}>
+                  {completedDuration}/{totalDuration} min
+                </p>
               </div>
             </div>
+
             <div className={styles.summaryCard}>
               <span className={styles.icon}>🔥</span>
               <div>
@@ -92,31 +131,60 @@ const Workout = () => {
             </div>
           </section>
 
+          {/* ---------------- WORKOUT LIST ---------------- */}
           <section className={styles.workouts}>
             {workouts.map(workout => (
-              <div key={workout.id} className={`${styles.workoutItem} ${workout.completed ? styles.completed : ''}`}>
+              <div
+                key={workout.id}
+                className={`${styles.workoutItem} ${
+                  workout.completed ? styles.completed : ''
+                }`}
+              >
                 <div className={styles.workoutHeader}>
                   <h3 className={styles.workoutName}>{workout.name}</h3>
-                  <span className={`${styles.intensity} ${getIntensityColor(workout.intensity)}`}>
+
+                  <span
+                    className={`${styles.intensity} ${getIntensityColor(
+                      workout.intensity
+                    )}`}
+                  >
                     {workout.intensity}
                   </span>
                 </div>
+
                 <div className={styles.workoutFooter}>
-                  <span className={styles.duration}>{workout.duration} min</span>
-                  <input type="checkbox" checked={workout.completed} onChange={() => toggleWorkout(workout.id)}
-                   className={styles.checkbox} />
+                  <span className={styles.duration}>
+                    {workout.duration} min
+                  </span>
+
+                  <input
+                    type="checkbox"
+                    checked={workout.completed}
+                    onChange={(e) =>
+                      toggleWorkout(workout.id, e.target.checked)
+                    }
+                    className={styles.checkbox}
+                  />
                 </div>
               </div>
             ))}
           </section>
 
+          {/* ---------------- ACTIONS ---------------- */}
           <section className={styles.actions}>
-            <button className={styles.button} onClick={handleAddWorkout}>
+            <button
+              className={styles.button}
+              onClick={() => setShowModal(true)}
+            >
               + Adicionar Exercício
             </button>
-            <button className={styles.buttonSecondary}>Finalizar Treino</button>
+
+            <button className={styles.buttonSecondary}>
+              Finalizar Treino
+            </button>
           </section>
 
+          {/* ---------------- MODAL ---------------- */}
           {showModal && (
             <div className={styles.modalOverlay}>
               <div className={styles.modal}>
@@ -190,7 +258,5 @@ const Workout = () => {
     </div>
   );
 };
-
-
 
 export default Workout;

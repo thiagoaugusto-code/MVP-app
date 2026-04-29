@@ -10,7 +10,7 @@ import DailySummaryCard from '../components/DailySummaryCard';
 import { usersAPI, dailyStateAPI } from '../services/api';
 import { useToast } from '../components/toast/ToastProvider';
 import styles from './Dashboard.module.css';
-import { useWorkoutStore } from '../stores/workoutStore';
+
 
 function toDateKey(d = new Date()) {
   const x = new Date(d);
@@ -73,18 +73,23 @@ const Dashboard = () => {
 
   const applyAction = async (action, payload = {}) => {
     try {
-      const res = await dailyStateAPI.applyAction({ date: dateKey, action, payload });
+      const res = await dailyStateAPI.applyAction({
+        date: dateKey,
+        action,
+        payload,
+      });
+
       setDailyState(res.data.state);
-    } catch (e) {
-      toast.error(e.response?.data?.error || 'Não foi possível salvar');
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleCheckChange = async (key, value) => {
     if (key === 'water') {
-      await applyAction('SET_WATER_LITERS', { liters: value });
+      await applyAction('ADD_WATER', { ml: value });
       return;
-    }
+    } 
     if (key === 'sleep') {
       await applyAction('UPDATE_SLEEP', { hours: value });
     }
@@ -143,8 +148,7 @@ const Dashboard = () => {
 
   const sleepHours = dailyState?.sleepHours ?? 0;
 
-  const { workouts, toggleWorkout } = useWorkoutStore();
-  const activities = workouts;
+  const activities = dailyState?.workout?.exercises || [];
   const totalActivities = activities.length;
   const completedActivities = activities.filter(a => a.completed).length;
   const workoutPercentage = totalActivities
@@ -213,7 +217,12 @@ const Dashboard = () => {
                   type="workout"
                   label={activity.name}
                   checked={Boolean(activity.completed)}
-                  onChange={() => toggleWorkout(activity.id)}
+                  onChange={(checked) =>
+                    applyAction('TOGGLE_WORKOUT_ACTIVITY', {
+                      activityId: activity.id,
+                      done: checked,
+                    })
+                  }
                   onLabelClick={() => navigate('/workout')}
                 />
               ))}
@@ -289,16 +298,6 @@ const Dashboard = () => {
                 max="6"
                 value={goalForm.mealsGoal}
                 onChange={(e) => setGoalForm((prev) => ({ ...prev, mealsGoal: e.target.value }))}
-              />
-            </label>
-            <label>
-              Meta de treinos principais
-              <input
-                type="number"
-                min="0"
-                max="6"
-                value={goalForm.workoutGoal}
-                onChange={(e) => setGoalForm((prev) => ({ ...prev, workoutGoal: e.target.value }))}
               />
             </label>
             <div className={styles.goalsActions}>
