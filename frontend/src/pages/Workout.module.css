@@ -200,3 +200,46 @@
 .spacer {
   height: 2rem;
 }
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+}
+
+.modal {
+  width: 90%;
+  max-width: 400px;
+
+  background: #1f1f1f;
+  border-radius: 16px;
+
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input,
+.select {
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #2a2a2a;
+  color: white;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+}
