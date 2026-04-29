@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DailySummaryCard.module.css';
+import { useWorkoutStore } from '../stores/workoutStore';
 
 function mealLabel(mealType) {
   switch (mealType) {
@@ -41,13 +42,21 @@ export default function DailySummaryCard({
   const calorieGoal = goals.caloriesGoal || 2000;
   const waterGoalMl = goals.waterGoalMl || 2000;
   const mealGoal = goals.mealsGoal || 3;
-  const workoutGoal = goals.workoutGoal || 0;
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
-  const activities = dailyState?.workout?.activities || [];
+  const { workouts } = useWorkoutStore();
   const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
   const isDone = waterMl >= waterGoalMl;
+
+  const activities = workouts;
+
+  const workoutGoal = activities.length;
+
+  const nextWorkout = activities.find(
+    (activity) => !activity.completed
+  );
+
 
   const totalActivities = activities.length;
 
@@ -154,29 +163,28 @@ export default function DailySummaryCard({
 
           {/* // NOVO comportamento contextual */}
           <div className={styles.kpiValueSmall}>
-            {totalActivities === 0
-              ? 'Nenhum'
-              : workoutPercentage === 100
-                ? 'Concluído'
-                : 'Em andamento'}
+            {nextWorkout ? nextWorkout.name 
+            : 'Nenhum treino registrado'}
           </div>
 
           <div className={`${styles.kpiHint} ${styles.linkBtn}`}>
-            {totalActivities === 0
-              ? 'Registrar treino →'
-              : workoutPercentage === 100
-                ? 'Treino finalizado ✔'
-                : `${completedActivities} de ${totalActivities} exercícios`}
+              Registrar treino →
           </div>
         </div>
 
           <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Meta de treinos</div>
-          <div className={styles.kpiValueSmall}>
-            {completedActivities}/{workoutGoal}
-          </div>
-          <div className={styles.kpiHint}>Principais treinos concluídos</div>
-        </div> 
+            <div className={styles.kpiLabel}>Meta de treinos</div>
+            <div className={styles.kpiValueSmall}>
+              {workoutGoal === 0
+                ? 'Registre treinos p/ definir meta'
+                : `${completedActivities}/${workoutGoal}`}
+            </div>
+            <div className={styles.kpiHint}>
+              {workoutGoal === 0
+                ? 'Defina sua rotina diária'
+                : 'Treinos concluídos'}
+            </div>
+          </div> 
 
       </div>
 

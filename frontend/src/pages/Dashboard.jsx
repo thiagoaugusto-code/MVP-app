@@ -10,6 +10,7 @@ import DailySummaryCard from '../components/DailySummaryCard';
 import { usersAPI, dailyStateAPI } from '../services/api';
 import { useToast } from '../components/toast/ToastProvider';
 import styles from './Dashboard.module.css';
+import { useWorkoutStore } from '../stores/workoutStore';
 
 function toDateKey(d = new Date()) {
   const x = new Date(d);
@@ -102,22 +103,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleWorkoutToggle = async (activityId, value) => {
-    try {
-      await dailyStateAPI.applyAction({
-        date: dateKey,
-        action: 'TOGGLE_WORKOUT_ACTIVITY',
-        payload: {
-          activityId,
-          done: value,
-        },
-      });
 
-      loadData(); // 🔥 ESSENCIAL
-    } catch (e) {
-      toast.error('Erro ao atualizar treino');
-    }
-  };
 
   const openGoals = () => {
     if (dailyState?.goals) {
@@ -157,17 +143,20 @@ const Dashboard = () => {
 
   const sleepHours = dailyState?.sleepHours ?? 0;
 
-  if (loading || !dailyState) {
-    return <div className="text-gray-900 dark:text-white">Carregando...</div>;
-  }
-
-  const activities = dailyState?.workout?.activities || [];
+  const { workouts, toggleWorkout } = useWorkoutStore();
+  const activities = workouts;
   const totalActivities = activities.length;
   const completedActivities = activities.filter(a => a.completed).length;
   const workoutPercentage = totalActivities
     ? Math.round((completedActivities / totalActivities) * 100)
     : 0;
 
+  if (loading || !dailyState) {
+    return <div className="text-gray-900 dark:text-white">Carregando...</div>;
+  }
+
+  
+  
   return (
     <div className={`${styles.dashboard} bg-gray-100 dark:bg-gray-900`}>
       <Header />
@@ -224,7 +213,7 @@ const Dashboard = () => {
                   type="workout"
                   label={activity.name}
                   checked={Boolean(activity.completed)}
-                  onChange={(checked) => handleWorkoutToggle(activity.id, checked)}
+                  onChange={() => toggleWorkout(activity.id)}
                   onLabelClick={() => navigate('/workout')}
                 />
               ))}
