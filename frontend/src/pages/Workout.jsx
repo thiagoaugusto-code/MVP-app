@@ -25,7 +25,17 @@ const Workout = () => {
 
   async function load() {
     const res = await dailyStateAPI.get(dateKey);
-    setWorkouts(res.data.state.workout?.exercises || []);
+
+    const state = res.data.state;
+
+    // 🔥 EXECUÇÃO REAL (NÃO MEXE)
+    const realWorkout = state.workout?.exercises || [];
+
+    // 🆕 PLANO DO DIA (NOVA CAMADA)
+    const plan = state.workoutPlan || [];
+
+    // 👉 mantém execução, mas se não houver exercícios reais, usa plano
+    setWorkouts(realWorkout.length ? realWorkout : plan);
   }
 
   // -----------------------------
@@ -42,7 +52,13 @@ const Workout = () => {
     });
 
     const res = await dailyStateAPI.get(dateKey);
-    setWorkouts(res.data.state.workout?.exercises || []);
+    const state = res.data.state;
+
+      setWorkouts(
+        state?.workout?.exercises?.length
+          ? state.workout.exercises
+          : state?.workout?.plan || []
+      );
   };
 
   // -----------------------------

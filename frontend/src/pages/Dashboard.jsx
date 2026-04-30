@@ -148,7 +148,10 @@ const Dashboard = () => {
 
   const sleepHours = dailyState?.sleepHours ?? 0;
 
-  const activities = dailyState?.workout?.exercises || [];
+  const activities =
+    dailyState?.workout?.exercises?.length
+      ? dailyState.workout.exercises
+      : dailyState?.workout?.plan || [];
   const totalActivities = activities.length;
   const completedActivities = activities.filter(a => a.completed).length;
   const workoutPercentage = totalActivities
@@ -181,6 +184,41 @@ const Dashboard = () => {
             }
             onEditGoals={openGoals}
           />
+          {/* 🆕 NOVO: PLANO DE TREINO DO DIA (ROUTINE LAYER) */}
+          {dailyState?.workoutPlan && (
+            <section className={styles.section}>
+              <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>
+                Treino do dia
+              </h2>
+
+              {dailyState.workoutPlan.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>Hoje não há treino programado</p>
+                  <button onClick={() => navigate('/workout')}>
+                    Adicionar rotina
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.workoutPlan}>
+                  {dailyState.workoutPlan.map((w) => (
+                    <div
+                      key={w.id}
+                      className={styles.workoutPlanItem}
+                    >
+                      <div>
+                        <strong>{w.name}</strong>
+                        <p>{w.type}</p>
+                      </div>
+
+                      <button onClick={() => navigate('/workout')}>
+                        Iniciar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           <section className={styles.statsGrid}>
             <StatCard
