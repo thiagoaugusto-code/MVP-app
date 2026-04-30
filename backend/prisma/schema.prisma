@@ -28,6 +28,7 @@ model User {
   insights           Insight[]
   notifications      Notification[]
   pushSubscriptions  PushSubscription[]
+  workoutRoutines    WorkoutRoutine[]
   
   studentProfile     StudentProfile?
   collaboratorProfile CollaboratorProfile?
@@ -63,6 +64,7 @@ model DailyUserState {
   caloriesGoal     Int      @default(2000)
   mealsGoal        Int      @default(3)
   workoutGoal      Int      @default(3)
+  sessions         String?
   caloriesConsumed Int      @default(0)
   progressScore    Int      @default(0)
   calendarStatus   String   @default("red") // green | yellow | red
@@ -325,4 +327,21 @@ model ChatMetrics {
   dailyTokensDate DateTime?
   lastResetAt     DateTime  @default(now())
   totalCost       Float     @default(0)
+}
+
+model WorkoutRoutine {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  weekday   Int      // 0 = domingo, 1 = segunda...
+  name      String   // "Peito", "Costas", "Corrida", "Yoga", etc
+
+  type      String   // strength, cardio, yoga, pilates, swim, custom
+  enabled   Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, weekday])
 }

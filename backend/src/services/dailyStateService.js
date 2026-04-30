@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { getTodayWorkoutPlan } = require('./workoutRoutineService');
 
 const prisma = new PrismaClient();
 
@@ -29,7 +30,7 @@ function clamp(n, min, max) {
 // --------------------
 // CHECKLIST BUILDER
 // --------------------
-function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHours }) {
+function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHours, sessions }) {
   const checklist = [];
 
   for (const meal of meals) {
@@ -65,6 +66,14 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
     label: 'Sono',
     hours: sleepHours ?? null,
   });
+
+  checklist.push({
+  id: 'session',
+  kind: 'session',
+  label: 'Sessões do dia',
+  sessions: sessions ? JSON.parse(sessions) : [],
+});
+
 
   return checklist;
 }
@@ -140,6 +149,7 @@ async function rebuildDailyUserState(userId, date) {
     waterMl,
     waterGoalMl: row.waterGoalMl,
     sleepHours: row.sleepHours,
+    sessions: row.sessions,
   });
 
   const { progressScore, calendarStatus } = scoreAndCalendarStatus({
@@ -157,6 +167,15 @@ async function rebuildDailyUserState(userId, date) {
     ? JSON.parse(row.exercises)
     : [];
 
+   let routines = [];
+
+  try {
+    routines = await getTodayWorkoutPlan(userId, date);
+  } catch (e) {
+    console.warn('Workout routine ainda não ativa:', e.message);
+    routines = [];
+  }
+
   return {
     date,
     goals: {
@@ -171,6 +190,7 @@ async function rebuildDailyUserState(userId, date) {
     workout: {
       completed: workoutCompleted,
       exercises,
+      plan: routines,
     },
     checklist,
   };
@@ -376,6 +396,19 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         },
         data: {
           exercises: JSON.stringify(updated),
+        },
+      });
+
+      break;
+    }
+
+    case 'SET_SESSIONS': {
+      await prisma.dailyUserState.update({
+        where: {
+          userId_date: { userId, date: day },
+        },
+        data: {
+          sessions: JSON.stringify(payload.sessions || []),
         },
       });
 
