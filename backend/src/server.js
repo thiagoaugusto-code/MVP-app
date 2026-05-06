@@ -15,6 +15,7 @@ const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin');
 const notificationsRoutes = require('./routes/notifications');
 const socketService = require('./services/socketService');
+const workoutRoutineRoutes = require('./routes/workout-routine');
 
 const app = express();
 const server = http.createServer(app);
@@ -39,6 +40,7 @@ app.use('/api/daily-state', dailyStateRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/workout-routine', workoutRoutineRoutes);
 
 if (require.main === module) {
   server.listen(PORT, () => {

@@ -169,12 +169,20 @@ async function rebuildDailyUserState(userId, date) {
 
    let routines = [];
 
-  try {
-    routines = await getTodayWorkoutPlan(userId, date);
-  } catch (e) {
-    console.warn('Workout routine ainda não ativa:', e.message);
-    routines = [];
-  }
+      try {
+        routines = await getTodayWorkoutPlan(userId, date);
+      } catch (e) {
+        console.warn('Workout routine ainda não ativa:', e.message);
+        routines = [];
+      }
+
+      // 🔥 TRANSFORMA EM ATIVIDADES DO DIA
+      const routineActivities = routines.map(r => ({
+        id: `routine-${r.id}`,
+        name: r.name,
+        type: r.type,
+        completed: false, // depois vamos persistir isso
+      }));
 
   return {
     date,
@@ -189,7 +197,7 @@ async function rebuildDailyUserState(userId, date) {
     calendarStatus,
     workout: {
       completed: workoutCompleted,
-      exercises,
+      exercises: exercises.length > 0 ? exercises : routineActivities, // se tiver exercícios salvos, mostra eles. Senão, mostra a rotina do dia (se tiver)
       plan: routines,
     },
     checklist,
