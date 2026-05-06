@@ -1,0 +1,131 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.card {
+  width: 420px;
+  max-width: 95%;
+  background: #1f1f1f;
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: white;
+}
+
+/* WORKOUT LIST */
+.workouts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sessionBlock {
+  background: #2a2a2a;
+  padding: 12px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.activeBlock {
+  border: 1px solid #4caf50;
+}
+
+.sessionTitle {
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* DAYS */
+.days {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.day {
+  background: #333;
+  border: none;
+  color: #ccc;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.day:hover {
+  background: #444;
+}
+
+.dayActive {
+  background: #4caf50;
+  color: white;
+}
+
+/* ACTIONS */
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cancelBtn {
+  flex: 1;
+  background: #333;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  background: #444;
+}
+
+.saveBtn {
+  flex: 2;
+  background: #4caf50;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveBtn:hover {
+  background: #43a047;
+}

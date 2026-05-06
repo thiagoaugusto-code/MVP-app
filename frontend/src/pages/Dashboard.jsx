@@ -10,6 +10,7 @@ import DailySummaryCard from '../components/DailySummaryCard';
 import { usersAPI, dailyStateAPI } from '../services/api';
 import { useToast } from '../components/toast/ToastProvider';
 import styles from './Dashboard.module.css';
+import WorkoutRoutineSetup from './WorkoutRoutineSetup';
 
 
 function toDateKey(d = new Date()) {
@@ -34,6 +35,9 @@ const Dashboard = () => {
     mealsGoal: 3,
     workoutGoal: 1,
   });
+  const [showSetup, setShowSetup] = useState(false);
+
+
   const formatMealType = (type) => {
   const map = {
     breakfast: 'Café da Manhã',
@@ -70,6 +74,19 @@ const Dashboard = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!dailyState) return;
+
+    const hasRoutine =
+      dailyState?.checklist?.some(
+        item => item.kind === 'session' && item.sessions?.length > 0
+      );
+
+    if (!hasRoutine) {
+      setShowSetup(true);
+    }
+  }, [dailyState]);
 
   const applyAction = async (action, payload = {}) => {
     try {
@@ -165,6 +182,7 @@ const Dashboard = () => {
   
   
   return (
+
     <div className={`${styles.dashboard} bg-gray-100 dark:bg-gray-900`}>
       <Header />
 
@@ -195,7 +213,7 @@ const Dashboard = () => {
                 <div className={styles.emptyState}>
                   <p>Hoje não há treino programado</p>
                   <button onClick={() => navigate('/workout')}>
-                    Adicionar rotina
+                    Configurar rotina
                   </button>
                 </div>
               ) : (
@@ -348,6 +366,17 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showSetup && (
+        <WorkoutRoutineSetup
+          onClose={() => setShowSetup(false)}
+          onSave={ async (sessions) => {
+            await applyAction('SET_SESSIONS', { sessions });
+            setShowSetup(false);
+            loadData();
+          }}
+        />
       )}
 
       <BottomNavigation />
