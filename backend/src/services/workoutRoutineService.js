@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 async function getTodayWorkoutPlan(userId, date) {
   const day = new Date(date).getDay();
 
+  console.log('day:', day);
+
   const routines = await prisma.workoutRoutine.findMany({
     where: {
       userId,
@@ -14,6 +16,8 @@ async function getTodayWorkoutPlan(userId, date) {
       enabled: true,
     },
   });
+
+  console.log('routines:', routines);
 
   return routines;
 }

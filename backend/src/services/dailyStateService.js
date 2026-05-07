@@ -176,12 +176,12 @@ async function rebuildDailyUserState(userId, date) {
         routines = [];
       }
 
-      // 🔥 TRANSFORMA EM ATIVIDADES DO DIA
-      const routineActivities = routines.map(r => ({
-        id: `routine-${r.id}`,
-        name: r.name,
-        type: r.type,
-        completed: false, // depois vamos persistir isso
+      // 🔥 transforma rotinas em exercícios reais do dia
+      const autoExercises = routines.map(routine => ({
+        id: `routine-${routine.id}`,
+        name: routine.name,
+        type: routine.type,
+        completed: false,
       }));
 
   return {
@@ -197,7 +197,7 @@ async function rebuildDailyUserState(userId, date) {
     calendarStatus,
     workout: {
       completed: workoutCompleted,
-      exercises: exercises.length > 0 ? exercises : routineActivities, // se tiver exercícios salvos, mostra eles. Senão, mostra a rotina do dia (se tiver)
+      exercises: [...autoExercises, ...exercises],
       plan: routines,
     },
     checklist,
@@ -398,12 +398,17 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           : ex
       );
 
+      const allCompleted =
+        updated.length > 0 &&
+        updated.every(ex => ex.completed);
+
       await prisma.dailyUserState.update({
         where: {
           userId_date: { userId, date: day },
         },
         data: {
           exercises: JSON.stringify(updated),
+          workoutCompleted: allCompleted,
         },
       });
 
