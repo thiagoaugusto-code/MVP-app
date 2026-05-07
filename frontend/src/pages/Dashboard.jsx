@@ -165,10 +165,11 @@ const Dashboard = () => {
 
   const sleepHours = dailyState?.sleepHours ?? 0;
 
-  const activities =
-    dailyState?.workout?.exercises?.length
-      ? dailyState.workout.exercises
-      : dailyState?.workout?.plan || [];
+  const activities = [
+      ...(dailyState?.workout?.plan || []),
+      ...(dailyState?.workout?.exercises || []),
+    ];
+
   const totalActivities = activities.length;
   const completedActivities = activities.filter(a => a.completed).length;
   const workoutPercentage = totalActivities
@@ -197,9 +198,7 @@ const Dashboard = () => {
             dailyState={dailyState}
             weeklyActiveDays={weeklyActiveDays}
             onQuickWater={(amount = 100) => applyAction('ADD_WATER', { ml: amount })}
-            onQuickWorkoutToggle={() =>
-              applyAction('COMPLETE_WORKOUT', { done: !dailyState.workout?.completed })
-            }
+            onQuickWorkoutToggle={() => navigate('/workout')}
             onEditGoals={openGoals}
           />
           {/* 🆕 NOVO: PLANO DE TREINO DO DIA (ROUTINE LAYER) */}
