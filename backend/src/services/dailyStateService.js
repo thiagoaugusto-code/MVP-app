@@ -1,7 +1,10 @@
+const { toZonedTime, fromZonedTime } = require('date-fns-tz');
 const { PrismaClient } = require('@prisma/client');
 const { getTodayWorkoutPlan } = require('./workoutRoutineService');
 
 const prisma = new PrismaClient();
+
+const BRAZIL_TZ = 'America/Sao_Paulo';
 
 /*const DEFAULT_EXERCISES = [
   { id: 'ex-1', name: 'Aquecimento', durationMin: 5, completed: false, secondsDone: 0 },
@@ -12,16 +15,21 @@ const prisma = new PrismaClient();
 // HELPERS (DATE ONLY)
 // --------------------
 function startOfDay(date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const zonedDate = toZonedTime(date, BRAZIL_TZ);
+
+  zonedDate.setHours(0, 0, 0, 0);
+
+  return fromZonedTime(zonedDate, BRAZIL_TZ);
 }
 
 function endOfDay(date) {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
+  const zonedDate = toZonedTime(date, BRAZIL_TZ);
+
+  zonedDate.setHours(23, 59, 59, 999);
+
+  return fromZonedTime(zonedDate, BRAZIL_TZ);
 }
+
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
