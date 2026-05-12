@@ -17,9 +17,19 @@ router.post('/bulk', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Formato inválido' });
     }
 
-    await prisma.workoutRoutine.deleteMany({
-      where: { userId },
+
+    const existingRoutine = await prisma.workoutRoutine.findFirst({
+      where: {
+        userId,
+      },
     });
+
+    if (existingRoutine) {
+      return res.json({
+        success: true,
+        message: 'Rotina já existe',
+      });
+    }
 
     await prisma.workoutRoutine.createMany({
       data: routines.map(r => ({
