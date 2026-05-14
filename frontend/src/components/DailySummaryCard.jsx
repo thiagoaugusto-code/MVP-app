@@ -48,10 +48,10 @@ export default function DailySummaryCard({
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
   const waterMl = dailyState?.waterMl || 0;
   const meals = dailyState?.meals || [];
-  const activities = 
-    dailyState?.workout?.exercises?.length
-    ? dailyState.workout.exercises 
-    : dailyState?.workout?.plan || [];
+  const activities = [
+    ...(dailyState?.workout?.plan || []),
+    ...(dailyState?.workout?.exercises || []),
+  ];
   const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
   const isDone = waterMl >= waterGoalMl;
   
