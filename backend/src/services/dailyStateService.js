@@ -175,6 +175,11 @@ async function rebuildDailyUserState(userId, date) {
     ? JSON.parse(row.exercises)
     : [];
 
+  const completedWorkoutIds =
+    row.completedWorkoutIds
+      ? JSON.parse(row.completedWorkoutIds)
+      : [];
+
    let routines = [];
 
       try {
@@ -184,13 +189,33 @@ async function rebuildDailyUserState(userId, date) {
         routines = [];
       }
 
-      // 🔥 transforma rotinas em exercícios reais do dia
-      const autoExercises = routines.map(routine => ({
+      const mappedRoutines = routines.map(routine => ({
+        ...routine,
         id: `routine-${routine.id}`,
-        name: routine.name,
-        type: routine.type,
-        completed: false,
+        completed: completedWorkoutIds.includes(`routine-${routine.id}`),
       }));
+
+
+      const completedManualExercises =
+        exercises.filter(ex => ex.completed).length;
+
+      const completedRoutineExercises =
+        completedWorkoutIds.length;
+
+      const totalExercisesToday =
+        exercises.length + mappedRoutines.length;
+
+      const totalCompletedExercises =
+        completedManualExercises + completedRoutineExercises;
+
+      const workoutProgress =
+        totalExercisesToday > 0
+          ? totalCompletedExercises / totalExercisesToday
+          : 0;
+
+      
+      
+      console.log(mappedRoutines);
 
   return {
     date,
@@ -204,9 +229,12 @@ async function rebuildDailyUserState(userId, date) {
     progressScore,
     calendarStatus,
     workout: {
-      completed: workoutCompleted,
-      exercises: [...autoExercises, ...exercises],
-      plan: routines,
+      completed: workoutProgress >= 1,
+      progress: workoutProgress,
+      totalExercisesToday,
+      totalCompletedExercises,
+      exercises,
+      plan: mappedRoutines,
     },
     checklist,
   };
@@ -395,6 +423,51 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         },
       });
 
+      // --------------------
+      // ROTINAS AUTOMÁTICAS
+      // --------------------
+      if (payload.activityId.startsWith('routine-')) {
+
+        const completedWorkoutIds =
+          current?.completedWorkoutIds
+            ? JSON.parse(current.completedWorkoutIds)
+            : [];
+
+        let updatedCompletedIds = [...completedWorkoutIds];
+
+        if (payload.done) {
+          if (!updatedCompletedIds.includes(payload.activityId)) {
+            updatedCompletedIds.push(payload.activityId);
+          }
+        } else {
+          updatedCompletedIds =
+            updatedCompletedIds.filter(id => id !== payload.activityId);
+        }
+
+        const routines = await getTodayWorkoutPlan(userId, day);
+
+        const totalRoutines = routines.length;
+
+        const allRoutinesCompleted =
+          totalRoutines > 0 &&
+          updatedCompletedIds.length >= totalRoutines;
+
+        await prisma.dailyUserState.update({
+          where: {
+            userId_date: { userId, date: day },
+          },
+          data: {
+            completedWorkoutIds: JSON.stringify(updatedCompletedIds),
+            workoutCompleted: allRoutinesCompleted,
+          },
+        });
+
+        break;
+      }
+
+      // --------------------
+      // EXERCÍCIOS MANUAIS
+      // --------------------
       const exercises =
         current?.exercises
           ? JSON.parse(current.exercises)
