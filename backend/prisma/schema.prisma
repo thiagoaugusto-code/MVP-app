@@ -69,10 +69,11 @@ model DailyUserState {
   progressScore    Int      @default(0)
   calendarStatus   String   @default("red") // green | yellow | red
   workoutCompleted Boolean  @default(false)
-  completedWorkoutIds String?
+  
 
   /// JSON string: [{ id, name, durationMin, completed, secondsDone }]
   exercises        String?
+  completedWorkoutIds String?
   /// JSON string: snapshot of meals
   mealsSnapshot    String?
   /// JSON string: checklist items
