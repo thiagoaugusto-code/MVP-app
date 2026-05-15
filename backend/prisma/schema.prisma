@@ -235,17 +235,21 @@ model StudentCollaborator {
 }
 
 model Meal {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date          DateTime  @default(now())
-  mealType      String    // breakfast, lunch, dinner, snack, pre_workout, post_workout
-  completed     Boolean   @default(false)
-  totalCalories Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                Int       @id @default(autoincrement())
+  userId            Int
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime  @default(now())
+  mealType          String    // breakfast, lunch, dinner, snack, pre_workout, post_workout
+  inGoal            Boolean   @default(true)
+  registered        Boolean   @default(false)
+  photoUrl          String?
+  registrationNote  String?
+  completed         Boolean   @default(false)
+  totalCalories     Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  foodItems     FoodItem[]
+  foodItems         FoodItem[]
 
   @@unique([userId, date, mealType])
 }

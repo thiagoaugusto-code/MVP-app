@@ -1,6 +1,16 @@
 const { toZonedTime, fromZonedTime } = require('date-fns-tz');
 const { PrismaClient } = require('@prisma/client');
 const { getTodayWorkoutPlan } = require('./workoutRoutineService');
+const { getMealLabel } = require('../constants/meals');
+const {
+  ensureDailyMeals,
+  computeMealProgress,
+  getActiveGoalMeals,
+  setMealRegistered,
+  isMealRegistered,
+  startOfDay: mealStartOfDay,
+  endOfDay: mealEndOfDay,
+} = require('./mealService');
 
 const prisma = new PrismaClient();
 
@@ -46,9 +56,10 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
       id: meal.id,
       kind: 'meal',
       mealType: meal.mealType,
-      label: meal.mealType,
-      done: Boolean(meal.completed),
+      label: getMealLabel(meal.mealType),
+      done: isMealRegistered(meal),
       mealId: meal.id,
+      inGoal: true,
     });
   }
 
@@ -90,8 +101,7 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
 // SCORE SYSTEM
 // --------------------
 function scoreAndCalendarStatus({
-  mealsCompleted,
-  mealsGoal,
+  mealProgress,
   waterMl,
   waterGoalMl,
   workoutCompleted,
@@ -99,7 +109,10 @@ function scoreAndCalendarStatus({
   caloriesConsumed,
   caloriesGoal,
 }) {
-  const mealPart = mealsGoal > 0 ? (mealsCompleted / mealsGoal) * 40 : 0;
+  const inGoalCount = mealProgress?.inGoalCount ?? 0;
+  const registeredCount = mealProgress?.registeredCount ?? 0;
+  const mealPart =
+    inGoalCount > 0 ? (registeredCount / inGoalCount) * 40 : 0;
   const waterPart = waterGoalMl > 0 ? clamp(waterMl / waterGoalMl, 0, 1) * 25 : 0;
   const workoutPart = workoutCompleted ? 20 : 0;
   const sleepPart = sleepHours ? 5 : 0;
@@ -145,9 +158,14 @@ async function rebuildDailyUserState(userId, date) {
       },
     });
   }
-  const waterMl = row.waterMl ?? 0; 
+  const waterMl = row.waterMl ?? 0;
 
-  const meals = []; // (placeholder se não tiver meal aqui)
+  const { meals: allMeals } = await ensureDailyMeals(userId, date);
+  const meals = getActiveGoalMeals(allMeals);
+  const mealProgress = computeMealProgress(allMeals);
+  const caloriesConsumed = allMeals
+    .filter((m) => m.inGoal && m.registered)
+    .reduce((sum, m) => sum + (m.totalCalories || 0), 0);
 
   const workoutCompleted = Boolean(row.workoutCompleted);
 
@@ -161,13 +179,12 @@ async function rebuildDailyUserState(userId, date) {
   });
 
   const { progressScore, calendarStatus } = scoreAndCalendarStatus({
-    mealsCompleted: 0,
-    mealsGoal: row.mealsGoal,
+    mealProgress,
     waterMl,
     waterGoalMl: row.waterGoalMl,
     workoutCompleted,
     sleepHours: row.sleepHours,
-    caloriesConsumed: row.caloriesConsumed,
+    caloriesConsumed,
     caloriesGoal: row.caloriesGoal,
   });
 
@@ -213,18 +230,35 @@ async function rebuildDailyUserState(userId, date) {
           ? totalCompletedExercises / totalExercisesToday
           : 0;
 
-      
-      
-      console.log(mappedRoutines);
+  await prisma.dailyUserState.update({
+    where: { id: row.id },
+    data: {
+      progressScore,
+      calendarStatus,
+      caloriesConsumed,
+      mealsSnapshot: JSON.stringify(
+        meals.map((m) => ({
+          id: m.id,
+          mealType: m.mealType,
+          inGoal: m.inGoal,
+          registered: m.registered,
+        }))
+      ),
+      checklist: JSON.stringify(checklist),
+    },
+  });
 
   return {
     date,
     goals: {
       caloriesGoal: row.caloriesGoal,
       waterGoalMl: row.waterGoalMl,
-      mealsGoal: row.mealsGoal,
       workoutGoal: row.workoutGoal,
     },
+    meals,
+    mealProgress,
+    caloriesConsumed,
+    sleepHours: row.sleepHours,
     waterMl,
     progressScore,
     calendarStatus,
@@ -351,11 +385,37 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         data: {
           caloriesGoal: payload.caloriesGoal,
           waterGoalMl: payload.waterGoalMl,
-          mealsGoal: payload.mealsGoal,
           workoutGoal: payload.workoutGoal,
         },
       });
 
+      break;
+    }
+
+    case 'COMPLETE_MEAL_BY_ID': {
+      const meal = await prisma.meal.findUnique({
+        where: { id: parseInt(payload.mealId, 10) },
+      });
+      if (!meal || meal.userId !== userId) {
+        throw new Error('Refeição não encontrada');
+      }
+      if (!meal.inGoal) {
+        throw new Error('Refeição fora da meta diária');
+      }
+      await setMealRegistered(meal, Boolean(payload.done));
+      break;
+    }
+
+    case 'COMPLETE_MEAL': {
+      const { meals: dayMeals } = await ensureDailyMeals(userId, day);
+      const meal = dayMeals.find((m) => m.mealType === payload.mealType);
+      if (!meal) {
+        throw new Error('Refeição não encontrada');
+      }
+      if (!meal.inGoal) {
+        throw new Error('Refeição fora da meta diária');
+      }
+      await setMealRegistered(meal, Boolean(payload.done));
       break;
     }
 

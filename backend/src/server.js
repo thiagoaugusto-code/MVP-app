@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+const path = require('path');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const mealRoutes = require('./routes/meals');
@@ -25,7 +26,8 @@ const PORT = process.env.PORT || 3001;
 socketService.initialize(server);
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '6mb' }));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
