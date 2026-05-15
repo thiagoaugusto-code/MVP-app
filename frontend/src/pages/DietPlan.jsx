@@ -1,105 +1,142 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dietAPI } from '../services/api';
+import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
 import styles from './DietPlan.module.css';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 const DietPlan = () => {
+  const location = useLocation();
   const [meals, setMeals] = useState([]);
+  const [progress, setProgress] = useState({ inGoalCount: 0, registeredCount: 0, percent: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedMealType, setSelectedMealType] = useState('');
-  const [foodForm, setFoodForm] = useState({
-    name: '',
-    quantity: '',
-    unit: 'g',
-    calories: '',
-    protein: '',
-    carbs: '',
-    fat: '',
-    time: '',
-    notes: ''
-  });
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [registerMealId, setRegisterMealId] = useState(null);
+  const [registerMode, setRegisterMode] = useState('manual');
+  const [manualNote, setManualNote] = useState('');
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoData, setPhotoData] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const mealTypes = [
-    { value: 'breakfast', label: 'Café da Manhã' },
-    { value: 'lunch', label: 'Almoço' },
-    { value: 'dinner', label: 'Jantar' },
-    { value: 'snack', label: 'Lanches' },
-    { value: 'pre_workout', label: 'Pré Treino' },
-    { value: 'post_workout', label: 'Pós Treino' }
-  ];
-
-  useEffect(() => {
-    loadMeals();
-  }, []);
-
-  const loadMeals = async () => {
+  const loadMeals = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const today = new Date().toISOString().split('T')[0];
       const response = await dietAPI.getMeals(today);
-      setMeals(response.data);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setMeals(data);
+        setProgress(computeMealProgress(data));
+      } else {
+        setMeals(data.meals || []);
+        setProgress(data.progress || computeMealProgress(data.meals || []));
+      }
     } catch (err) {
       setError('Erro ao carregar refeições');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleAddMeal = async (mealType) => {
-    try {
-      await dietAPI.createMeal({ mealType });
-      loadMeals();
-    } catch (err) {
-      alert('Erro ao criar refeição');
+  useEffect(() => {
+    loadMeals();
+  }, [loadMeals, location.key]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') loadMeals();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [loadMeals]);
+
+  const applyMealsResponse = (response) => {
+    const data = response.data;
+    if (Array.isArray(data)) {
+      setMeals(data);
+      setProgress(computeMealProgress(data));
+    } else {
+      setMeals(data.meals || []);
+      setProgress(data.progress || computeMealProgress(data.meals || []));
     }
   };
 
-  const handleToggleComplete = async (mealId, completed) => {
+  const handleToggleInGoal = async (meal, inGoal) => {
     try {
-      await dietAPI.updateMeal(mealId, { completed: !completed });
-      loadMeals();
+      const response = await dietAPI.updateMeal(meal.id, { inGoal });
+      applyMealsResponse(response);
     } catch (err) {
-      alert('Erro ao atualizar refeição');
+      alert('Erro ao atualizar meta do dia');
     }
   };
 
-  const handleAddFood = async () => {
-    if (!selectedMealType) return;
-    const meal = meals.find(m => m.mealType === selectedMealType);
-    if (!meal) return;
+  const openRegisterModal = (meal) => {
+    setRegisterMealId(meal.id);
+    setRegisterMode('manual');
+    setManualNote('');
+    setPhotoPreview('');
+    setPhotoData('');
+    setShowRegisterModal(true);
+  };
 
+  const closeRegisterModal = () => {
+    setShowRegisterModal(false);
+    setRegisterMealId(null);
+    setManualNote('');
+    setPhotoPreview('');
+    setPhotoData('');
+  };
+
+  const handlePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      setPhotoData(result);
+      setPhotoPreview(result);
+      setRegisterMode('photo');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!registerMealId) return;
+
+    setSubmitting(true);
     try {
-      await dietAPI.addFoodItem(meal.id, foodForm);
-      setShowAddModal(false);
-      setFoodForm({
-        name: '', quantity: '', unit: 'g', calories: '', protein: '', carbs: '', fat: '', time: '', notes: ''
-      });
-      loadMeals();
+      const payload =
+        registerMode === 'photo'
+          ? { mode: 'photo', photoData }
+          : { mode: 'manual', note: manualNote };
+
+      const response = await dietAPI.registerMeal(registerMealId, payload);
+      applyMealsResponse(response);
+      closeRegisterModal();
     } catch (err) {
-      alert('Erro ao adicionar alimento');
+      alert(err.response?.data?.error || 'Erro ao registrar refeição');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleRemoveFood = async (mealId, foodId) => {
-    try {
-      await dietAPI.removeFoodItem(mealId, foodId);
-      loadMeals();
-    } catch (err) {
-      alert('Erro ao remover alimento');
-    }
+  const photoSrc = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `${API_BASE}${url}`;
   };
-
-  const totalCalories = meals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
-  const completedMeals = meals.filter(m => m.completed).length;
-  const adherence = meals.length > 0 ? Math.round((completedMeals / meals.length) * 100) : 0;
 
   return (
     <div className={styles.container}>
       <Header />
-      
+
       <main className={styles.main}>
         <div className={styles.content}>
           <section className={styles.header}>
@@ -109,54 +146,72 @@ const DietPlan = () => {
 
           <section className={styles.progress}>
             <div className={styles.progressLabel}>
-              <span>{totalCalories} kcal consumidas</span>
-              <span className={styles.percentage}>{adherence}% aderência</span>
+              <span>
+                {progress.registeredCount} de {progress.inGoalCount} refeições na meta
+              </span>
+              <span className={styles.percentage}>{progress.percent}%</span>
             </div>
             <div className={styles.progressBar}>
-              <div className={styles.progressFill} style={{ width: `${adherence}%` }} />
+              <div className={styles.progressFill} style={{ width: `${progress.percent}%` }} />
             </div>
           </section>
 
+          {error && <p className={styles.error}>{error}</p>}
+          {loading && <p className={styles.loading}>Carregando...</p>}
+
           <section className={styles.meals}>
-            {mealTypes.map(type => {
-              const meal = meals.find(m => m.mealType === type.value);
+            {MEAL_TYPES.map((type) => {
+              const meal = meals.find((m) => m.mealType === type.mealType);
+              if (!meal) return null;
+
               return (
-                <div key={type.value} className={styles.mealSection}>
+                <div key={type.mealType} className={styles.mealSection}>
                   <div className={styles.mealHeader}>
                     <h3>{type.label}</h3>
-                    {!meal ? (
-                      <button onClick={() => handleAddMeal(type.value)} className={styles.addMealBtn}>
-                        + Adicionar Refeição
-                      </button>
-                    ) : (
-                      <div className={styles.mealActions}>
-                        <span>{meal.totalCalories || 0} kcal</span>
-                        <input
-                          type="checkbox"
-                          checked={meal.completed}
-                          onChange={() => handleToggleComplete(meal.id, meal.completed)}
-                        />
-                      </div>
-                    )}
+                    <div className={styles.mealActions}>
+                      {isMealRegistered(meal) ? (
+                        <span className={styles.registeredBadge}>✅ Registrado</span>
+                      ) : meal.inGoal ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => openRegisterModal(meal)}
+                            className={styles.registerBtn}
+                          >
+                            📷 Registrar refeição
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleInGoal(meal, false)}
+                            className={styles.removeGoalBtn}
+                          >
+                            ➖ Remover da meta
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleInGoal(meal, true)}
+                          className={styles.addGoalBtn}
+                        >
+                          ➕ Adicionar à meta do dia
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {meal && (
-                    <div className={styles.foodItems}>
-                      {meal.foodItems.map(food => (
-                        <div key={food.id} className={styles.foodItem}>
-                          <div className={styles.foodInfo}>
-                            <span className={styles.foodName}>{food.name}</span>
-                            <span className={styles.foodDetails}>
-                              {food.quantity}{food.unit} - {food.calories} kcal
-                              {food.time && ` às ${food.time}`}
-                            </span>
-                            {food.notes && <span className={styles.foodNotes}>{food.notes}</span>}
-                          </div>
-                          <button onClick={() => handleRemoveFood(meal.id, food.id)} className={styles.removeBtn}>×</button>
-                        </div>
-                      ))}
-                      <button onClick={() => { setSelectedMealType(type.value); setShowAddModal(true); }} className={styles.addFoodBtn}>
-                        + Adicionar Alimento
-                      </button>
+
+                  {isMealRegistered(meal) && (meal.photoUrl || meal.registrationNote) && (
+                    <div className={styles.registrationDetail}>
+                      {meal.photoUrl && (
+                        <img
+                          src={photoSrc(meal.photoUrl)}
+                          alt={`Registro ${type.label}`}
+                          className={styles.mealPhoto}
+                        />
+                      )}
+                      {meal.registrationNote && (
+                        <p className={styles.registrationNote}>{meal.registrationNote}</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -164,56 +219,60 @@ const DietPlan = () => {
             })}
           </section>
 
-          {showAddModal && (
+          {showRegisterModal && (
             <div className={styles.modal}>
               <div className={styles.modalContent}>
-                <h3>Adicionar Alimento</h3>
-                <form onSubmit={(e) => { e.preventDefault(); handleAddFood(); }}>
-                  <input
-                    type="text"
-                    placeholder="Nome do alimento"
-                    value={foodForm.name}
-                    onChange={(e) => setFoodForm({...foodForm, name: e.target.value})}
-                    required
-                  />
-                  <div className={styles.quantityRow}>
-                    <input
-                      type="number"
-                      placeholder="Quantidade"
-                      value={foodForm.quantity}
-                      onChange={(e) => setFoodForm({...foodForm, quantity: e.target.value})}
-                      required
-                    />
-                    <select
-                      value={foodForm.unit}
-                      onChange={(e) => setFoodForm({...foodForm, unit: e.target.value})}
+                <h3>Registrar refeição</h3>
+                <form onSubmit={handleRegister}>
+                  <div className={styles.registerTabs}>
+                    <button
+                      type="button"
+                      className={registerMode === 'manual' ? styles.tabActive : styles.tab}
+                      onClick={() => setRegisterMode('manual')}
                     >
-                      <option value="g">g</option>
-                      <option value="ml">ml</option>
-                      <option value="unit">unidade</option>
-                    </select>
+                      Manual
+                    </button>
+                    <button
+                      type="button"
+                      className={registerMode === 'photo' ? styles.tabActive : styles.tab}
+                      onClick={() => setRegisterMode('photo')}
+                    >
+                      Foto
+                    </button>
                   </div>
-                  <input
-                    type="number"
-                    placeholder="Calorias"
-                    value={foodForm.calories}
-                    onChange={(e) => setFoodForm({...foodForm, calories: e.target.value})}
-                    required
-                  />
-                  <input
-                    type="time"
-                    placeholder="Horário"
-                    value={foodForm.time}
-                    onChange={(e) => setFoodForm({...foodForm, time: e.target.value})}
-                  />
-                  <textarea
-                    placeholder="Observações"
-                    value={foodForm.notes}
-                    onChange={(e) => setFoodForm({...foodForm, notes: e.target.value})}
-                  />
+
+                  {registerMode === 'manual' ? (
+                    <textarea
+                      placeholder="Descreva o que você comeu..."
+                      value={manualNote}
+                      onChange={(e) => setManualNote(e.target.value)}
+                      required
+                      rows={4}
+                    />
+                  ) : (
+                    <div className={styles.photoUpload}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePhotoSelect}
+                      />
+                      {photoPreview && (
+                        <img src={photoPreview} alt="Prévia" className={styles.photoPreview} />
+                      )}
+                    </div>
+                  )}
+
                   <div className={styles.modalActions}>
-                    <button type="button" onClick={() => setShowAddModal(false)}>Cancelar</button>
-                    <button type="submit">Adicionar</button>
+                    <button type="button" onClick={closeRegisterModal}>
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting || (registerMode === 'photo' && !photoData)}
+                    >
+                      {submitting ? 'Salvando...' : 'Registrar'}
+                    </button>
                   </div>
                 </form>
               </div>

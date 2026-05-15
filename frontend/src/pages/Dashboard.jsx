@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import StatCard from '../components/StatCard';
@@ -8,6 +8,12 @@ import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
 import DailySummaryCard from '../components/DailySummaryCard';
 import { usersAPI, dailyStateAPI } from '../services/api';
+import {
+  getMealLabel,
+  isMealRegistered,
+  getActiveGoalMeals,
+  sortMealsByType,
+} from '../constants/meals';
 import { useToast } from '../components/toast/ToastProvider';
 import styles from './Dashboard.module.css';
 import WorkoutRoutineSetup from './WorkoutRoutineSetup';
@@ -23,6 +29,7 @@ function toDateKey(d = new Date()) {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const [dailyState, setDailyState] = useState(null);
   const [user, setUser] = useState(null);
@@ -32,23 +39,10 @@ const Dashboard = () => {
   const [goalForm, setGoalForm] = useState({
     caloriesGoal: 2000,
     waterGoalMl: 2000,
-    mealsGoal: 3,
     workoutGoal: 1,
   });
   const [showSetup, setShowSetup] = useState(false);
 
-
-  const formatMealType = (type) => {
-  const map = {
-    breakfast: 'Café da Manhã',
-    lunch: 'Almoço',
-    dinner: 'Jantar',
-    snack: 'Lanche',
-    pre_workout: 'Pré-treino',
-    post_workout: 'Pós-treino',
-  };
-  return map[type] || type;
-};
 
   const dateKey = toDateKey();
 
@@ -73,6 +67,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadData();
+  }, [loadData, location.key]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') loadData();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [loadData]);
 
   useEffect(() => {
@@ -113,15 +115,14 @@ const Dashboard = () => {
   };
   const handleMealToggle = async (mealId, value) => {
     try {
-      await dailyStateAPI.applyAction({
+      const res = await dailyStateAPI.applyAction({
         date: dateKey,
         action: 'COMPLETE_MEAL_BY_ID',
         payload: { mealId, done: value },
       });
-
-      loadData();
+      setDailyState(res.data.state);
     } catch (e) {
-      toast.error('Erro ao atualizar refeição');
+      toast.error(e.response?.data?.error || 'Erro ao atualizar refeição');
     }
   };
 
@@ -132,7 +133,6 @@ const Dashboard = () => {
       setGoalForm({
         caloriesGoal: dailyState.goals.caloriesGoal,
         waterGoalMl: dailyState.goals.waterGoalMl,
-        mealsGoal: dailyState.goals.mealsGoal,
         workoutGoal: dailyState.goals.workoutGoal,
       });
     }
@@ -143,7 +143,6 @@ const Dashboard = () => {
     await applyAction('UPDATE_GOAL', {
       caloriesGoal: Number(goalForm.caloriesGoal),
       waterGoalMl: Number(goalForm.waterGoalMl),
-      mealsGoal: Number(goalForm.mealsGoal),
       workoutGoal: Number(goalForm.workoutGoal),
     });
 
@@ -153,10 +152,11 @@ const Dashboard = () => {
     toast.success('Metas atualizadas');
   };
 
-  const meals = dailyState?.meals || [];
+  const meals = useMemo(
+    () => sortMealsByType(getActiveGoalMeals(dailyState)),
+    [dailyState]
+  );
   const totalCalories = dailyState?.caloriesConsumed ?? 0;
-  const completedMeals = meals.filter((m) => m.completed).length;
-  const mealPercentage = meals.length > 0 ? Math.round((completedMeals / meals.length) * 100) : 0;
   const streak = user?.streak || 0;
 
   const waterGoalMl = dailyState?.goals?.waterGoalMl || 2000;
@@ -259,8 +259,8 @@ const Dashboard = () => {
                   key={meal.id}
                   id={meal.id}
                   type="meal"
-                  label={formatMealType(meal.mealType)}
-                  checked={Boolean(meal.completed)}
+                  label={getMealLabel(meal.mealType)}
+                  checked={isMealRegistered(meal)}
                   onChange={(checked) => handleMealToggle(meal.id, checked)}
                   onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
                 />
@@ -345,16 +345,9 @@ const Dashboard = () => {
                 onChange={(e) => setGoalForm((prev) => ({ ...prev, waterGoalMl: e.target.value }))}
               />
             </label>
-            <label>
-              Meta de refeições principais 
-              <input
-                type="number"
-                min="1"
-                max="6"
-                value={goalForm.mealsGoal}
-                onChange={(e) => setGoalForm((prev) => ({ ...prev, mealsGoal: e.target.value }))}
-              />
-            </label>
+            <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 0.5rem' }}>
+              Refeições da meta são definidas no plano alimentar.
+            </p>
             <div className={styles.goalsActions}>
               <button type="button" onClick={() => setShowGoalsModal(false)}>
                 Cancelar

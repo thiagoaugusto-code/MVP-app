@@ -35,6 +35,7 @@ export const dietAPI = {
   getMeals: (date) => api.get('/meals', { params: { date } }),
   createMeal: (data) => api.post('/meals', data),
   updateMeal: (id, data) => api.patch(`/meals/${id}`, data),
+  registerMeal: (id, data) => api.post(`/meals/${id}/register`, data),
   deleteMeal: (id) => api.delete(`/meals/${id}`),
   addFoodItem: (mealId, data) => api.post(`/meals/${mealId}/food`, data),
   removeFoodItem: (mealId, foodId) => api.delete(`/meals/${mealId}/food/${foodId}`),

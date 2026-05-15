@@ -107,8 +107,13 @@ const Calendar = () => {
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   const breakfastDone = Boolean(
-    selectedState?.meals?.find((m) => m.mealType === 'breakfast')?.completed
+    selectedState?.meals?.find((m) => m.mealType === 'breakfast')?.registered
   );
+  const mealProgress = selectedState?.mealProgress || {
+    registeredCount: selectedState?.meals?.filter((m) => m.registered).length || 0,
+    inGoalCount: selectedState?.meals?.length || 0,
+    percent: 0,
+  };
 
   return (
     <div className={styles.calendar}>
@@ -165,9 +170,8 @@ const Calendar = () => {
                   </div>
                   <div className={styles.stat}>
                     <span>
-                      Refeições:{' '}
-                      {selectedState.meals?.filter((m) => m.completed).length || 0}/
-                      {selectedState.meals?.length || 0}
+                      Refeições na meta:{' '}
+                      {mealProgress.registeredCount}/{mealProgress.inGoalCount} ({mealProgress.percent}%)
                     </span>
                   </div>
                   <div className={styles.stat}>

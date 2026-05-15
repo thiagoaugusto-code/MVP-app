@@ -89,7 +89,9 @@
 .mealHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-bottom: 0.75rem;
 }
 
@@ -108,12 +110,6 @@
   border-radius: 0.5rem;
   font-size: 0.875rem;
   cursor: pointer;
-}
-
-.mealActions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .mealActions span {
@@ -266,4 +262,109 @@
 
 .spacer {
   height: 2rem;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.loading {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.mealActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.addGoalBtn,
+.registerBtn,
+.removeGoalBtn {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.addGoalBtn {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.registerBtn {
+  background: #3b82f6;
+  color: white;
+}
+
+.removeGoalBtn {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.registeredBadge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.registrationDetail {
+  margin-top: 0.75rem;
+}
+
+.mealPhoto {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.registrationNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.registerTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab,
+.tabActive {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.tabActive {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.photoUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.photoPreview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 0.5rem;
 }

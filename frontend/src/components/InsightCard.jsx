@@ -30,9 +30,9 @@ const InsightCard = () => {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const s = await loadState(date);
-        const breakfastMissed = !s.meals?.find((m) => m.mealType === 'breakfast')?.completed;
-        const lunchMissed = !s.meals?.find((m) => m.mealType === 'lunch')?.completed;
-        const dinnerMissed = !s.meals?.find((m) => m.mealType === 'dinner')?.completed;
+        const breakfastMissed = !s.meals?.find((m) => m.mealType === 'breakfast')?.registered;
+        const lunchMissed = !s.meals?.find((m) => m.mealType === 'lunch')?.registered;
+        const dinnerMissed = !s.meals?.find((m) => m.mealType === 'dinner')?.registered;
         if (breakfastMissed && lunchMissed && dinnerMissed) {
           insights.push(`Você não registrou refeições há ${i} dias. Que tal começar hoje?`);
           break;
@@ -73,9 +73,9 @@ const InsightCard = () => {
       const consistency =
         weekStates.reduce((acc, s) => {
           const score =
-            (s.meals?.find((m) => m.mealType === 'breakfast')?.completed ? 1 : 0) +
-            (s.meals?.find((m) => m.mealType === 'lunch')?.completed ? 1 : 0) +
-            (s.meals?.find((m) => m.mealType === 'dinner')?.completed ? 1 : 0) +
+            (s.meals?.find((m) => m.mealType === 'breakfast')?.registered ? 1 : 0) +
+            (s.meals?.find((m) => m.mealType === 'lunch')?.registered ? 1 : 0) +
+            (s.meals?.find((m) => m.mealType === 'dinner')?.registered ? 1 : 0) +
             (s.workout?.completed ? 1 : 0);
           return acc + score;
         }, 0) /
