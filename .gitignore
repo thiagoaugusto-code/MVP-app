@@ -31,5 +31,8 @@ logs
 *.db
 *.sqlite
 
+# Meal photo uploads
+backend/uploads/
+
 # Prisma
 prisma/migrations/*/migration.sql
