@@ -95,6 +95,7 @@ async function dedupeDailyMeals(userId, dayStart, dayEnd) {
     const canonical = pickCanonicalMeal(list, dayStart);
     const duplicateIds = list.filter((m) => m.id !== canonical.id).map((m) => m.id);
     const mergedRegistered = list.some((m) => m.registered);
+    const mergedInGoal = list.some((m) => m.inGoal);
     const withPhoto = list.find((m) => m.photoUrl);
     const withNote = list.find((m) => m.registrationNote);
 
@@ -112,13 +113,24 @@ async function dedupeDailyMeals(userId, dayStart, dayEnd) {
         date: dayStart,
         registered: mergedRegistered,
         completed: mergedRegistered,
-        inGoal: canonical.inGoal,
+        inGoal: mergedInGoal,
         photoUrl: withPhoto?.photoUrl ?? canonical.photoUrl,
         registrationNote: withNote?.registrationNote ?? canonical.registrationNote,
         totalCalories: Math.max(...list.map((m) => m.totalCalories || 0)),
       },
     });
   }
+}
+
+// Helper exported for unit tests: merge logical attributes from duplicate meal rows
+function mergeMealAttributes(list = []) {
+  return {
+    mergedRegistered: list.some((m) => m.registered),
+    mergedInGoal: list.some((m) => m.inGoal),
+    photoUrl: list.find((m) => m.photoUrl)?.photoUrl,
+    registrationNote: list.find((m) => m.registrationNote)?.registrationNote,
+    totalCalories: Math.max(...list.map((m) => m.totalCalories || 0)),
+  };
 }
 
 async function setMealRegistered(meal, registered, extras = {}) {
@@ -247,4 +259,5 @@ module.exports = {
   isMealRegistered,
   pickCanonicalMeal,
   MEAL_TYPES,
+  mergeMealAttributes,
 };
