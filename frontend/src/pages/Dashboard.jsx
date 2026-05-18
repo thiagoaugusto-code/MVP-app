@@ -78,6 +78,26 @@ const Dashboard = () => {
   }, [loadData]);
 
   useEffect(() => {
+    const handleMealStateChanged = () => {
+      loadData();
+    };
+
+    window.addEventListener(
+      'meal-state-changed',
+      handleMealStateChanged
+    );
+
+    return () => {
+      window.removeEventListener(
+        'meal-state-changed',
+        handleMealStateChanged
+      );
+    };
+  }, [loadData]);
+
+
+
+  useEffect(() => {
     if (!dailyState) return;
 
     const hasRoutine =

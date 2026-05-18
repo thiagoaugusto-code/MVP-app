@@ -70,6 +70,9 @@ const DietPlan = () => {
     try {
       const response = await dietAPI.updateMeal(meal.id, { inGoal });
       applyMealsResponse(response);
+
+      window.dispatchEvent(new CustomEvent('meal-state-changed')
+    );
     } catch (err) {
       alert('Erro ao atualizar meta do dia');
     }
@@ -119,6 +122,9 @@ const DietPlan = () => {
 
       const response = await dietAPI.registerMeal(registerMealId, payload);
       applyMealsResponse(response);
+
+      window.dispatchEvent(new CustomEvent('meal-state-changed'));
+      
       closeRegisterModal();
     } catch (err) {
       alert(err.response?.data?.error || 'Erro ao registrar refeição');
