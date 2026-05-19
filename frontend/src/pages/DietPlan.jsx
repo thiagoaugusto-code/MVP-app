@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
-import { dietAPI } from '../services/api';
+import { dietAPI, dailyStateAPI } from '../services/api';
 import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
 import styles from './DietPlan.module.css';
 
@@ -27,15 +27,21 @@ const DietPlan = () => {
     setError('');
     try {
       const today = new Date().toISOString().split('T')[0];
-      const response = await dietAPI.getMeals(today);
-      const data = response.data;
-      if (Array.isArray(data)) {
-        setMeals(data);
-        setProgress(computeMealProgress(data));
-      } else {
-        setMeals(data.meals || []);
-        setProgress(data.progress || computeMealProgress(data.meals || []));
-      }
+      
+      
+      const response = await dailyStateAPI.get(today);
+
+      const state = response.data.state;
+
+      setMeals(state.meals || []);
+
+      setProgress(
+        state.mealProgress || {
+          inGoalCount: 0,
+          registeredCount: 0,
+          percent: 0,
+        }
+      );
     } catch (err) {
       setError('Erro ao carregar refeições');
     } finally {
@@ -167,16 +173,22 @@ const DietPlan = () => {
 
           <section className={styles.meals}>
             {MEAL_TYPES.map((type) => {
-              const meal = meals.find((m) => m.mealType === type.mealType);
+              const meal = meals.find(
+                (m) => m.mealType === type.mealType
+              );
+
               if (!meal) return null;
 
               return (
-                <div key={type.mealType} className={styles.mealSection}>
+                <div key={meal.id} className={styles.mealSection}>
                   <div className={styles.mealHeader}>
                     <h3>{type.label}</h3>
+
                     <div className={styles.mealActions}>
                       {isMealRegistered(meal) ? (
-                        <span className={styles.registeredBadge}>✅ Registrado</span>
+                        <span className={styles.registeredBadge}>
+                          ✅ Registrado
+                        </span>
                       ) : meal.inGoal ? (
                         <>
                           <button
@@ -186,9 +198,12 @@ const DietPlan = () => {
                           >
                             📷 Registrar refeição
                           </button>
+
                           <button
                             type="button"
-                            onClick={() => handleToggleInGoal(meal, false)}
+                            onClick={() =>
+                              handleToggleInGoal(meal, false)
+                            }
                             className={styles.removeGoalBtn}
                           >
                             ➖ Remover da meta
@@ -197,7 +212,9 @@ const DietPlan = () => {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => handleToggleInGoal(meal, true)}
+                          onClick={() =>
+                            handleToggleInGoal(meal, true)
+                          }
                           className={styles.addGoalBtn}
                         >
                           ➕ Adicionar à meta do dia
@@ -206,20 +223,24 @@ const DietPlan = () => {
                     </div>
                   </div>
 
-                  {isMealRegistered(meal) && (meal.photoUrl || meal.registrationNote) && (
-                    <div className={styles.registrationDetail}>
-                      {meal.photoUrl && (
-                        <img
-                          src={photoSrc(meal.photoUrl)}
-                          alt={`Registro ${type.label}`}
-                          className={styles.mealPhoto}
-                        />
-                      )}
-                      {meal.registrationNote && (
-                        <p className={styles.registrationNote}>{meal.registrationNote}</p>
-                      )}
-                    </div>
-                  )}
+                  {isMealRegistered(meal) &&
+                    (meal.photoUrl || meal.registrationNote) && (
+                      <div className={styles.registrationDetail}>
+                        {meal.photoUrl && (
+                          <img
+                            src={photoSrc(meal.photoUrl)}
+                            alt={`Registro ${type.label}`}
+                            className={styles.mealPhoto}
+                          />
+                        )}
+
+                        {meal.registrationNote && (
+                          <p className={styles.registrationNote}>
+                            {meal.registrationNote}
+                          </p>
+                        )}
+                      </div>
+                    )}
                 </div>
               );
             })}
