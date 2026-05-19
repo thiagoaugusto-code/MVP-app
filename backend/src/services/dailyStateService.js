@@ -161,8 +161,15 @@ async function rebuildDailyUserState(userId, date) {
   const waterMl = row.waterMl ?? 0;
 
   const { meals: allMeals } = await ensureDailyMeals(userId, date);
-  const meals = getActiveGoalMeals(allMeals);
+
+  // TODAS refeições do dia
+  const meals = allMeals;
+
+  // SOMENTE refeições da meta
+  const activeMeals = allMeals.filter(meal => meal.inGoal);
+
   const mealProgress = computeMealProgress(allMeals);
+
   const caloriesConsumed = allMeals
     .filter((m) => m.inGoal && m.registered)
     .reduce((sum, m) => sum + (m.totalCalories || 0), 0);
@@ -170,7 +177,7 @@ async function rebuildDailyUserState(userId, date) {
   const workoutCompleted = Boolean(row.workoutCompleted);
 
   const checklist = buildChecklist({
-    meals,
+    meals: activeMeals,
     workoutCompleted,
     waterMl,
     waterGoalMl: row.waterGoalMl,
