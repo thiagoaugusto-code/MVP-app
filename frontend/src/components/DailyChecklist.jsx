@@ -1,3 +1,14 @@
+/* Componente de Checklist Diário */
+/* Este componente exibe uma lista de tarefas diárias com checkboxes para marcar como concluídas. */
+/*Componente simples, e morre para o estado local, sem integração com backend por enquanto.*/
+/*Não utilizado
+Sem imports
+Sem renderização
+Sem integração*/
+
+/* Remover arquivo se não for utilizado */
+
+/* Exemplo de uso:
 import { useState } from 'react';
 
 const DailyChecklist = ({ items }) => {
@@ -33,4 +44,5 @@ const DailyChecklist = ({ items }) => {
   );
 };
 
-export default DailyChecklist;
+export default DailyChecklist;]
+*/
