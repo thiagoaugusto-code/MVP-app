@@ -1,8 +1,22 @@
 import styles from './CheckItem.module.css';
+import { Camera } from 'lucide-react';
 
-const CheckItem = ({ id, type, label, checked, value, maxValue, onChange }) => {
+
+
+  const CheckItem = ({
+    id,
+    type,
+    label,
+    checked,
+    value,
+    maxValue,
+    onChange,
+    onCameraClick,
+    isMealRegistered,
+  }) => {  
   const isWater = type === 'water';
   const isSleep = type === 'sleep';
+  const isMeal = type === 'meal';
 
   if (isWater || isSleep) {
     return (
@@ -25,19 +39,37 @@ const CheckItem = ({ id, type, label, checked, value, maxValue, onChange }) => {
 
   return (
     <div className={styles.item}>
-      <input
-        type="checkbox"
-        id={`check-${id}`}
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className={styles.checkbox}
-      />
-      <label htmlFor={`check-${id}`} className={styles.label}>
-        {label}
-      </label>
-      <span className={`${styles.indicator} ${checked ? styles.checked : ''}`}>
-        ✓
-      </span>
+      <div className={styles.content}>
+        <input
+          type="checkbox"
+          id={`check-${id}`}
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className={styles.checkbox}
+        />
+
+        <label htmlFor={`check-${id}`} className={styles.label}>
+          {label}
+        </label>
+      </div>
+
+      <div className={styles.right}>
+        {isMeal ? (
+          <button
+            type="button"
+            onClick={onCameraClick}
+            className={`${styles.cameraButton} ${
+              isMealRegistered ? styles.cameraDone : ''
+            }`}
+          >
+            {isMealRegistered ? '✓' : <Camera size={25} />}
+          </button>
+        ) : (
+          <span className={`${styles.indicator} ${checked ? styles.checked : ''}`}>
+            ✓
+          </span>
+        )}
+      </div>
     </div>
   );
 };

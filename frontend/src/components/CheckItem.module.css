@@ -102,3 +102,42 @@
     transform: scale(1) rotate(0deg);
   }
 }
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}
+
+.cameraButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background:none;
+  color: #3b82f6;
+  font-size: 1.50rem;
+  cursor: pointer;
+  transition: 0.2s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  line-height: 1;
+}
+
+.cameraButton:hover {
+  transform: scale(1.25);
+}
+
+.cameraDone {
+  background: #16a34a;
+}

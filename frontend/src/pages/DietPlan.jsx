@@ -5,6 +5,7 @@ import BottomNavigation from '../components/BottomNavigation';
 import { dietAPI, dailyStateAPI } from '../services/api';
 import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
 import styles from './DietPlan.module.css';
+import MealRegisterModal from '../components/MealRegisterModal';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -246,65 +247,19 @@ const DietPlan = () => {
             })}
           </section>
 
-          {showRegisterModal && (
-            <div className={styles.modal}>
-              <div className={styles.modalContent}>
-                <h3>Registrar refeição</h3>
-                <form onSubmit={handleRegister}>
-                  <div className={styles.registerTabs}>
-                    <button
-                      type="button"
-                      className={registerMode === 'manual' ? styles.tabActive : styles.tab}
-                      onClick={() => setRegisterMode('manual')}
-                    >
-                      Manual
-                    </button>
-                    <button
-                      type="button"
-                      className={registerMode === 'photo' ? styles.tabActive : styles.tab}
-                      onClick={() => setRegisterMode('photo')}
-                    >
-                      Foto
-                    </button>
-                  </div>
-
-                  {registerMode === 'manual' ? (
-                    <textarea
-                      placeholder="Descreva o que você comeu..."
-                      value={manualNote}
-                      onChange={(e) => setManualNote(e.target.value)}
-                      required
-                      rows={4}
-                    />
-                  ) : (
-                    <div className={styles.photoUpload}>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handlePhotoSelect}
-                      />
-                      {photoPreview && (
-                        <img src={photoPreview} alt="Prévia" className={styles.photoPreview} />
-                      )}
-                    </div>
-                  )}
-
-                  <div className={styles.modalActions}>
-                    <button type="button" onClick={closeRegisterModal}>
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={submitting || (registerMode === 'photo' && !photoData)}
-                    >
-                      {submitting ? 'Salvando...' : 'Registrar'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+          <MealRegisterModal
+            open={showRegisterModal}
+            onClose={closeRegisterModal}
+            onSubmit={handleRegister}
+            registerMode={registerMode}
+            setRegisterMode={setRegisterMode}
+            manualNote={manualNote}
+            setManualNote={setManualNote}
+            photoPreview={photoPreview}
+            photoData={photoData}
+            onPhotoSelect={handlePhotoSelect}
+            submitting={submitting}
+          />
 
           <div className={styles.spacer} />
         </div>

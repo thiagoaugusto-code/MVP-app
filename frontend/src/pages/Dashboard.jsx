@@ -7,14 +7,16 @@ import CheckItem from '../components/CheckItem';
 import StreakCard from '../components/StreakCard';
 import InsightCard from '../components/InsightCard';
 import DailySummaryCard from '../components/DailySummaryCard';
-import { usersAPI, dailyStateAPI } from '../services/api';
+import { useToast } from '../components/toast/ToastProvider';
+import MealRegisterModal from '../components/MealRegisterModal';
+
+import { usersAPI, dailyStateAPI, dietAPI } from '../services/api';
 import {
   getMealLabel,
   isMealRegistered,
   getActiveGoalMeals,
   sortMealsByType,
 } from '../constants/meals';
-import { useToast } from '../components/toast/ToastProvider';
 import styles from './Dashboard.module.css';
 import WorkoutRoutineSetup from './WorkoutRoutineSetup';
 
@@ -42,6 +44,16 @@ const Dashboard = () => {
     workoutGoal: 1,
   });
   const [showSetup, setShowSetup] = useState(false);
+
+// NOVO: ESTADOS PARA REGISTRO DE REFEIÇÃO
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [registerMealId, setRegisterMealId] = useState(null);
+
+  const [registerMode, setRegisterMode] = useState('manual');
+  const [manualNote, setManualNote] = useState('');
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoData, setPhotoData] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
 
   const dateKey = toDateKey();
@@ -143,6 +155,88 @@ const Dashboard = () => {
       setDailyState(res.data.state);
     } catch (e) {
       toast.error(e.response?.data?.error || 'Erro ao atualizar refeição');
+    }
+  };
+
+
+  const openRegisterModal = (mealId) => {
+    setRegisterMealId(mealId);
+
+    setRegisterMode('manual');
+    setManualNote('');
+    setPhotoPreview('');
+    setPhotoData('');
+
+    setShowRegisterModal(true);
+  };
+
+  const closeRegisterModal = () => {
+    setShowRegisterModal(false);
+
+    setRegisterMealId(null);
+
+    setRegisterMode('manual');
+    setManualNote('');
+    setPhotoPreview('');
+    setPhotoData('');
+  };
+
+  const handlePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result;
+
+      setPhotoData(result);
+      setPhotoPreview(result);
+
+      setRegisterMode('photo');
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleRegisterMeal = async (e) => {
+    e.preventDefault();
+
+    if (!registerMealId) return;
+
+    setSubmitting(true);
+
+    try {
+      const payload =
+        registerMode === 'photo'
+          ? {
+              mode: 'photo',
+              photoData,
+            }
+          : {
+              mode: 'manual',
+              note: manualNote,
+            };
+
+      await dietAPI.registerMeal(registerMealId, payload);
+
+      window.dispatchEvent(
+        new CustomEvent('meal-state-changed')
+      );
+
+      await loadData();
+
+      closeRegisterModal();
+
+      toast.success('Refeição registrada');
+    } catch (err) {
+      toast.error(
+        err.response?.data?.error ||
+        'Erro ao registrar refeição'
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -274,6 +368,7 @@ const Dashboard = () => {
           <section className={styles.section}>
             <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
             <div className={styles.checklist}>
+
               {meals.map((meal) => (
                 <CheckItem
                   key={meal.id}
@@ -283,8 +378,11 @@ const Dashboard = () => {
                   checked={isMealRegistered(meal)}
                   onChange={(checked) => handleMealToggle(meal.id, checked)}
                   onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
+                  onCameraClick={() => openRegisterModal(meal.id)}
                 />
               ))}
+
+
               {activities.map((activity) => (
                 <CheckItem
                   key={activity.id}
@@ -390,6 +488,19 @@ const Dashboard = () => {
           }}
         />
       )}
+      <MealRegisterModal
+        open={showRegisterModal}
+        onClose={closeRegisterModal}
+        onSubmit={handleRegisterMeal}
+        registerMode={registerMode}
+        setRegisterMode={setRegisterMode}
+        manualNote={manualNote}
+        setManualNote={setManualNote}
+        photoPreview={photoPreview}
+        photoData={photoData}
+        onPhotoSelect={handlePhotoSelect}    
+        submitting={submitting}
+      />
 
       <BottomNavigation />
     </div>
