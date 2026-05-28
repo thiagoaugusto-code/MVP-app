@@ -352,6 +352,7 @@ const Dashboard = () => {
             </section>
           )}
 
+          {/* 📊 STATS GRID 
           <section className={styles.statsGrid}>
             <StatCard
               icon="🔥"
@@ -364,7 +365,7 @@ const Dashboard = () => {
               }}
             />
             <StreakCard streak={streak} />
-          </section>
+          </section>*/}
 
           <section className={styles.section}>
             <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
@@ -443,7 +444,7 @@ const Dashboard = () => {
           <div className={styles.goalsModal}>
             <h3>Personalizar metas diárias</h3>
             <p>As metas ficam salvas no servidor e alimentam o seu resumo diário.</p>
-            <label>
+            {/*<label>
               Meta de calorias
               <input
                 type="number"
@@ -452,7 +453,8 @@ const Dashboard = () => {
                 value={goalForm.caloriesGoal}
                 onChange={(e) => setGoalForm((prev) => ({ ...prev, caloriesGoal: e.target.value }))}
               />
-            </label>
+            </label>*/}
+
             <label>
               Meta de água (ml)
               <input

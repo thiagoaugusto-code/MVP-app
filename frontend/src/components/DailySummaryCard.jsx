@@ -128,7 +128,7 @@ export default function DailySummaryCard({
       <div className={styles.habitRow}>
         <span className={styles.habitText}>Consistência semanal: {weeklyActiveDays}/7 dias ativos</span>
         <button type="button" className={styles.editGoalsBtn} onClick={onEditGoals}>
-          Ajustar metas
+          Agua 💧
         </button>
       </div>
 
