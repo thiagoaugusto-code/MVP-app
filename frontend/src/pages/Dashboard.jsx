@@ -44,6 +44,9 @@ const Dashboard = () => {
     workoutGoal: 1,
   });
   const [showSetup, setShowSetup] = useState(false);
+  const [hasInitializedRoutine, setHasInitializedRoutine] = useState(() => 
+    localStorage.getItem('hasInitializedRoutine') === 'true'
+  );
 
 // NOVO: ESTADOS PARA REGISTRO DE REFEIÇÃO
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -112,15 +115,13 @@ const Dashboard = () => {
   useEffect(() => {
     if (!dailyState) return;
 
-    const hasRoutine =
-      dailyState?.checklist?.some(
-        item => item.kind === 'session' && item.sessions?.length > 0
-      );
+    if (hasInitializedRoutine) return;
 
-    if (!hasRoutine) {
+    if (!dailyState.hasWorkoutRoutine) {
       setShowSetup(true);
     }
-  }, [dailyState]);
+  }, [dailyState, hasInitializedRoutine]);
+
 
   const applyAction = async (action, payload = {}) => {
     try {
@@ -483,8 +484,12 @@ const Dashboard = () => {
           onClose={() => setShowSetup(false)}
           onSave={ async (sessions) => {
             await applyAction('SET_SESSIONS', { sessions });
+
+            localStorage.setItem('hasInitializedRoutine', 'true');
+            sethasInitializedRoutine(true);
             setShowSetup(false);
-            loadData();
+
+            await loadData();
           }}
         />
       )}
