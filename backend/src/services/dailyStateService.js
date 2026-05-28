@@ -261,6 +261,7 @@ async function rebuildDailyUserState(userId, date) {
       caloriesGoal: row.caloriesGoal,
       waterGoalMl: row.waterGoalMl,
       workoutGoal: row.workoutGoal,
+      hasWorkoutRoutine: row.hasWorkoutRoutine, 
     },
     meals,
     mealProgress,
@@ -570,6 +571,9 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         },
         data: {
           sessions: JSON.stringify(payload.sessions || []),
+
+          // 🔥 NOVO CAMPO
+          hasWorkoutRoutine: true,
         },
       });
 
