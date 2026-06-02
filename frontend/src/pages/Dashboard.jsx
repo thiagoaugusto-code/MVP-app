@@ -305,13 +305,17 @@ const Dashboard = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.greeting}>
-            <h1 className="text-gray-900 dark:text-white">Bem-vindo de volta! 👋</h1>
-            <p className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar</p>
+            
+             {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
+            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar</h1> 
+           
           </section>
 
           <DailySummaryCard
             dailyState={dailyState}
             weeklyActiveDays={weeklyActiveDays}
+            sleepHours={sleepHours}
+            onSleepChange={(minutes) => applyAction('UPDATE_SLEEP', { hours: minutes / 60 })}
             onQuickWater={(amount = 100) => applyAction('ADD_WATER', { ml: amount })}
             onQuickWorkoutToggle={() => navigate('/workout')}
             onEditGoals={openGoals}
@@ -401,15 +405,6 @@ const Dashboard = () => {
                   onLabelClick={() => navigate('/workout')}
                 />
               ))}
-              
-              <CheckItem
-                id="sleep"
-                type="sleep"
-                label="Sono"
-                value={sleepHours}
-                maxValue={8}
-                onChange={(val) => handleCheckChange('sleep', val)}
-              />
             </div>
           </section>
 

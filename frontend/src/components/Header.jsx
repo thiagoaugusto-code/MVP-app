@@ -30,6 +30,9 @@ const Header = () => {
                    text-white transition-colors">
       <div className={styles.container}>
         <h1 className={styles.title}>MVP App</h1>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Olá, {user?.name || 'Usuário'}! 👋
+            </h2>
         <div className={styles.headerRight}>
           {user?.role === 'ADMIN' && (
             <div className={styles.viewModeSelector}>
