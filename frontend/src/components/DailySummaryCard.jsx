@@ -21,14 +21,64 @@ export default function DailySummaryCard({
   onQuickWater,
   onQuickWorkoutToggle,
   onEditGoals,
+  sleepHours,
+  onSleepChange,
 }) {
+
   const navigate = useNavigate();
   const [pulse, setPulse] = useState(false);
   const goals = dailyState?.goals || {};
   const calorieGoal = goals.caloriesGoal || 2000;
-  const waterGoalMl = goals.waterGoalMl || 2000;
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
+
+  const waterGoalMl = goals.waterGoalMl || 2000;
   const waterMl = dailyState?.waterMl || 0;
+
+
+  // Estado local para os minutos de sono, para permitir arrastar o slider sem atualizar imediatamente o estado global
+  const [sleepMinutesLocal, setSleepMinutesLocal] = useState(
+    Math.round((sleepHours || 0) * 60)
+  );
+
+  useEffect(() => {
+    setSleepMinutesLocal(Math.round((sleepHours || 0) * 60));
+  }, [sleepHours]);
+
+  const sleepPercent = Math.min((sleepMinutesLocal / 720) * 100, 100);
+  const sleepHoursLabel = `${Math.floor(sleepMinutesLocal / 60)}h ${sleepMinutesLocal % 60}m`;
+
+  const handleSleepDrag = (value) => {
+    setSleepMinutesLocal(value);
+  };
+
+  const commitSleepValue = (value) => {
+    onSleepChange(value);
+  };
+
+ // Define a função para obter o gradiente de preenchimento com base nos minutos de sono
+  const getSleepFillGradient = (minutes) => {
+  if (minutes <= 420) {
+    // até 7h → azul mais suave / pouco descanso
+    return 'linear-gradient(90deg, #60a5fa 0%, #2563eb 100%)';
+  }
+
+  if (minutes <= 540) {
+    // 7h a 9h → azul equilibrado / sono ideal
+    return 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)';
+  }
+
+  // 9h a 12h → azul profundo / sono intenso
+  return 'linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%)';
+};
+
+const sleepFillStyle = {
+  width: `${sleepPercent}%`,
+  background: getSleepFillGradient(sleepMinutesLocal),
+};
+
+
+
+  // Cálculo do progresso das refeições
   const meals = getActiveGoalMeals(dailyState);
   const mealProgress = dailyState?.mealProgress || {
     inGoalCount: meals.length,
@@ -46,7 +96,6 @@ export default function DailySummaryCard({
   const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
 
   const workoutGoal = activities.length || 1;
-
   const nextWorkout = activities.find((activity) => !activity.completed);
 
   const totalActivities = activities.length;
@@ -199,6 +248,42 @@ export default function DailySummaryCard({
           {Math.floor(waterMl / 1000)}.{Math.floor((waterMl % 1000) / 100)}L / {waterGoalMl / 1000}L
         </span>
       </button>
+
+      <div className={styles.sleepCard} style={{ position: 'relative' }}>
+        <div className={styles.sleepBackgroundFill} style={sleepFillStyle} />
+
+        <div
+          className={styles.sleepOverlay}
+          style={{ width: `${sleepPercent}%` }}
+          aria-hidden="true"
+        >
+        </div>
+
+        <span className={styles.sleepLabel}>Horas dormidas</span>
+
+        <div className={styles.sleepTrackWrap}>
+          <div className={styles.sleepTrack}>
+            <div className={styles.sleepFill} style={{ width: `${sleepPercent}%`, background: getSleepFillGradient(sleepMinutesLocal) }} />
+            <div className={styles.sleepThumb} style={{ left: `${sleepPercent}%` }} />
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="720"
+            step="1"
+            value={sleepMinutesLocal}
+            onInput={(e) => handleSleepDrag(Number(e.target.value))}
+            onChange={(e) => handleSleepDrag(Number(e.target.value))}
+            onPointerUp={(e) => commitSleepValue(Number(e.currentTarget.value))}
+            onTouchEnd={(e) => commitSleepValue(Number(e.currentTarget.value))}
+            className={styles.sleepRange}
+            aria-label="Horas dormidas"
+          />
+        </div>
+          <span className={styles.sleepValue}>{sleepHoursLabel}</span>
+        </div>
+
     </section>
   );
 }
