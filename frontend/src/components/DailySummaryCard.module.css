@@ -185,12 +185,26 @@
   left: 0;
   top: 0;
   background: linear-gradient(
-    to right,
-    #3b82f6,
-    #2563eb,
-    #1d4ed8
+    90deg,
+    #2563eb 0%,
+    #1e40af 100%
   );
-  transition: width 0.4s ease;
+  transition: width 0.35s ease-out;
+}
+
+.waterPercentage {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+  z-index: 3;
+  letter-spacing: -0.3px;
+}
+
+.waterButton.filled .waterPercentage {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .waterText {
@@ -290,6 +304,13 @@
   width: 0%;
   z-index: 1;
   transition: width 0.06s linear;
+}
+
+/* Disable width transition while the range input is actively being dragged
+   to avoid competing animations that cause visual lag/stutter. Uses :has()
+   to detect an active range inside the card. */
+.sleepCard:has(.sleepRange:active) .sleepBackgroundFill {
+  transition: none !important;
 }
 
 /* overlay that shows white text only where the background covers */

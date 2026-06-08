@@ -275,9 +275,7 @@ const sleepFillStyle = {
             step="1"
             value={sleepMinutesLocal}
             onInput={(e) => handleSleepDrag(Number(e.target.value))}
-            onChange={(e) => handleSleepDrag(Number(e.target.value))}
             onPointerUp={(e) => commitSleepValue(Number(e.currentTarget.value))}
-            onTouchEnd={(e) => commitSleepValue(Number(e.currentTarget.value))}
             className={styles.sleepRange}
             aria-label="Horas dormidas"
           />
