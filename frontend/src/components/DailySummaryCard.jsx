@@ -166,8 +166,8 @@ const sleepFillStyle = {
     <section className={styles.wrap} aria-label="Resumo do dia">
       <div className={styles.header}>
         <div>
-          <h2 className={styles.title}>Resumo do Dia</h2>
-          <p className={styles.subtitle}>Estado sincronizado com o servidor</p>
+          <h2 className={styles.title}>Seu dia de hoje</h2>
+          {/* <p className={styles.subtitle}>Estado sincronizado com o servidor</p> */}
         </div>
         <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
           📅
@@ -241,8 +241,9 @@ const sleepFillStyle = {
         onClick={handleWaterClick}
       >
         <div className={styles.waterProgress} style={{ width: `${progress}%` }} />
+        <span className={styles.waterPercentage}>{Math.round(progress)}%</span>
         <span className={styles.waterText}>
-          {waterMl >= waterGoalMl ? 'Meta concluída 💧' : 'Adicionar 100ml'}
+          {waterMl >= waterGoalMl ? '✓ Meta de hidratação concluída' : 'Adicionar 100ml'}
         </span>
         <span className={styles.waterMini}>
           {Math.floor(waterMl / 1000)}.{Math.floor((waterMl % 1000) / 100)}L / {waterGoalMl / 1000}L
