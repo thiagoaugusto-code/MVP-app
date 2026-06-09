@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getMealLabel,
@@ -27,12 +27,22 @@ export default function DailySummaryCard({
 
   const navigate = useNavigate();
   const [pulse, setPulse] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const waterButtonRef = useRef(null);
+  
   const goals = dailyState?.goals || {};
   const calorieGoal = goals.caloriesGoal || 2000;
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
 
   const waterGoalMl = goals.waterGoalMl || 2000;
   const waterMl = dailyState?.waterMl || 0;
+
+  // Estado local para agua - permite arrastar sem atualizar imediatamente o estado global
+  const [waterMlLocal, setWaterMlLocal] = useState(waterMl);
+
+  useEffect(() => {
+    setWaterMlLocal(waterMl);
+  }, [waterMl]);
 
 
   // Estado local para os minutos de sono, para permitir arrastar o slider sem atualizar imediatamente o estado global
@@ -93,7 +103,8 @@ const sleepFillStyle = {
     ...(dailyState?.workout?.plan || []),
     ...(dailyState?.workout?.exercises || []),
   ];
-  const progress = Math.min((waterMl / waterGoalMl) * 100, 100);
+  const progress = Math.min((waterMlLocal / waterGoalMl) * 100, 100);
+  const progressDisplay = Math.min((waterMl / waterGoalMl) * 100, 100);
 
   const workoutGoal = activities.length || 1;
   const nextWorkout = activities.find((activity) => !activity.completed);
@@ -141,6 +152,92 @@ const sleepFillStyle = {
   const handleWaterClick = () => {
     onQuickWater(100);
   };
+
+  // Calcular ml baseado na posição (mouse ou touch)
+  const calculateWaterFromPosition = (clientX) => {
+    if (!waterButtonRef.current) return waterMlLocal;
+    
+    const rect = waterButtonRef.current.getBoundingClientRect();
+    const relativeX = clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, relativeX / rect.width));
+    const calculatedMl = Math.round(ratio * waterGoalMl);
+    
+    return Math.max(0, Math.min(calculatedMl, waterGoalMl));
+  };
+
+  // Handlers para Mouse
+  const handleWaterMouseDown = (e) => {
+    setIsDragging(true);
+    const newMl = calculateWaterFromPosition(e.clientX);
+    setWaterMlLocal(newMl);
+  };
+
+  const handleWaterMouseMove = (e) => {
+    if (!isDragging) return;
+    const newMl = calculateWaterFromPosition(e.clientX);
+    setWaterMlLocal(newMl);
+  };
+
+  const handleWaterMouseUp = (e) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const finalMl = calculateWaterFromPosition(e.clientX);
+    setWaterMlLocal(finalMl);
+    
+    // Calcular quanto adicionar (diferença entre final e atual)
+    const difference = Math.max(0, finalMl - waterMl);
+    if (difference > 0) {
+      onQuickWater(difference);
+    }
+  };
+
+  // Handlers para Touch
+  const handleWaterTouchStart = (e) => {
+    setIsDragging(true);
+    const touch = e.touches[0];
+    const newMl = calculateWaterFromPosition(touch.clientX);
+    setWaterMlLocal(newMl);
+  };
+
+  const handleWaterTouchMove = (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const newMl = calculateWaterFromPosition(touch.clientX);
+    setWaterMlLocal(newMl);
+  };
+
+  const handleWaterTouchEnd = (e) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const touch = e.changedTouches[0];
+    const finalMl = calculateWaterFromPosition(touch.clientX);
+    setWaterMlLocal(finalMl);
+    
+    // Calcular quanto adicionar (diferença entre final e atual)
+    const difference = Math.max(0, finalMl - waterMl);
+    if (difference > 0) {
+      onQuickWater(difference);
+    }
+  };
+
+  // Setup/cleanup para eventos globais de drag
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleWaterMouseMove);
+      window.addEventListener('mouseup', handleWaterMouseUp);
+      window.addEventListener('touchmove', handleWaterTouchMove);
+      window.addEventListener('touchend', handleWaterTouchEnd);
+
+      return () => {
+        window.removeEventListener('mousemove', handleWaterMouseMove);
+        window.removeEventListener('mouseup', handleWaterMouseUp);
+        window.removeEventListener('touchmove', handleWaterTouchMove);
+        window.removeEventListener('touchend', handleWaterTouchEnd);
+      };
+    }
+  }, [isDragging, waterMl]);
 
   const cta = useMemo(() => {
     const h = new Date().getHours();
@@ -236,17 +333,20 @@ const sleepFillStyle = {
       </div>
 
       <button
+        ref={waterButtonRef}
         type="button"
-        className={`${styles.waterButton} ${waterMl >= waterGoalMl ? styles.filled : ''}`}
+        className={`${styles.waterButton} ${waterMlLocal >= waterGoalMl ? styles.filled : ''} ${isDragging ? styles.dragging : ''}`}
         onClick={handleWaterClick}
+        onMouseDown={handleWaterMouseDown}
+        onTouchStart={handleWaterTouchStart}
       >
         <div className={styles.waterProgress} style={{ width: `${progress}%` }} />
         <span className={styles.waterPercentage}>{Math.round(progress)}%</span>
         <span className={styles.waterText}>
-          {waterMl >= waterGoalMl ? '✓ Meta de hidratação concluída' : 'Adicionar 100ml'}
+          {waterMlLocal >= waterGoalMl ? '✓ Meta de hidratação concluída' : 'Adicionar água'}
         </span>
         <span className={styles.waterMini}>
-          {Math.floor(waterMl / 1000)}.{Math.floor((waterMl % 1000) / 100)}L / {waterGoalMl / 1000}L
+          {Math.floor(waterMlLocal / 1000)}.{Math.floor((waterMlLocal % 1000) / 100)}L / {waterGoalMl / 1000}L
         </span>
       </button>
 

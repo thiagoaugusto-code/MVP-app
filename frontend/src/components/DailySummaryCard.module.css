@@ -164,10 +164,11 @@
   border-radius: 16px;
   background: #e5e7eb;
   border: none;
-  cursor: pointer;
+  cursor: grab;
   overflow: hidden;
   margin-top: 16px;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
 }
 
 .waterButton:hover {
@@ -177,6 +178,14 @@
 
 .waterButton:active {
   transform: scale(0.97);
+}
+
+.waterButton.dragging {
+  cursor: grabbing;
+}
+
+.waterButton.dragging .waterProgress {
+  transition: none !important;
 }
 
 .waterProgress {
