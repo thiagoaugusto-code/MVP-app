@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dailyStateAPI } from '../services/api';
+import WorkoutRoutineSetup from '../pages/WorkoutRoutineSetup';
 import styles from './Workout.module.css';
 
 const dateKey = new Date().toISOString().split('T')[0]; // 🔥 FALTAVA ISSO
@@ -15,6 +16,9 @@ const Workout = () => {
     duration: '',
     intensity: 'moderado',
   });
+
+
+  const [showRoutineModal, setShowRoutineModal] = useState(false);
 
   // -----------------------------
   // LOAD
@@ -195,8 +199,9 @@ const Workout = () => {
               + Adicionar Exercício
             </button>
 
-            <button className={styles.buttonSecondary}>
-              Finalizar Treino
+            <button className={styles.buttonSecondary} 
+            onClick={() => setShowRoutineModal(true)}>
+              🏋️ Minha Rotina
             </button>
           </section>
 
@@ -264,6 +269,16 @@ const Workout = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {showRoutineModal && (
+            <WorkoutRoutineSetup 
+              onClose={() => setShowRoutineModal(false)}
+              onSave={() => {
+                setShowRoutineModal(false);
+                load ();
+              }} 
+            />
           )}
 
           <div className={styles.spacer} />

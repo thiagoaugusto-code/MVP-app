@@ -306,11 +306,11 @@ const sleepFillStyle = {
           onClick={() => navigate('/workout')}
           role="button"
         >
-          <div className={styles.kpiLabel}>Próximo treino</div>
+          <div className={styles.kpiLabel}>TREINOS</div>
           <div className={styles.kpiValueSmall}>
-            {nextWorkout ? nextWorkout.name : 'Registre + treinos'}
+            {nextWorkout ? nextWorkout.name : 'Organize sua rotina'}
           </div>
-          <div className={`${styles.kpiHint} ${styles.linkBtn}`}>Registrar treino →</div>
+          <div className={`${styles.kpiHint} ${styles.linkBtn}`}>Minha rotina →</div>
         </div>
 
         <div

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 import styles from './WorkoutRoutineSetup.module.css';
 
@@ -28,6 +28,31 @@ export default function WorkoutRoutineSetup({ onSave, onClose }) {
       days: [],
     }))
   );
+
+  useEffect(() => {
+    loadRoutine();
+  }, []);
+
+
+  async function loadRoutine() {
+    try {
+      const res = await api.get('/workout-routine');
+      const routines = res.data;
+
+      const groupedSessions = WORKOUTS.map(workout => ({
+      name: workout.name,
+      type: workout.type,
+      days: routines
+        .filter(r => r.name === workout.name)
+        .map(r => r.weekday),
+    }));
+
+      setSessions(groupedSessions);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao carregar rotina');
+    }
+  }
 
   function toggleDay(workoutName, day) {
     setSessions(prev =>
