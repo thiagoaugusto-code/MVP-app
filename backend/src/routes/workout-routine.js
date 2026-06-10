@@ -25,9 +25,10 @@ router.post('/bulk', authMiddleware, async (req, res) => {
     });
 
     if (existingRoutine) {
-      return res.json({
-        success: true,
-        message: 'Rotina já existe',
+      await prisma.workoutRoutine.deleteMany({
+        where: {
+          userId,
+        },
       });
     }
 
@@ -44,6 +45,30 @@ router.post('/bulk', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao salvar rotina' });
+  }
+});
+
+
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const routines = await prisma.workoutRoutine.findMany({
+      where: {
+        userId,
+        enabled: true,
+      },
+      orderBy: {
+        weekday: 'asc',
+      },
+    });
+
+    res.json(routines);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: 'Erro ao buscar rotina',
+    });
   }
 });
 
