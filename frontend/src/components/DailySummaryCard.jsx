@@ -280,14 +280,14 @@ const sleepFillStyle = {
 
       <div className={styles.grid}>
         <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Próxima refeição</div>
+          <div className={styles.kpiLabel}>Refeições</div>
           <div className={styles.kpiValueSmall}>{nextMeal ? getMealLabel(nextMeal.type) : 'Tudo feito'}</div>
           <button
             type="button"
             className={styles.linkBtn}
             onClick={() => (nextMeal ? navigate(`/diet?meal=${nextMeal.type}`) : navigate('/diet'))}
           >
-            Abrir plano alimentar →
+            Plano alimentar →
           </button>
         </div>
 

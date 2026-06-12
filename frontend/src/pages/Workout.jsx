@@ -32,11 +32,16 @@ const Workout = () => {
 
     const state = res.data.state;
 
+
+     console.log('STATE COMPLETO:', state);
+    console.log('WORKOUT:', state.workout);
+    console.log('PLAN:', state.workout?.plan);
+
     // 🔥 EXECUÇÃO REAL (NÃO MEXE)
     const realWorkout = state.workout?.exercises || [];
 
     // 🆕 PLANO DO DIA (NOVA CAMADA)
-    const plan = state.workoutPlan || [];
+    const plan = state.workout?.plan || [];
 
     // 👉 mantém execução, mas se não houver exercícios reais, usa plano
     setWorkouts(realWorkout.length ? realWorkout : plan);
@@ -125,12 +130,12 @@ const Workout = () => {
         <div className={styles.content}>
 
           <section className={styles.header}>
-            <h1>Treino do Dia</h1>
-            <p>Acompanhe sua atividade física</p>
+            <h1>Rotina do Dia</h1>
+            <p>Edite suas atividades</p>
           </section>
 
           <section className={styles.summary}>
-            <div className={styles.summaryCard}>
+            {/* <div className={styles.summaryCard}>
               <span className={styles.icon}>⏱️</span>
               <div>
                 <p className={styles.label}>Tempo Gasto</p>
@@ -138,7 +143,7 @@ const Workout = () => {
                   {completedDuration}/{totalDuration} min
                 </p>
               </div>
-            </div>
+            </div>// 🔥 FALTAVA ISSO */}
 
             <div className={styles.summaryCard}>
               <span className={styles.icon}>🔥</span>
@@ -160,32 +165,26 @@ const Workout = () => {
                   workout.completed ? styles.completed : ''
                 }`}
               >
-                <div className={styles.workoutHeader}>
-                  <h3 className={styles.workoutName}>{workout.name}</h3>
+                <div className={styles.workoutInfo}>
+                  <h3 className={styles.workoutName}>
+                    {workout.name}
+                  </h3>
 
-                  <span
-                    className={`${styles.intensity} ${getIntensityColor(
-                      workout.intensity
-                    )}`}
-                  >
-                    {workout.intensity}
-                  </span>
+                  {workout.specifications && (
+                    <span className={styles.workoutDetails}>
+                      {workout.specifications.join(' • ')}
+                    </span>
+                  )}
                 </div>
 
-                <div className={styles.workoutFooter}>
-                  <span className={styles.duration}>
-                    {workout.duration} min
-                  </span>
-
-                  <input
-                    type="checkbox"
-                    checked={workout.completed}
-                    onChange={(e) =>
-                      toggleWorkout(workout.id, e.target.checked)
-                    }
-                    className={styles.checkbox}
-                  />
-                </div>
+                <input
+                  type="checkbox"
+                  checked={workout.completed}
+                  onChange={(e) =>
+                    toggleWorkout(workout.id, e.target.checked)
+                  }
+                  className={styles.checkbox}
+                />
               </div>
             ))}
           </section>
