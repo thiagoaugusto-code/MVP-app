@@ -100,6 +100,22 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
 // --------------------
 // SCORE SYSTEM
 // --------------------
+const SLEEP_SCORE_WEIGHT = 5;
+
+function sleepQualityFactor(hours) {
+  if (hours == null || hours <= 0) return 0;
+
+  const h = Number(hours);
+  if (Number.isNaN(h) || h <= 0) return 0;
+  if (h < 1) return 0;
+  if (h < 5) return 0.3;
+  if (h < 7) return 0.6;
+  if (h <= 8.5) return 1;
+  if (h <= 10) return 0.8;
+  if (h <= 12) return 0.5;
+  return 0.2;
+}
+
 function scoreAndCalendarStatus({
   mealProgress,
   waterMl,
@@ -115,7 +131,7 @@ function scoreAndCalendarStatus({
     inGoalCount > 0 ? (registeredCount / inGoalCount) * 40 : 0;
   const waterPart = waterGoalMl > 0 ? clamp(waterMl / waterGoalMl, 0, 1) * 25 : 0;
   const workoutPart = workoutCompleted ? 20 : 0;
-  const sleepPart = sleepHours ? 5 : 0;
+  const sleepPart = sleepQualityFactor(sleepHours) * SLEEP_SCORE_WEIGHT;
 
   const calPart =
     caloriesGoal > 0
@@ -599,7 +615,7 @@ module.exports = {
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
-    const data = await prisma.dailyUserState.findMany({
+    const rows = await prisma.dailyUserState.findMany({
       where: {
         userId,
         date: {
@@ -609,7 +625,24 @@ module.exports = {
       },
     });
 
-    return data;
-  }
+    if (rows.length === 0) {
+      return [];
+    }
 
+    const days = await Promise.all(
+      rows.map(async (row) => {
+        const state = await rebuildDailyUserState(userId, row.date);
+        return {
+          ...row,
+          progressScore: state.progressScore,
+          calendarStatus: state.calendarStatus,
+          caloriesConsumed: state.caloriesConsumed,
+        };
+      })
+    );
+
+    return days;
+  },
+  scoreAndCalendarStatus,
+  sleepQualityFactor,
 };
