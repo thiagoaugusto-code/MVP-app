@@ -42,7 +42,7 @@ export default function DailySummaryCard({
 
   useEffect(() => {
     setWaterMlLocal(waterMl);
-  }, [waterMl]);
+  }, [waterMl, waterGoalMl]);
 
 
   // Estado local para os minutos de sono, para permitir arrastar o slider sem atualizar imediatamente o estado global
@@ -103,8 +103,9 @@ const sleepFillStyle = {
     ...(dailyState?.workout?.plan || []),
     ...(dailyState?.workout?.exercises || []),
   ];
-  const progress = Math.min((waterMlLocal / waterGoalMl) * 100, 100);
-  const progressDisplay = Math.min((waterMl / waterGoalMl) * 100, 100);
+  const waterProgress = isDragging
+    ? Math.round(Math.min(100, (waterMlLocal / waterGoalMl) * 100))
+    : (dailyState.waterProgress ?? 0);
 
   const workoutGoal = activities.length || 1;
   const nextWorkout = activities.find((activity) => !activity.completed);
@@ -354,8 +355,8 @@ const sleepFillStyle = {
         onMouseDown={handleWaterMouseDown}
         onTouchStart={handleWaterTouchStart}
       >
-        <div className={styles.waterProgress} style={{ width: `${progress}%` }} />
-        <span className={styles.waterPercentage}>{Math.round(progress)}%</span>
+        <div className={styles.waterProgress} style={{ width: `${waterProgress}%` }} />
+        <span className={styles.waterPercentage}>{waterProgress}%</span>
         <span className={styles.waterText}>
           {waterMlLocal >= waterGoalMl ? '✓ Meta de hidratação concluída' : 'Adicionar água'}
         </span>

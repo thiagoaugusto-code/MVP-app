@@ -1,6 +1,7 @@
 const {
   scoreAndCalendarStatus,
   sleepQualityFactor,
+  computeWaterProgress,
 } = require('../src/services/dailyStateService');
 
 const SLEEP_WEIGHT = 5;
@@ -16,6 +17,36 @@ const baseInput = {
   workoutCompleted: false,
   sleepHours: null,
 };
+
+describe('computeWaterProgress', () => {
+  test('1000ml de 2000ml retorna 50%', () => {
+    expect(computeWaterProgress(1000, 2000)).toEqual({ ratio: 0.5, percent: 50 });
+  });
+
+  test('1000ml de 3000ml retorna 33%', () => {
+    expect(computeWaterProgress(1000, 3000)).toEqual({ ratio: 1 / 3, percent: 33 });
+  });
+
+  test('2500ml de 2500ml retorna 100%', () => {
+    expect(computeWaterProgress(2500, 2500)).toEqual({ ratio: 1, percent: 100 });
+  });
+
+  test('score de água usa o mesmo ratio do percentual exibido', () => {
+    const { progressScore: score2000 } = scoreAndCalendarStatus({
+      ...baseInput,
+      waterMl: 1000,
+      waterGoalMl: 2000,
+    });
+    const { progressScore: score3000 } = scoreAndCalendarStatus({
+      ...baseInput,
+      waterMl: 1000,
+      waterGoalMl: 3000,
+    });
+
+    expect(score2000).toBe(14);
+    expect(score3000).toBe(9);
+  });
+});
 
 describe('sleepQualityFactor', () => {
   test('0 horas retorna fator 0', () => {
@@ -76,6 +107,7 @@ describe('scoreAndCalendarStatus', () => {
     const { progressScore } = scoreAndCalendarStatus({
       ...baseInput,
       waterMl: 2000,
+      waterGoalMl: 2000,
     });
     expect(progressScore).toBe(28);
   });

@@ -45,6 +45,18 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
+function computeWaterProgress(waterMl, waterGoalMl) {
+  if (!waterGoalMl || waterGoalMl <= 0) {
+    return { ratio: 0, percent: 0 };
+  }
+
+  const ratio = clamp(waterMl / waterGoalMl, 0, 1);
+  return {
+    ratio,
+    percent: Math.round(ratio * 100),
+  };
+}
+
 // --------------------
 // CHECKLIST BUILDER
 // --------------------
@@ -76,7 +88,7 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
     label: 'Água',
     waterMl,
     waterGoalMl,
-    litersProgress: waterGoalMl > 0 ? Math.min(waterMl / waterGoalMl, 1) : 0,
+    litersProgress: waterGoalMl > 0 ? computeWaterProgress(waterMl, waterGoalMl).ratio : 0,
   });
 
   checklist.push({
@@ -146,10 +158,7 @@ function scoreAndCalendarStatus({
     inGoalCount > 0
       ? (registeredCount / inGoalCount) * SCORE_WEIGHTS.MEALS
       : 0;
-  const waterPart =
-    waterGoalMl > 0
-      ? clamp(waterMl / waterGoalMl, 0, 1) * SCORE_WEIGHTS.WATER
-      : 0;
+  const waterPart = computeWaterProgress(waterMl, waterGoalMl).ratio * SCORE_WEIGHTS.WATER;
   const workoutPart = workoutCompleted ? SCORE_WEIGHTS.WORKOUT : 0;
   const sleepPart = sleepQualityFactor(sleepHours) * SLEEP_SCORE_WEIGHT;
 
@@ -189,9 +198,19 @@ async function rebuildDailyUserState(userId, date) {
       },
     });
   }
-  const waterMl = row.waterMl ?? 0;
 
   const { meals: allMeals } = await ensureDailyMeals(userId, date);
+
+  row = await prisma.dailyUserState.findFirst({
+    where: {
+      userId,
+      date: dayStart,
+    },
+  });
+
+  const waterMl = row.waterMl ?? 0;
+  const waterGoalMl = row.waterGoalMl || 2000;
+  const waterProgress = computeWaterProgress(waterMl, waterGoalMl);
 
   // TODAS refeições do dia
   const meals = allMeals;
@@ -211,7 +230,7 @@ async function rebuildDailyUserState(userId, date) {
     meals: activeMeals,
     workoutCompleted,
     waterMl,
-    waterGoalMl: row.waterGoalMl,
+    waterGoalMl,
     sleepHours: row.sleepHours,
     sessions: row.sessions,
   });
@@ -219,7 +238,7 @@ async function rebuildDailyUserState(userId, date) {
   const { progressScore, calendarStatus } = scoreAndCalendarStatus({
     mealProgress,
     waterMl,
-    waterGoalMl: row.waterGoalMl,
+    waterGoalMl,
     workoutCompleted,
     sleepHours: row.sleepHours,
   });
@@ -297,6 +316,7 @@ async function rebuildDailyUserState(userId, date) {
     caloriesConsumed,
     sleepHours: row.sleepHours,
     waterMl,
+    waterProgress: waterProgress.percent,
     progressScore,
     calendarStatus,
     workout: {
@@ -658,4 +678,5 @@ module.exports = {
   },
   scoreAndCalendarStatus,
   sleepQualityFactor,
+  computeWaterProgress,
 };
