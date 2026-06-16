@@ -3,6 +3,12 @@ const {
   sleepQualityFactor,
 } = require('../src/services/dailyStateService');
 
+const SLEEP_WEIGHT = 5;
+
+function sleepPoints(hours) {
+  return Math.round(sleepQualityFactor(hours) * SLEEP_WEIGHT);
+}
+
 const baseInput = {
   mealProgress: { inGoalCount: 4, registeredCount: 0 },
   waterMl: 0,
@@ -12,43 +18,51 @@ const baseInput = {
 };
 
 describe('sleepQualityFactor', () => {
-  test('0 horas retorna 0%', () => {
+  test('0 horas retorna fator 0', () => {
     expect(sleepQualityFactor(0)).toBe(0);
     expect(sleepQualityFactor(null)).toBe(0);
   });
 
-  test('abaixo de 1h retorna 0%', () => {
-    expect(sleepQualityFactor(0.5)).toBe(0);
+  test('0h a 4h: sono ruim, baixa pontuação', () => {
+    expect(sleepQualityFactor(1)).toBe(0.15);
+    expect(sleepQualityFactor(4)).toBe(0.15);
+    expect(sleepPoints(4)).toBe(1);
   });
 
-  test('1h até 4h59 retorna 30%', () => {
-    expect(sleepQualityFactor(1)).toBe(0.3);
-    expect(sleepQualityFactor(4.99)).toBe(0.3);
+  test('5h a 6h: sono aceitável, pontuação intermediária', () => {
+    expect(sleepQualityFactor(5)).toBe(0.55);
+    expect(sleepQualityFactor(6.99)).toBe(0.55);
+    expect(sleepPoints(6)).toBe(3);
   });
 
-  test('5h até 6h59 retorna 60%', () => {
-    expect(sleepQualityFactor(5)).toBe(0.6);
-    expect(sleepQualityFactor(6.99)).toBe(0.6);
-  });
-
-  test('7h até 8h30 retorna 100%', () => {
+  test('7h a 8h30: faixa ideal, pontuação máxima', () => {
     expect(sleepQualityFactor(7)).toBe(1);
     expect(sleepQualityFactor(8.5)).toBe(1);
+    expect(sleepPoints(8)).toBe(5);
   });
 
-  test('8h31 até 10h retorna 80%', () => {
-    expect(sleepQualityFactor(8.51)).toBe(0.8);
-    expect(sleepQualityFactor(10)).toBe(0.8);
+  test('8h30 a 10h: ainda bom, leve redução', () => {
+    expect(sleepQualityFactor(8.51)).toBe(0.85);
+    expect(sleepQualityFactor(10)).toBe(0.85);
+    expect(sleepPoints(9)).toBe(4);
   });
 
-  test('10h01 até 12h retorna 50%', () => {
-    expect(sleepQualityFactor(10.01)).toBe(0.5);
-    expect(sleepQualityFactor(12)).toBe(0.5);
+  test('10h a 12h: excesso, redução significativa', () => {
+    expect(sleepQualityFactor(10.01)).toBe(0.35);
+    expect(sleepQualityFactor(12)).toBe(0.35);
+    expect(sleepPoints(12)).toBe(2);
   });
 
-  test('acima de 12h retorna 20%', () => {
-    expect(sleepQualityFactor(12.01)).toBe(0.2);
-    expect(sleepQualityFactor(14)).toBe(0.2);
+  test('acima de 12h: fora do ideal, pontuação mínima', () => {
+    expect(sleepQualityFactor(12.01)).toBe(0.1);
+    expect(sleepQualityFactor(14)).toBe(0.1);
+    expect(sleepPoints(14)).toBe(1);
+  });
+
+  test('12h não equivale a 8h em pontos de sono', () => {
+    expect(sleepPoints(12)).toBeLessThan(sleepPoints(8));
+    expect(sleepPoints(12)).toBe(2);
+    expect(sleepPoints(8)).toBe(5);
   });
 });
 
@@ -93,7 +107,7 @@ describe('scoreAndCalendarStatus', () => {
   test('sono curto impacta menos que sono ideal', () => {
     const short = scoreAndCalendarStatus({ ...baseInput, sleepHours: 4 }).progressScore;
     const ideal = scoreAndCalendarStatus({ ...baseInput, sleepHours: 8 }).progressScore;
-    expect(short).toBe(2);
+    expect(short).toBe(1);
     expect(ideal).toBe(5);
     expect(short).toBeLessThan(ideal);
   });
@@ -101,7 +115,7 @@ describe('scoreAndCalendarStatus', () => {
   test('sono excessivo impacta menos que sono ideal', () => {
     const excess = scoreAndCalendarStatus({ ...baseInput, sleepHours: 11 }).progressScore;
     const ideal = scoreAndCalendarStatus({ ...baseInput, sleepHours: 8 }).progressScore;
-    expect(excess).toBe(3);
+    expect(excess).toBe(2);
     expect(ideal).toBe(5);
     expect(excess).toBeLessThan(ideal);
   });

@@ -109,18 +109,28 @@ const SCORE_WEIGHTS = {
 
 const SLEEP_SCORE_WEIGHT = SCORE_WEIGHTS.SLEEP;
 
+/** Fatores de qualidade (0–1) aplicados ao peso de sono. Fácil de ajustar por faixa. */
+const SLEEP_QUALITY_FACTORS = {
+  BAD: 0.15,         // 0h–4h: sono ruim
+  ACCEPTABLE: 0.55,  // 5h–6h: aceitável
+  IDEAL: 1,          // 7h–8h30: faixa ideal
+  GOOD: 0.85,        // 8h30–10h: ainda bom
+  EXCESS: 0.35,      // 10h–12h: excesso
+  MINIMUM: 0.1,      // >12h: fora do ideal
+};
+
 function sleepQualityFactor(hours) {
   if (hours == null || hours <= 0) return 0;
 
   const h = Number(hours);
   if (Number.isNaN(h) || h <= 0) return 0;
-  if (h < 1) return 0;
-  if (h < 5) return 0.3;
-  if (h < 7) return 0.6;
-  if (h <= 8.5) return 1;
-  if (h <= 10) return 0.8;
-  if (h <= 12) return 0.5;
-  return 0.2;
+
+  if (h <= 4) return SLEEP_QUALITY_FACTORS.BAD;
+  if (h < 7) return SLEEP_QUALITY_FACTORS.ACCEPTABLE;
+  if (h <= 8.5) return SLEEP_QUALITY_FACTORS.IDEAL;
+  if (h <= 10) return SLEEP_QUALITY_FACTORS.GOOD;
+  if (h <= 12) return SLEEP_QUALITY_FACTORS.EXCESS;
+  return SLEEP_QUALITY_FACTORS.MINIMUM;
 }
 
 function scoreAndCalendarStatus({
