@@ -9,8 +9,6 @@ const baseInput = {
   waterGoalMl: 2000,
   workoutCompleted: false,
   sleepHours: null,
-  caloriesConsumed: 0,
-  caloriesGoal: 2000,
 };
 
 describe('sleepQualityFactor', () => {
@@ -60,28 +58,28 @@ describe('scoreAndCalendarStatus', () => {
     expect(progressScore).toBe(0);
   });
 
-  test('somente água completa retorna 25%', () => {
+  test('somente água completa retorna 28%', () => {
     const { progressScore } = scoreAndCalendarStatus({
       ...baseInput,
       waterMl: 2000,
     });
-    expect(progressScore).toBe(25);
+    expect(progressScore).toBe(28);
   });
 
-  test('somente alimentação completa retorna 40%', () => {
+  test('somente alimentação completa retorna 45%', () => {
     const { progressScore } = scoreAndCalendarStatus({
       ...baseInput,
       mealProgress: { inGoalCount: 4, registeredCount: 4 },
     });
-    expect(progressScore).toBe(40);
+    expect(progressScore).toBe(45);
   });
 
-  test('somente treino retorna 20%', () => {
+  test('somente treino retorna 22%', () => {
     const { progressScore } = scoreAndCalendarStatus({
       ...baseInput,
       workoutCompleted: true,
     });
-    expect(progressScore).toBe(20);
+    expect(progressScore).toBe(22);
   });
 
   test('somente sono ideal retorna 5%', () => {
@@ -115,10 +113,32 @@ describe('scoreAndCalendarStatus', () => {
       waterGoalMl: 2000,
       workoutCompleted: true,
       sleepHours: 8,
-      caloriesConsumed: 2000,
-      caloriesGoal: 2000,
     });
     expect(progressScore).toBe(100);
+  });
+
+  test('dia completo atinge 100% sem calorias registradas', () => {
+    const { progressScore, calendarStatus } = scoreAndCalendarStatus({
+      mealProgress: { inGoalCount: 3, registeredCount: 3 },
+      waterMl: 2000,
+      waterGoalMl: 2000,
+      workoutCompleted: true,
+      sleepHours: 7.5,
+    });
+    expect(progressScore).toBe(100);
+    expect(calendarStatus).toBe('green');
+  });
+
+  test('calorias não influenciam o score', () => {
+    const { progressScore } = scoreAndCalendarStatus({
+      mealProgress: { inGoalCount: 3, registeredCount: 2 },
+      waterMl: 1000,
+      waterGoalMl: 2000,
+      workoutCompleted: false,
+      sleepHours: 8,
+    });
+
+    expect(progressScore).toBe(49);
   });
 
   test('não aplica piso ou teto artificial além de 0-100', () => {
@@ -126,7 +146,7 @@ describe('scoreAndCalendarStatus', () => {
       ...baseInput,
       waterMl: 500,
     });
-    expect(progressScore).toBe(6);
-    expect(progressScore).toBeLessThan(25);
+    expect(progressScore).toBe(7);
+    expect(progressScore).toBeLessThan(28);
   });
 });

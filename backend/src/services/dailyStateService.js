@@ -100,7 +100,14 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
 // --------------------
 // SCORE SYSTEM
 // --------------------
-const SLEEP_SCORE_WEIGHT = 5;
+const SCORE_WEIGHTS = {
+  MEALS: 45,
+  WATER: 28,
+  WORKOUT: 22,
+  SLEEP: 5,
+};
+
+const SLEEP_SCORE_WEIGHT = SCORE_WEIGHTS.SLEEP;
 
 function sleepQualityFactor(hours) {
   if (hours == null || hours <= 0) return 0;
@@ -122,24 +129,22 @@ function scoreAndCalendarStatus({
   waterGoalMl,
   workoutCompleted,
   sleepHours,
-  caloriesConsumed,
-  caloriesGoal,
 }) {
   const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
   const mealPart =
-    inGoalCount > 0 ? (registeredCount / inGoalCount) * 40 : 0;
-  const waterPart = waterGoalMl > 0 ? clamp(waterMl / waterGoalMl, 0, 1) * 25 : 0;
-  const workoutPart = workoutCompleted ? 20 : 0;
+    inGoalCount > 0
+      ? (registeredCount / inGoalCount) * SCORE_WEIGHTS.MEALS
+      : 0;
+  const waterPart =
+    waterGoalMl > 0
+      ? clamp(waterMl / waterGoalMl, 0, 1) * SCORE_WEIGHTS.WATER
+      : 0;
+  const workoutPart = workoutCompleted ? SCORE_WEIGHTS.WORKOUT : 0;
   const sleepPart = sleepQualityFactor(sleepHours) * SLEEP_SCORE_WEIGHT;
 
-  const calPart =
-    caloriesGoal > 0
-      ? clamp(1 - Math.abs(caloriesConsumed - caloriesGoal) / caloriesGoal, 0, 1) * 10
-      : 0;
-
   const progressScore = Math.round(
-    clamp(mealPart + waterPart + workoutPart + sleepPart + calPart, 0, 100)
+    clamp(mealPart + waterPart + workoutPart + sleepPart, 0, 100)
   );
 
   let calendarStatus = 'red';
@@ -207,8 +212,6 @@ async function rebuildDailyUserState(userId, date) {
     waterGoalMl: row.waterGoalMl,
     workoutCompleted,
     sleepHours: row.sleepHours,
-    caloriesConsumed,
-    caloriesGoal: row.caloriesGoal,
   });
 
   const exercises = row.exercises
