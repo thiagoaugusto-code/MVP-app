@@ -19,48 +19,88 @@
 }
 
 .pageHeader {
-  padding: 1.25rem 0 0.75rem;
+  padding: 1rem 0 0.85rem;
   text-align: center;
 }
 
 .pageHeader h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .lead {
-  margin: 0.35rem 0 0;
-  color: #64748b;
-  font-size: 0.9rem;
+  margin: 0.3rem 0 0;
+  color: rgba(15, 23, 42, 0.6);
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 
 .loading {
   text-align: center;
   color: #64748b;
-  font-size: 0.9rem;
-  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0.5rem;
+  font-weight: 600;
 }
 
+/* —— Resumo mensal —— */
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
 }
 
 .summaryCard {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.9rem 0.5rem;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.06), rgba(255, 255, 255, 0.95));
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.75rem 0.65rem;
+  border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-  text-align: center;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.summary_blue {
+  background: linear-gradient(160deg, rgba(59, 130, 246, 0.14), rgba(255, 255, 255, 0.96));
+}
+
+.summary_green {
+  background: linear-gradient(160deg, rgba(16, 185, 129, 0.14), rgba(255, 255, 255, 0.96));
+}
+
+.summary_gold {
+  background: linear-gradient(160deg, rgba(245, 158, 11, 0.14), rgba(255, 255, 255, 0.96));
+}
+
+.summaryIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #1d4ed8;
+  margin-bottom: 0.15rem;
+}
+
+.summary_green .summaryIconWrap {
+  color: #059669;
+}
+
+.summary_gold .summaryIconWrap {
+  color: #d97706;
 }
 
 .summaryLabel {
@@ -68,92 +108,170 @@
   font-weight: 700;
   color: rgba(15, 23, 42, 0.55);
   line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 .summaryValue {
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 900;
   color: #0f172a;
-  line-height: 1.1;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .summaryMeta {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+/* —— Painel do calendário —— */
+.calendarPanel {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.08), rgba(255, 255, 255, 0.94));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 0.85rem 0.7rem 0.75rem;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
 }
 
 .calendarHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  gap: 0.5rem;
 }
 
 .monthLabel {
   flex: 1;
   text-align: center;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
   margin: 0;
   text-transform: capitalize;
+  letter-spacing: -0.01em;
 }
 
 .navBtn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #3b82f6;
-  color: white;
-  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: 10px;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
 }
 
 .navBtn:hover {
-  background: #2563eb;
+  background: #3b82f6;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .navBtn:active {
-  background: #1d4ed8;
+  transform: scale(0.97);
 }
 
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend_green {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.legend_yellow {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.legend_red {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* —— Grade —— */
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.35rem;
-  margin-bottom: 1.5rem;
+  gap: 0.3rem;
+}
+
+.gridLoading {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .weekday {
   text-align: center;
-  font-weight: 700;
-  font-size: 0.7rem;
-  color: #9ca3af;
-  padding: 0.15rem 0 0.35rem;
+  font-weight: 800;
+  font-size: 0.62rem;
+  color: rgba(15, 23, 42, 0.4);
+  padding: 0.1rem 0 0.25rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .calendarDay {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  min-height: 56px;
-  border-radius: 8px;
-  background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  min-height: 54px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.07);
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: dayFadeIn 0.35s ease both;
+}
+
+@keyframes dayFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendarDay:hover:not(.otherMonth) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .dayContent {
@@ -162,57 +280,126 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.3rem 0.15rem 0.35rem;
-  gap: 0.1rem;
+  padding: 0.25rem 0.1rem 0.3rem;
+  gap: 0.05rem;
+  position: relative;
 }
 
 .statusBar {
   width: 100%;
-  height: 3px;
+  height: 4px;
   flex-shrink: 0;
 }
 
 .status_green {
-  background: #10b981;
+  background: linear-gradient(90deg, #34d399, #10b981);
 }
 
 .status_yellow {
-  background: #f59e0b;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
 }
 
 .status_red {
-  background: #ef4444;
+  background: linear-gradient(90deg, #f87171, #ef4444);
 }
 
 .status_empty {
-  background: #e5e7eb;
+  background: #e2e8f0;
+}
+
+/* Tintes de status nas células */
+.day_green {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(255, 255, 255, 0.92));
+  border-color: rgba(16, 185, 129, 0.28);
+}
+
+.day_yellow {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.16), rgba(255, 255, 255, 0.92));
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.day_red {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.14), rgba(255, 255, 255, 0.92));
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.day_empty {
+  background: rgba(255, 255, 255, 0.75);
 }
 
 .otherMonth {
-  opacity: 0.3;
+  opacity: 0.28;
   border-color: transparent;
   background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+
+.otherMonth:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .futureDay {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
+/* —— Dia atual —— */
 .today {
   border: 2px solid #3b82f6;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.14), rgba(255, 255, 255, 0.95));
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.12),
+    0 6px 16px rgba(59, 130, 246, 0.18);
+  transform: scale(1.04);
+  z-index: 1;
 }
 
-.dayNumber {
-  font-weight: 700;
-  font-size: 0.82rem;
-  color: #1f2937;
+.today:hover {
+  transform: scale(1.04) translateY(-1px);
+}
+
+.todayBadge {
+  position: absolute;
+  top: -0.05rem;
+  font-size: 0.48rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1d4ed8;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
   line-height: 1.2;
 }
 
+.dayNumber {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.today .dayNumber {
+  color: #1d4ed8;
+  font-size: 0.9rem;
+}
+
 .dayScore {
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #64748b;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #94a3b8;
   line-height: 1;
+}
+
+.score_green {
+  color: #059669;
+}
+
+.score_yellow {
+  color: #d97706;
+}
+
+.score_red {
+  color: #dc2626;
 }

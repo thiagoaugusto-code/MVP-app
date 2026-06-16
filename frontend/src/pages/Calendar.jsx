@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { TrendingUp, CalendarCheck, Sparkles } from 'lucide-react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dailyStateAPI } from '../services/api';
@@ -81,6 +82,12 @@ function buildMonthSummary(monthDays) {
   };
 }
 
+const SUMMARY_ITEMS = [
+  { key: 'average', label: 'Média do mês', icon: TrendingUp, accent: 'blue' },
+  { key: 'completed', label: 'Dias concluídos', icon: CalendarCheck, accent: 'green' },
+  { key: 'best', label: 'Melhor dia', icon: Sparkles, accent: 'gold' },
+];
+
 const Calendar = () => {
   const toast = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -141,6 +148,17 @@ const Calendar = () => {
   const days = getDaysInMonth(currentDate);
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const today = new Date();
+  const gridKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+
+  const renderSummaryValue = (key) => {
+    if (key === 'average') {
+      return monthSummary.average !== null ? `${monthSummary.average}%` : '—';
+    }
+    if (key === 'completed') {
+      return monthSummary.completedCount;
+    }
+    return monthSummary.bestDay ? `${monthSummary.bestDay.score}%` : '—';
+  };
 
   return (
     <div className={styles.calendar}>
@@ -154,89 +172,110 @@ const Calendar = () => {
           </header>
 
           <section className={styles.summary} aria-label="Resumo do mês">
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Média do mês</span>
-              <span className={styles.summaryValue}>
-                {monthSummary.average !== null ? `${monthSummary.average}%` : '—'}
-              </span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Dias concluídos</span>
-              <span className={styles.summaryValue}>{monthSummary.completedCount}</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Melhor dia</span>
-              <span className={styles.summaryValue}>
-                {monthSummary.bestDay
-                  ? `${monthSummary.bestDay.score}%`
-                  : '—'}
-              </span>
-              {monthSummary.bestDay && (
-                <span className={styles.summaryMeta}>
-                  {monthSummary.bestDay.date.toLocaleDateString('pt-BR', {
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </span>
-              )}
-            </div>
+            {SUMMARY_ITEMS.map(({ key, label, icon: Icon, accent }) => (
+              <div key={key} className={`${styles.summaryCard} ${styles[`summary_${accent}`]}`}>
+                <div className={styles.summaryIconWrap}>
+                  <Icon size={15} strokeWidth={2.25} aria-hidden="true" />
+                </div>
+                <span className={styles.summaryLabel}>{label}</span>
+                <span className={styles.summaryValue}>{renderSummaryValue(key)}</span>
+                {key === 'best' && monthSummary.bestDay && (
+                  <span className={styles.summaryMeta}>
+                    {monthSummary.bestDay.date.toLocaleDateString('pt-BR', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </span>
+                )}
+              </div>
+            ))}
           </section>
 
-          <div className={styles.calendarHeader}>
-            <button type="button" className={styles.navBtn} onClick={() => navigateMonth(-1)} aria-label="Mês anterior">
-              ‹
-            </button>
-            <h2 className={styles.monthLabel}>
-              {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-            </h2>
-            <button type="button" className={styles.navBtn} onClick={() => navigateMonth(1)} aria-label="Próximo mês">
-              ›
-            </button>
-          </div>
+          <section className={styles.calendarPanel} aria-label="Calendário mensal">
+            <div className={styles.calendarHeader}>
+              <button type="button" className={styles.navBtn} onClick={() => navigateMonth(-1)} aria-label="Mês anterior">
+                ‹
+              </button>
+              <h2 className={styles.monthLabel}>
+                {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </h2>
+              <button type="button" className={styles.navBtn} onClick={() => navigateMonth(1)} aria-label="Próximo mês">
+                ›
+              </button>
+            </div>
 
-          {loading && <p className={styles.loading}>Carregando...</p>}
+            <div className={styles.legend} aria-hidden="true">
+              <span className={styles.legendItem}>
+                <span className={`${styles.legendDot} ${styles.legend_green}`} />
+                Excelente
+              </span>
+              <span className={styles.legendItem}>
+                <span className={`${styles.legendDot} ${styles.legend_yellow}`} />
+                Atenção
+              </span>
+              <span className={styles.legendItem}>
+                <span className={`${styles.legendDot} ${styles.legend_red}`} />
+                Abaixo
+              </span>
+            </div>
 
-          <div className={styles.calendarGrid}>
-            {weekDays.map((day) => (
-              <div key={day} className={styles.weekday}>{day}</div>
-            ))}
-            {days.map((day, index) => {
-              const isCurrentMonth = day.getMonth() === currentDate.getMonth();
-              const isToday = isSameDay(day, today);
-              const display = isCurrentMonth
-                ? getDayDisplay(day, dayData, today)
-                : { status: 'empty', scoreLabel: '', isFuture: false };
+            {loading && <p className={styles.loading}>Carregando...</p>}
 
-              return (
-                <div
-                  key={index}
-                  className={[
-                    styles.calendarDay,
-                    !isCurrentMonth && styles.otherMonth,
-                    isToday && styles.today,
-                    display.isFuture && styles.futureDay,
-                  ].filter(Boolean).join(' ')}
-                >
-                  {isCurrentMonth && (
-                    <span
-                      className={[
-                        styles.statusBar,
-                        display.status !== 'empty' && styles[`status_${display.status}`],
-                        display.status === 'empty' && styles.status_empty,
-                      ].filter(Boolean).join(' ')}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div className={styles.dayContent}>
-                    <span className={styles.dayNumber}>{day.getDate()}</span>
+            <div key={gridKey} className={`${styles.calendarGrid} ${loading ? styles.gridLoading : ''}`}>
+              {weekDays.map((day) => (
+                <div key={day} className={styles.weekday}>{day}</div>
+              ))}
+              {days.map((day, index) => {
+                const isCurrentMonth = day.getMonth() === currentDate.getMonth();
+                const isToday = isSameDay(day, today);
+                const display = isCurrentMonth
+                  ? getDayDisplay(day, dayData, today)
+                  : { status: 'empty', scoreLabel: '', isFuture: false };
+
+                return (
+                  <div
+                    key={index}
+                    className={[
+                      styles.calendarDay,
+                      !isCurrentMonth && styles.otherMonth,
+                      isToday && styles.today,
+                      display.isFuture && styles.futureDay,
+                      isCurrentMonth && display.status !== 'empty' && styles[`day_${display.status}`],
+                      isCurrentMonth && display.status === 'empty' && styles.day_empty,
+                    ].filter(Boolean).join(' ')}
+                    style={{ animationDelay: `${(index % 7) * 25}ms` }}
+                  >
                     {isCurrentMonth && (
-                      <span className={styles.dayScore}>{display.scoreLabel}</span>
+                      <span
+                        className={[
+                          styles.statusBar,
+                          display.status !== 'empty' && styles[`status_${display.status}`],
+                          display.status === 'empty' && styles.status_empty,
+                        ].filter(Boolean).join(' ')}
+                        aria-hidden="true"
+                      />
                     )}
+                    <div className={styles.dayContent}>
+                      {isToday && (
+                        <span className={styles.todayBadge}>Hoje</span>
+                      )}
+                      <span className={styles.dayNumber}>{day.getDate()}</span>
+                      {isCurrentMonth && (
+                        <span
+                          className={[
+                            styles.dayScore,
+                            display.status !== 'empty' && styles[`score_${display.status}`],
+                          ].filter(Boolean).join(' ')}
+                        >
+                          {display.scoreLabel}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </section>
         </div>
       </main>
 
