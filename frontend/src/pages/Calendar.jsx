@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dailyStateAPI } from '../services/api';
@@ -14,14 +13,15 @@ function toDateKey(d) {
   return `${y}-${m}-${day}`;
 }
 
+function isSameDay(a, b) {
+  return toDateKey(a) === toDateKey(b);
+}
+
 const Calendar = () => {
-  const navigate = useNavigate();
   const toast = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
   const [dayData, setDayData] = useState({});
   const [loading, setLoading] = useState(false);
-  const [selectedState, setSelectedState] = useState(null);
 
   useEffect(() => {
     loadMonthData(currentDate);
@@ -35,7 +35,7 @@ const Calendar = () => {
       const res = await dailyStateAPI.getMonth(year, month);
       const map = {};
       (res.data.days || []).forEach((d) => {
-        map[d.dateKey] = d;
+        map[toDateKey(d.date)] = d;
       });
       setDayData(map);
     } catch (err) {
@@ -61,40 +61,6 @@ const Calendar = () => {
     return days;
   };
 
-  const getDayStatus = (date) => {
-    const key = toDateKey(date);
-    const d = dayData[key];
-    if (!d) return 'red';
-    if (d.calendarStatus === 'green') return 'green';
-    if (d.calendarStatus === 'yellow') return 'yellow';
-    return 'red';
-  };
-
-  const handleDayClick = async (date) => {
-    const key = toDateKey(date);
-    setSelectedDate(date);
-    try {
-      const res = await dailyStateAPI.get(key);
-      setSelectedState(res.data.state);
-    } catch (e) {
-      toast.error('Erro ao carregar o dia');
-      setSelectedState(null);
-    }
-  };
-
-  const runActionForSelected = async (action, payload = {}) => {
-    if (!selectedDate) return;
-    const key = toDateKey(selectedDate);
-    try {
-      await dailyStateAPI.applyAction({ date: key, action, payload });
-      const res = await dailyStateAPI.get(key);
-      setSelectedState(res.data.state);
-      await loadMonthData(currentDate);
-    } catch (e) {
-      toast.error(e.response?.data?.error || 'Ação não permitida');
-    }
-  };
-
   const navigateMonth = (direction) => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
@@ -105,15 +71,7 @@ const Calendar = () => {
 
   const days = getDaysInMonth(currentDate);
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-  const breakfastDone = Boolean(
-    selectedState?.meals?.find((m) => m.mealType === 'breakfast')?.registered
-  );
-  const mealProgress = selectedState?.mealProgress || {
-    registeredCount: selectedState?.meals?.filter((m) => m.registered).length || 0,
-    inGoalCount: selectedState?.meals?.length || 0,
-    percent: 0,
-  };
+  const today = new Date();
 
   return (
     <div className={styles.calendar}>
@@ -121,13 +79,21 @@ const Calendar = () => {
 
       <main className={styles.main}>
         <div className={styles.container}>
-          <h1>Calendário</h1>
-          <p className={styles.lead}>Leitura do seu progresso (fonte única: estado diário)</p>
+          <header className={styles.pageHeader}>
+            <h1>Calendário</h1>
+            <p className={styles.lead}>Visualize sua evolução ao longo do tempo.</p>
+          </header>
 
           <div className={styles.calendarHeader}>
-            <button type="button" onClick={() => navigateMonth(-1)}>&lt;</button>
-            <h2>{currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
-            <button type="button" onClick={() => navigateMonth(1)}>&gt;</button>
+            <button type="button" className={styles.navBtn} onClick={() => navigateMonth(-1)} aria-label="Mês anterior">
+              ‹
+            </button>
+            <h2 className={styles.monthLabel}>
+              {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            </h2>
+            <button type="button" className={styles.navBtn} onClick={() => navigateMonth(1)} aria-label="Próximo mês">
+              ›
+            </button>
           </div>
 
           {loading && <p className={styles.loading}>Carregando...</p>}
@@ -138,101 +104,22 @@ const Calendar = () => {
             ))}
             {days.map((day, index) => {
               const isCurrentMonth = day.getMonth() === currentDate.getMonth();
-              const isToday = toDateKey(day) === toDateKey(new Date());
-              const status = getDayStatus(day);
+              const isToday = isSameDay(day, today);
 
               return (
                 <div
                   key={index}
-                  className={`${styles.calendarDay} ${!isCurrentMonth ? styles.otherMonth : ''} ${isToday ? styles.today : ''} ${styles[status]}`}
-                  onClick={() => handleDayClick(day)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && handleDayClick(day)}
+                  className={[
+                    styles.calendarDay,
+                    !isCurrentMonth && styles.otherMonth,
+                    isToday && styles.today,
+                  ].filter(Boolean).join(' ')}
                 >
-                  {day.getDate()}
+                  <span className={styles.dayNumber}>{day.getDate()}</span>
                 </div>
               );
             })}
           </div>
-
-          {selectedState && selectedDate && (
-            <div className={styles.modal}>
-              <div className={styles.modalContent}>
-                <h3>{selectedDate.toLocaleDateString('pt-BR')}</h3>
-                <p className={styles.modalMeta}>
-                  Progresso: {selectedState.progressScore}% ·{' '}
-                  {selectedState.calendarStatus === 'green' ? 'Dentro da meta' : selectedState.calendarStatus === 'yellow' ? 'Parcial' : 'Fora da meta'}
-                </p>
-                <div className={styles.modalStats}>
-                  <div className={styles.stat}>
-                    <span>Kcal: {selectedState.caloriesConsumed} / meta {selectedState.goals?.caloriesGoal}</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span>
-                      Refeições na meta:{' '}
-                      {mealProgress.registeredCount}/{mealProgress.inGoalCount} ({mealProgress.percent}%)
-                    </span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span>Treino: {selectedState.workout?.completed ? '✓' : '○'}</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span>
-                      Água: {(selectedState.waterMl / 1000).toFixed(1)} L /{' '}
-                      {(selectedState.goals?.waterGoalMl / 1000).toFixed(1)} L
-                    </span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span>Sono: {selectedState.sleepHours ?? '—'} h</span>
-                  </div>
-                </div>
-
-                <div className={styles.quickActions}>
-                  <button
-                    type="button"
-                    className={styles.quickActionBtn}
-                    onClick={() => runActionForSelected('ADD_WATER', { ml: 250 })}
-                  >
-                    + água
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.quickActionBtn}
-                    onClick={() =>
-                      runActionForSelected('COMPLETE_WORKOUT', {
-                        done: !selectedState.workout?.completed,
-                      })
-                    }
-                  >
-                    {selectedState.workout?.completed ? 'Desmarcar treino' : 'Marcar treino'}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.quickActionBtn}
-                    onClick={() =>
-                      runActionForSelected('COMPLETE_MEAL', {
-                        mealType: 'breakfast',
-                        done: !breakfastDone,
-                      })
-                    }
-                  >
-                    {breakfastDone ? 'Desmarcar café' : 'Marcar café'}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.quickActionBtn}
-                    onClick={() => navigate('/diet?meal=breakfast')}
-                  >
-                    Abrir dieta
-                  </button>
-                </div>
-                <button type="button" className={styles.closeBtn} onClick={() => { setSelectedState(null); setSelectedDate(null); }}>
-                  Fechar
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </main>
 
