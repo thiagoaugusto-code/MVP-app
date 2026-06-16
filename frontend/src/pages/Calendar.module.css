@@ -19,7 +19,7 @@
 }
 
 .pageHeader {
-  padding: 1.25rem 0 0.5rem;
+  padding: 1.25rem 0 0.75rem;
   text-align: center;
 }
 
@@ -47,7 +47,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.6rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .summaryCard {
@@ -55,30 +55,32 @@
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.85rem 0.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 0.5rem;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.06), rgba(255, 255, 255, 0.95));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
   text-align: center;
 }
 
 .summaryLabel {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
   line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .summaryValue {
   font-size: 1.35rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-weight: 800;
+  color: #0f172a;
   line-height: 1.1;
 }
 
 .summaryMeta {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: #64748b;
 }
@@ -87,7 +89,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 1rem 0 1.25rem;
+  margin-bottom: 1rem;
   gap: 0.75rem;
 }
 
@@ -111,45 +113,62 @@
   background: #3b82f6;
   color: white;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1.25rem;
+  border-radius: 10px;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.navBtn:hover {
+  background: #2563eb;
+}
+
+.navBtn:active {
+  background: #1d4ed8;
 }
 
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.4rem;
-  margin-bottom: 1rem;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
 }
 
 .weekday {
   text-align: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  color: #6b7280;
-  padding: 0.25rem 0;
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  padding: 0.15rem 0 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .calendarDay {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 58px;
-  padding: 0.35rem 0.2rem 0.4rem;
-  border-radius: 0.5rem;
+  align-items: stretch;
+  min-height: 56px;
+  border-radius: 8px;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(15, 23, 42, 0.08);
   overflow: hidden;
+}
+
+.dayContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.15rem 0.35rem;
+  gap: 0.1rem;
 }
 
 .statusBar {
   width: 100%;
   height: 3px;
-  border-radius: 2px;
-  margin-bottom: 0.35rem;
   flex-shrink: 0;
 }
 
@@ -170,24 +189,30 @@
 }
 
 .otherMonth {
-  opacity: 0.35;
+  opacity: 0.3;
+  border-color: transparent;
+  background: transparent;
+}
+
+.futureDay {
+  opacity: 0.55;
 }
 
 .today {
   border: 2px solid #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
 }
 
 .dayNumber {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #1f2937;
   line-height: 1.2;
 }
 
 .dayScore {
-  margin-top: 0.15rem;
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.62rem;
+  font-weight: 700;
   color: #64748b;
   line-height: 1;
 }

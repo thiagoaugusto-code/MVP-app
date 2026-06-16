@@ -40,8 +40,12 @@ function getDayDisplay(date, dayData, today) {
   const data = dayData[key];
   const isFuture = startOfDay(date) > startOfDay(today);
 
-  if (!data || isFuture) {
-    return { status: 'empty', scoreLabel: '--%' };
+  if (isFuture) {
+    return { status: 'empty', scoreLabel: '--%', isFuture: true };
+  }
+
+  if (!data) {
+    return { status: 'empty', scoreLabel: '--%', isFuture: false };
   }
 
   const status = data.calendarStatus === 'green' || data.calendarStatus === 'yellow'
@@ -51,6 +55,7 @@ function getDayDisplay(date, dayData, today) {
   return {
     status,
     scoreLabel: `${data.progressScore}%`,
+    isFuture: false,
   };
 }
 
@@ -200,7 +205,7 @@ const Calendar = () => {
               const isToday = isSameDay(day, today);
               const display = isCurrentMonth
                 ? getDayDisplay(day, dayData, today)
-                : { status: 'empty', scoreLabel: '' };
+                : { status: 'empty', scoreLabel: '', isFuture: false };
 
               return (
                 <div
@@ -209,20 +214,25 @@ const Calendar = () => {
                     styles.calendarDay,
                     !isCurrentMonth && styles.otherMonth,
                     isToday && styles.today,
+                    display.isFuture && styles.futureDay,
                   ].filter(Boolean).join(' ')}
                 >
-                  <span
-                    className={[
-                      styles.statusBar,
-                      display.status !== 'empty' && styles[`status_${display.status}`],
-                      display.status === 'empty' && styles.status_empty,
-                    ].filter(Boolean).join(' ')}
-                    aria-hidden="true"
-                  />
-                  <span className={styles.dayNumber}>{day.getDate()}</span>
                   {isCurrentMonth && (
-                    <span className={styles.dayScore}>{display.scoreLabel}</span>
+                    <span
+                      className={[
+                        styles.statusBar,
+                        display.status !== 'empty' && styles[`status_${display.status}`],
+                        display.status === 'empty' && styles.status_empty,
+                      ].filter(Boolean).join(' ')}
+                      aria-hidden="true"
+                    />
                   )}
+                  <div className={styles.dayContent}>
+                    <span className={styles.dayNumber}>{day.getDate()}</span>
+                    {isCurrentMonth && (
+                      <span className={styles.dayScore}>{display.scoreLabel}</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
