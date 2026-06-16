@@ -259,12 +259,26 @@ const sleepFillStyle = {
 
   if (!dailyState) return null;
 
+  const progressScore = dailyState.progressScore ?? 0;
+  const calendarStatus = dailyState.calendarStatus || 'red';
+
   return (
     <section className={styles.wrap} aria-label="Resumo do dia">
       <div className={styles.header}>
-        <div>
+        <div className={styles.headerMain}>
           <h2 className={styles.title}>Seu dia de hoje</h2>
-          {/* <p className={styles.subtitle}>Estado sincronizado com o servidor</p> */}
+          <div className={styles.dayScore} aria-label={`Score do dia: ${progressScore}%`}>
+            <div className={styles.dayScoreRow}>
+              <span className={styles.dayScoreLabel}>Score do dia</span>
+              <span className={styles.dayScoreValue}>{progressScore}%</span>
+            </div>
+            <div className={styles.dayScoreTrack}>
+              <div
+                className={`${styles.dayScoreFill} ${styles[`status_${calendarStatus}`]}`}
+                style={{ width: `${progressScore}%` }}
+              />
+            </div>
+          </div>
         </div>
         <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
           📅

@@ -14,11 +14,69 @@
   margin-bottom: 12px;
 }
 
+.headerMain {
+  flex: 1;
+  min-width: 0;
+}
+
 .title {
   font-size: 16px;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
+}
+
+.dayScore {
+  margin-top: 8px;
+}
+
+.dayScoreRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.dayScoreLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.dayScoreValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.dayScoreTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.dayScoreFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.45s ease;
+}
+
+.status_green {
+  background: linear-gradient(90deg, #34d399, #10b981);
+}
+
+.status_yellow {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.status_red {
+  background: linear-gradient(90deg, #f87171, #ef4444);
 }
 
 .subtitle {
