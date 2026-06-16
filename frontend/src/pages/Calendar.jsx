@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dailyStateAPI } from '../services/api';
@@ -15,6 +15,40 @@ function toDateKey(d) {
 
 function isSameDay(a, b) {
   return toDateKey(a) === toDateKey(b);
+}
+
+function getMonthDaysData(dayData, currentDate) {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1;
+
+  return Object.entries(dayData)
+    .filter(([key]) => {
+      const [y, m] = key.split('-').map(Number);
+      return y === year && m === month;
+    })
+    .map(([, d]) => d);
+}
+
+function buildMonthSummary(monthDays) {
+  if (monthDays.length === 0) {
+    return { average: null, completedCount: 0, bestDay: null };
+  }
+
+  const total = monthDays.reduce((sum, d) => sum + d.progressScore, 0);
+  const average = Math.round(total / monthDays.length);
+  const completedCount = monthDays.filter((d) => d.progressScore > 0).length;
+  const best = monthDays.reduce(
+    (max, d) => (!max || d.progressScore > max.progressScore ? d : max),
+    null
+  );
+
+  return {
+    average,
+    completedCount,
+    bestDay: best
+      ? { score: best.progressScore, date: new Date(best.date) }
+      : null,
+  };
 }
 
 const Calendar = () => {
@@ -69,6 +103,11 @@ const Calendar = () => {
     });
   };
 
+  const monthSummary = useMemo(() => {
+    const monthDays = getMonthDaysData(dayData, currentDate);
+    return buildMonthSummary(monthDays);
+  }, [dayData, currentDate]);
+
   const days = getDaysInMonth(currentDate);
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const today = new Date();
@@ -83,6 +122,35 @@ const Calendar = () => {
             <h1>Calendário</h1>
             <p className={styles.lead}>Visualize sua evolução ao longo do tempo.</p>
           </header>
+
+          <section className={styles.summary} aria-label="Resumo do mês">
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Média do mês</span>
+              <span className={styles.summaryValue}>
+                {monthSummary.average !== null ? `${monthSummary.average}%` : '—'}
+              </span>
+            </div>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Dias concluídos</span>
+              <span className={styles.summaryValue}>{monthSummary.completedCount}</span>
+            </div>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Melhor dia</span>
+              <span className={styles.summaryValue}>
+                {monthSummary.bestDay
+                  ? `${monthSummary.bestDay.score}%`
+                  : '—'}
+              </span>
+              {monthSummary.bestDay && (
+                <span className={styles.summaryMeta}>
+                  {monthSummary.bestDay.date.toLocaleDateString('pt-BR', {
+                    day: 'numeric',
+                    month: 'short',
+                  })}
+                </span>
+              )}
+            </div>
+          </section>
 
           <div className={styles.calendarHeader}>
             <button type="button" className={styles.navBtn} onClick={() => navigateMonth(-1)} aria-label="Mês anterior">
