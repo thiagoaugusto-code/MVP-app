@@ -17,6 +17,12 @@ function isSameDay(a, b) {
   return toDateKey(a) === toDateKey(b);
 }
 
+function startOfDay(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function getMonthDaysData(dayData, currentDate) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
@@ -27,6 +33,25 @@ function getMonthDaysData(dayData, currentDate) {
       return y === year && m === month;
     })
     .map(([, d]) => d);
+}
+
+function getDayDisplay(date, dayData, today) {
+  const key = toDateKey(date);
+  const data = dayData[key];
+  const isFuture = startOfDay(date) > startOfDay(today);
+
+  if (!data || isFuture) {
+    return { status: 'empty', scoreLabel: '--%' };
+  }
+
+  const status = data.calendarStatus === 'green' || data.calendarStatus === 'yellow'
+    ? data.calendarStatus
+    : 'red';
+
+  return {
+    status,
+    scoreLabel: `${data.progressScore}%`,
+  };
 }
 
 function buildMonthSummary(monthDays) {
@@ -173,6 +198,9 @@ const Calendar = () => {
             {days.map((day, index) => {
               const isCurrentMonth = day.getMonth() === currentDate.getMonth();
               const isToday = isSameDay(day, today);
+              const display = isCurrentMonth
+                ? getDayDisplay(day, dayData, today)
+                : { status: 'empty', scoreLabel: '' };
 
               return (
                 <div
@@ -183,7 +211,18 @@ const Calendar = () => {
                     isToday && styles.today,
                   ].filter(Boolean).join(' ')}
                 >
+                  <span
+                    className={[
+                      styles.statusBar,
+                      display.status !== 'empty' && styles[`status_${display.status}`],
+                      display.status === 'empty' && styles.status_empty,
+                    ].filter(Boolean).join(' ')}
+                    aria-hidden="true"
+                  />
                   <span className={styles.dayNumber}>{day.getDate()}</span>
+                  {isCurrentMonth && (
+                    <span className={styles.dayScore}>{display.scoreLabel}</span>
+                  )}
                 </div>
               );
             })}

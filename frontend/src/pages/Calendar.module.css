@@ -136,11 +136,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 52px;
+  justify-content: flex-start;
+  min-height: 58px;
+  padding: 0.35rem 0.2rem 0.4rem;
   border-radius: 0.5rem;
   background: white;
   border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.statusBar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  margin-bottom: 0.35rem;
+  flex-shrink: 0;
+}
+
+.status_green {
+  background: #10b981;
+}
+
+.status_yellow {
+  background: #f59e0b;
+}
+
+.status_red {
+  background: #ef4444;
+}
+
+.status_empty {
+  background: #e5e7eb;
 }
 
 .otherMonth {
@@ -152,7 +178,16 @@
 }
 
 .dayNumber {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.85rem;
   color: #1f2937;
+  line-height: 1.2;
+}
+
+.dayScore {
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1;
 }
