@@ -150,9 +150,9 @@ const sleepFillStyle = {
     return null;
   }, [meals]);
 
-  const handleWaterClick = () => {
+  /*const handleWaterClick = () => {
     onQuickWater(100);
-  };
+  };*/
 
   // Calcular ml baseado na posição (mouse ou touch)
   const calculateWaterFromPosition = (clientX) => {
@@ -351,7 +351,7 @@ const sleepFillStyle = {
         ref={waterButtonRef}
         type="button"
         className={`${styles.waterButton} ${waterMlLocal >= waterGoalMl ? styles.filled : ''} ${isDragging ? styles.dragging : ''}`}
-        onClick={handleWaterClick}
+        /*</section>onClick={handleWaterClick}*/
         onMouseDown={handleWaterMouseDown}
         onTouchStart={handleWaterTouchStart}
       >
