@@ -6,6 +6,7 @@ import { dietAPI, dailyStateAPI } from '../services/api';
 import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
 import styles from './DietPlan.module.css';
 import MealRegisterModal from '../components/MealRegisterModal';
+import { Camera } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -195,9 +196,9 @@ const DietPlan = () => {
                           <button
                             type="button"
                             onClick={() => openRegisterModal(meal)}
-                            className={styles.registerBtn}
+                            className={styles.cameraButton}
                           >
-                            📷 Registrar refeição
+                            <Camera size={22} />
                           </button>
 
                           <button
