@@ -283,66 +283,56 @@ const sleepFillStyle = {
         </div>
       </div>
 
-      <div className={styles.habitRow}>
-        <span className={styles.habitText}>Consistência semanal: {weeklyActiveDays}/7 dias ativos</span>
-        <button type="button" className={styles.editGoalsBtn} onClick={onEditGoals}>
-          Agua 💧
-        </button>
-      </div>
-
-      <div className={styles.grid}>
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Refeições</div>
-          <div className={styles.kpiValueSmall}>{nextMeal ? getMealLabel(nextMeal.type) : 'Tudo feito'}</div>
-          <button
-            type="button"
-            className={styles.linkBtn}
-            onClick={() => (nextMeal ? navigate(`/diet?meal=${nextMeal.type}`) : navigate('/diet'))}
-          >
-            Plano alimentar →
+      
+        <div className={styles.habitRow}>
+          <span className={styles.habitText}>Consistência semanal: {weeklyActiveDays}/7 dias ativos</span>
+          <button type="button" className={styles.editGoalsBtn} onClick={onEditGoals}>
+            Agua 💧
           </button>
         </div>
 
-        <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Meta alimentar do dia</div>
-          <div className={styles.kpiValueSmall}>
-            {mealProgress.registeredCount}/{mealProgress.inGoalCount}
+
+      
+        <div className={styles.domainCard}>
+          <div className={styles.domainHeader}>
+            <span>🥗 Alimentação</span>
+            <span>{mealProgress.registeredCount}/{mealProgress.inGoalCount}</span>
           </div>
-          <div className={styles.kpiHint}>
-            {mealProgress.percent}% · refeições na meta registradas
+
+          <div className={styles.domainMain}>
+            <span>Próxima refeição: {nextMeal ? getMealLabel(nextMeal.type) : 'Tudo feito'}</span>
           </div>
+
+          <div className={styles.bar}>
+            <div style={{ width: `${mealProgress.percent}%` }} />
+          </div>
+
+          <button onClick={() => navigate('/diet')}>
+            Ver plano →
+          </button>
         </div>
 
-        <div
-          className={`${styles.kpi} ${styles.clickable}`}
-          onClick={() => navigate('/workout')}
-          role="button"
-        >
-          <div className={styles.kpiLabel}>TREINOS</div>
-          <div className={styles.kpiValueSmall}>
-            {nextWorkout ? nextWorkout.name : 'Organize sua rotina'}
+        <div className={styles.domainCard}>
+          <div className={styles.domainHeader}>
+            <span>🏋️ Treino</span>
+            <span>{completedActivities}/{activities.length}</span>
           </div>
-          <div className={`${styles.kpiHint} ${styles.linkBtn}`}>Minha rotina →</div>
-        </div>
 
-        <div
-          className={`${styles.kpi} ${styles.workoutKpi} ${styles[workoutState]} ${
-            pulse ? styles.pulse : ''
-          }`}
-        >
-          <div className={styles.kpiLabel}>Meta de treinos</div>
-          <div className={styles.kpiValueSmall}>
-            {workoutGoal === 0 ? 'Registre treinos' : `${Math.round(workoutFill * 100)}%`}
+          <div className={styles.domainMain}>
+            <span>
+              Próximo: {nextWorkout ? nextWorkout.name : 'Rotina livre'}
+            </span>
           </div>
-          <div className={styles.kpiHint}>
-            {workoutGoal === 0
-              ? 'Defina sua rotina diária'
-              : workoutFill === 1
-                ? 'Treino concluído'
-                : 'Em progresso'}
+
+          <div className={styles.bar}>
+            <div style={{ width: `${workoutFill * 100}%` }} />
           </div>
+
+          <button onClick={() => navigate('/workout')}>
+            Ver rotina →
+          </button>
         </div>
-      </div>
+      
 
       <button
         ref={waterButtonRef}

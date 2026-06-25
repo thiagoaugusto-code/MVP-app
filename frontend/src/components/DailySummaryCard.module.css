@@ -462,3 +462,62 @@
   z-index: 5;
 }
 
+.domainCard {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 110px;
+  transition: all 0.25s ease;
+}
+
+.domainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.domainMain {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.bar {
+  height: 6px;
+  width: 100%;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.bar > div {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  transition: width 0.4s ease;
+}
+
+.domainCard button {
+  margin-top: 4px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2563eb;
+  text-align: left;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
