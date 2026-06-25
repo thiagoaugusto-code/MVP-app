@@ -109,6 +109,22 @@
   background: rgba(255, 255, 255, 0.85);
   color: #1d4ed8;
   cursor: pointer;
+  border-color: #001b65;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+
+.editGoalsBtn:hover {
+  transform: translateY(-1px) scale(1.04);
+  background: rgba(29, 78, 216, 0.08);
+  box-shadow: 0 6px 14px rgba(29, 78, 216, 0.12);
+}
+
+.editGoalsBtn:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.15);
 }
 
 .calendarBtn {

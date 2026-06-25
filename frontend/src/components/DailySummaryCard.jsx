@@ -287,7 +287,7 @@ const sleepFillStyle = {
         <div className={styles.habitRow}>
           <span className={styles.habitText}>Consistência semanal: {weeklyActiveDays}/7 dias ativos</span>
           <button type="button" className={styles.editGoalsBtn} onClick={onEditGoals}>
-            Agua 💧
+            Agua <div className='animate-pulse'>💧</div>
           </button>
         </div>
 
