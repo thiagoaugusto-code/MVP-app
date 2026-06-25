@@ -149,7 +149,7 @@ function scoreAndCalendarStatus({
   mealProgress,
   waterMl,
   waterGoalMl,
-  workoutCompleted,
+  workoutProgress,
   sleepHours,
 }) {
   const inGoalCount = mealProgress?.inGoalCount ?? 0;
@@ -159,7 +159,7 @@ function scoreAndCalendarStatus({
       ? (registeredCount / inGoalCount) * SCORE_WEIGHTS.MEALS
       : 0;
   const waterPart = computeWaterProgress(waterMl, waterGoalMl).ratio * SCORE_WEIGHTS.WATER;
-  const workoutPart = workoutCompleted ? SCORE_WEIGHTS.WORKOUT : 0;
+  const workoutPart = clamp(workoutProgress, 0, 1) * SCORE_WEIGHTS.WORKOUT;
   const sleepPart = sleepQualityFactor(sleepHours) * SLEEP_SCORE_WEIGHT;
 
   const progressScore = Math.round(
@@ -224,6 +224,7 @@ async function rebuildDailyUserState(userId, date) {
     .filter((m) => m.inGoal && m.registered)
     .reduce((sum, m) => sum + (m.totalCalories || 0), 0);
 
+  
   const workoutCompleted = Boolean(row.workoutCompleted);
 
   const checklist = buildChecklist({
@@ -233,14 +234,6 @@ async function rebuildDailyUserState(userId, date) {
     waterGoalMl,
     sleepHours: row.sleepHours,
     sessions: row.sessions,
-  });
-
-  const { progressScore, calendarStatus } = scoreAndCalendarStatus({
-    mealProgress,
-    waterMl,
-    waterGoalMl,
-    workoutCompleted,
-    sleepHours: row.sleepHours,
   });
 
   const exercises = row.exercises
@@ -284,6 +277,14 @@ async function rebuildDailyUserState(userId, date) {
         totalExercisesToday > 0
           ? totalCompletedExercises / totalExercisesToday
           : 0;
+
+  const { progressScore, calendarStatus } = scoreAndCalendarStatus({
+    mealProgress,
+    waterMl,
+    waterGoalMl,
+    workoutProgress,
+    sleepHours: row.sleepHours,
+  });
 
   await prisma.dailyUserState.update({
     where: { id: row.id },
