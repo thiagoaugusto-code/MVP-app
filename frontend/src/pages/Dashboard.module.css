@@ -19,20 +19,29 @@
 }
 
 .greeting {
-  padding: 1.5rem 0;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 55%);
+  margin: 1rem 0;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .greeting h1 {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   animation: slideDown 0.5s ease;
 }
 
 .greeting p {
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   color: #6b7280;
   margin: 0;
 }
@@ -45,8 +54,15 @@
 }
 
 .section {
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
+  margin-top: 0.5rem;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.92));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 55%);
 }
+
 
 .sectionTitle {
   font-size: 1.125rem;
@@ -221,4 +237,25 @@
   .goalsModal {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
+}
+
+.calendarBtn {
+  font-size: x-large;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid blue;
+  cursor: pointer;
+ transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+/* hover leve (opcional mas melhora UX) */
+.calendarBtn:hover {
+  transform: scale(1.06);
+}
+
+/* clique (efeito principal que você quer) */
+.calendarBtn:active {
+  transform: scale(1.18);
 }

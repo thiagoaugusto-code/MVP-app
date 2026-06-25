@@ -305,12 +305,20 @@ const Dashboard = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.greeting}>
-            
+             {/* Imagem rotativa de boas-vindas */}
+            <div className="text-2xl animate-pulse">
+              ⚡
+            </div>
+
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
-            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
+            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar!
+              <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
+            </h1> 
+
+            {/* 🆕 BOTÃO DE ACESSO RÁPIDO AO CALENDÁRIO */}
+            <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
               📅
-            </button></h1> 
-            
+            </button>
           </section>
 
           <DailySummaryCard
@@ -389,9 +397,12 @@ const Dashboard = () => {
                   onCameraClick={() => openRegisterModal(meal.id)}
                 />
               ))}
+             </div>
+          </section>
 
-              <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Treino</h2>
-              <div className={styles.checklist}></div>
+          <section className={styles.section}>  
+            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Treino</h2>
+            <div className={styles.checklist}>
               {activities.map((activity) => (
                 <CheckItem
                   key={activity.id}
@@ -410,13 +421,13 @@ const Dashboard = () => {
               ))}
             </div>
           </section>
+           
 
           <section className={styles.section}>
             <InsightCard />
           </section>
 
           <section className={styles.section}>
-            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist</h2>
             <div className={styles.quickLinks}>
               <button className={styles.quickLink} onClick={() => navigate('/diet?meal=breakfast')} type="button">
                 <span>🥗</span>

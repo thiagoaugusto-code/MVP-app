@@ -1,9 +1,9 @@
 .wrap {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.10), rgba(255, 255, 255, 0.92));
+  background: white;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 16px;
   padding: 14px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 30px rgb(15 23 42 / 55%);
 }
 
 .header {
@@ -215,11 +215,7 @@
   height: 100%;
   left: 0;
   top: 0;
-  background: linear-gradient(
-    90deg,
-    #2563eb 0%,
-    #1e40af 100%
-  );
+  background: linear-gradient(90deg, #3e78d5, #001a6c);
   transition: width 0.35s ease-out;
 }
 
@@ -428,7 +424,7 @@
 
 .domainCard {
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.46);
   border-radius: 16px;
   padding: 12px;
   display: flex;
@@ -436,6 +432,7 @@
   gap: 8px;
   min-height: 110px;
   transition: all 0.25s ease;
+  margin-bottom: 0.35rem;
 }
 
 .domainHeader {
@@ -465,7 +462,7 @@
 .bar > div {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(16deg, #5999ff, #001b65);
   transition: width 0.4s ease;
 }
 

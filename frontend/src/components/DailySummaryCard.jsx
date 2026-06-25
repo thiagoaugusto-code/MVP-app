@@ -291,8 +291,7 @@ const sleepFillStyle = {
           </button>
         </div>
 
-
-      
+        {/* Card Alimentação */}
         <div className={styles.domainCard}>
           <div className={styles.domainHeader}>
             <span>🥗 Alimentação</span>
@@ -311,7 +310,8 @@ const sleepFillStyle = {
             Ver plano →
           </button>
         </div>
-
+        
+        {/* Card Treino */}
         <div className={styles.domainCard}>
           <div className={styles.domainHeader}>
             <span>🏋️ Treino</span>
