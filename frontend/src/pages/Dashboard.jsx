@@ -307,8 +307,10 @@ const Dashboard = () => {
           <section className={styles.greeting}>
             
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
-            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar</h1> 
-           
+            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
+              📅
+            </button></h1> 
+            
           </section>
 
           <DailySummaryCard

@@ -281,9 +281,6 @@ const sleepFillStyle = {
             </div>
           </div>
         </div>
-        <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
-          📅
-        </button>
       </div>
 
       <div className={styles.habitRow}>
