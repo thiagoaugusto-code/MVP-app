@@ -113,10 +113,10 @@ function buildChecklist({ meals, workoutCompleted, waterMl, waterGoalMl, sleepHo
 // SCORE SYSTEM
 // --------------------
 const SCORE_WEIGHTS = {
-  MEALS: 45,
-  WATER: 28,
-  WORKOUT: 22,
-  SLEEP: 5,
+  MEALS: 35,
+  WATER: 30,
+  WORKOUT: 25,
+  SLEEP: 10,
 };
 
 const SLEEP_SCORE_WEIGHT = SCORE_WEIGHTS.SLEEP;
