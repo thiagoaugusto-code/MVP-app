@@ -126,42 +126,6 @@
   gap: 10px;
 }
 
-.kpi {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 14px;
-  padding: 10px;
-  min-height: 88px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: all 0.4s ease;
-}
-
-.kpiLabel {
-  font-size: 12px;
-  color: rgba(15, 23, 42, 0.65);
-  font-weight: 700;
-}
-
-.kpiValue {
-  font-size: 26px;
-  font-weight: 900;
-  color: #0f172a;
-  line-height: 1;
-}
-
-.kpiValueSmall {
-  font-size: 14px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.kpiHint {
-  font-size: 11px;
-  color: rgba(15, 23, 42, 0.55);
-  font-weight: 600;
-}
 
 .linkBtn {
   border: none;
