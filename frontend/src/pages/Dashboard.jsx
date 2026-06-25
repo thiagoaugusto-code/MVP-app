@@ -372,7 +372,7 @@ const Dashboard = () => {
           </section>*/}
 
           <section className={styles.section}>
-            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Diário</h2>
+            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Alimentação</h2>
             <div className={styles.checklist}>
 
               {meals.map((meal) => (
@@ -388,7 +388,8 @@ const Dashboard = () => {
                 />
               ))}
 
-
+              <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Treino</h2>
+              <div className={styles.checklist}></div>
               {activities.map((activity) => (
                 <CheckItem
                   key={activity.id}
