@@ -334,46 +334,12 @@ const Dashboard = () => {
             weeklyActiveDays={weeklyActiveDays}
             sleepHours={sleepHours}
             onSleepChange={(minutes) => applyAction('UPDATE_SLEEP', { hours: minutes / 60 })}
-            onQuickWater={(amount = 100) => applyAction('ADD_WATER', { ml: amount })}
+            onQuickWater={(amount) => applyAction('ADD_WATER', { ml: amount })}
             onQuickWorkoutToggle={() => navigate('/workout')}
             onEditGoals={openGoals}
           />
-          {/* 🆕 NOVO: PLANO DE TREINO DO DIA (ROUTINE LAYER) */}
-          {dailyState?.workoutPlan && (
-            <section className={styles.section}>
-              <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>
-                Treino do dia
-              </h2>
-
-              {dailyState.workoutPlan.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>Hoje não há treino programado</p>
-                  <button onClick={() => navigate('/workout')}>
-                    Configurar rotina
-                  </button>
-                </div>
-              ) : (
-                <div className={styles.workoutPlan}>
-                  {dailyState.workoutPlan.map((w) => (
-                    <div
-                      key={w.id}
-                      className={styles.workoutPlanItem}
-                    >
-                      <div>
-                        <strong>{w.name}</strong>
-                        <p>{w.type}</p>
-                      </div>
-
-                      <button onClick={() => navigate('/workout')}>
-                        Iniciar
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-
+          
+          
           {/* 📊 STATS GRID 
           <section className={styles.statsGrid}>
             <StatCard
@@ -460,7 +426,7 @@ const Dashboard = () => {
         <div className={styles.goalsOverlay}>
           <div className={styles.goalsModal}>
             <h3>Personalizar metas diárias</h3>
-            <p>As metas ficam salvas no servidor e alimentam o seu resumo diário.</p>
+            <p>Suas metas ajudam o Sage a interpretar seu dia e mostrar sua evolução em tempo real.</p>
             {/*<label>
               Meta de calorias
               <input
