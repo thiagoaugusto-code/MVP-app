@@ -21,6 +21,13 @@ import styles from './Dashboard.module.css';
 import WorkoutRoutineSetup from './WorkoutRoutineSetup';
 
 
+function getMoodIcon(progressScore = 0) {
+  if (progressScore >= 80) return '✨';
+  if (progressScore >= 50) return '⚡';
+  return '🌱';
+}
+
+
 function toDateKey(d = new Date()) {
   const x = new Date(d);
   const y = x.getFullYear();
@@ -47,6 +54,7 @@ const Dashboard = () => {
   const [hasInitializedRoutine, setHasInitializedRoutine] = useState(() => 
     localStorage.getItem('hasInitializedRoutine') === 'true'
   );
+  const progressScore = dailyState?.progressScore ?? 0;
 
 // NOVO: ESTADOS PARA REGISTRO DE REFEIÇÃO
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -307,7 +315,7 @@ const Dashboard = () => {
           <section className={styles.greeting}>
              {/* Imagem rotativa de boas-vindas */}
             <div className="text-2xl animate-pulse">
-              ⚡
+              {getMoodIcon(progressScore)}
             </div>
 
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
