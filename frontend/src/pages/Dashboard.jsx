@@ -401,23 +401,6 @@ const Dashboard = () => {
             <InsightCard />
           </section>
 
-          <section className={styles.section}>
-            <div className={styles.quickLinks}>
-              <button className={styles.quickLink} onClick={() => navigate('/diet?meal=breakfast')} type="button">
-                <span>🥗</span>
-                <span>Adicionar Refeição</span>
-              </button>
-              <button className={styles.quickLink} onClick={() => navigate('/workout')} type="button">
-                <span>🏃</span>
-                <span>Registrar Treino</span>
-              </button>
-              <button className={styles.quickLink} onClick={() => navigate('/progress')} type="button">
-                <span>📸</span>
-                <span>Registrar Progresso</span>
-              </button>
-            </div>
-          </section>
-
           <div className={styles.spacer} />
         </div>
       </main>

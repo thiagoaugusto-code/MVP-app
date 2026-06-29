@@ -10,6 +10,48 @@ const Header = () => {
   const navigate = useNavigate();
   const menuRef = useRef();
 
+  // Function to format the display name
+    const displayName = user?.name
+  ? (() => {
+      const capitalize = (text) =>
+        text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+
+      const parts = user.name.trim().split(' ');
+
+      const firstName = capitalize(parts[0]);
+
+      if (parts.length === 1) {
+        return firstName;
+      }
+
+      const secondInitial = capitalize(parts[1])[0];
+
+      return `${firstName} ${secondInitial}.`;
+    })()
+  : 'Usuário';
+
+
+  const currentDate = (() => {
+    const now = new Date();
+
+    const weekday = new Intl.DateTimeFormat('pt-BR', {
+      weekday: 'long',
+    }).format(now);
+
+    const dayMonth = new Intl.DateTimeFormat('pt-BR', {
+      day: 'numeric',
+      month: 'long',
+    }).format(now);
+
+    const shortWeekday =
+      weekday.replace('-feira', '');
+
+    return `${
+      shortWeekday.charAt(0).toUpperCase() +
+      shortWeekday.slice(1)
+    }, ${dayMonth}`;
+  })();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -25,14 +67,16 @@ const Header = () => {
 
 
   return (
-    <header className="bg-gradient-to-r from-blue-500 to-blue-700 
-                   dark:from-gray-900 dark:to-gray-800 
-                   text-white transition-colors">
+    <header className={styles.header}>
       <div className={styles.container}>
-        <h1 className={styles.title}>MVP App</h1>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Olá, {user?.name || 'Usuário'}! 👋
-            </h2>
+
+        <div className={styles.greetingWrapper}>
+          <h1 className={styles.greeting}>
+              Olá, {displayName}         
+          </h1>
+          <p className={styles.currentDate}>{currentDate}</p> 
+        </div>
+
         <div className={styles.headerRight}>
           {user?.role === 'ADMIN' && (
             <div className={styles.viewModeSelector}>
@@ -60,7 +104,7 @@ const Header = () => {
           </div>
             {open && (
               <div className={styles.menu}>
-                <p className={styles.menuItem}>Olá, {user?.name || 'Usuário'}</p>
+                <p className={styles.menuItem}>Olá, {displayName}</p>
 
               <hr className={styles.divider} />
 
