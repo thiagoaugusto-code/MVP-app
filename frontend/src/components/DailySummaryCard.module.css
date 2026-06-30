@@ -491,6 +491,7 @@
   color: #2563eb;
   text-align: left;
   cursor: pointer;
+  margin: 0 auto;
 }
 
 .grid {
