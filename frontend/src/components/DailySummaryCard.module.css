@@ -325,68 +325,60 @@
 }
 
 .sleepCard {
-  margin-top: 16px;
-  height: 52px;
-  padding: 0 14px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+    margin-top: 16px;
+    padding: 7px 6px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.92);
+    border-top-width: thin;
+    border-color: aqua;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    min-height: 118px;
+}
+
+.moonWrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* full-card background fill (color transition area) */
-.sleepBackgroundFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0%;
-  z-index: 1;
-  transition: width 0.06s linear;
-}
-
-/* Disable width transition while the range input is actively being dragged
-   to avoid competing animations that cause visual lag/stutter. Uses :has()
-   to detect an active range inside the card. */
-.sleepCard:has(.sleepRange:active) .sleepBackgroundFill {
-  transition: none !important;
-}
-
-/* overlay that shows white text only where the background covers */
-.sleepOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  overflow: hidden;
-  pointer-events: none;
-}
-.overlayContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 100%;
-  padding: 0 14px;
-  color: white;
-  font-weight: 700;
-}
-
-/* normal (dark) text layer */
-.sleepLabel,
-.sleepValue {
+  justify-content: center;
+  gap: 6px;
+  min-width: 72px;
   z-index: 2;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
 }
 
-/* track in the middle */
+.moon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  background: none;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.moonMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.sleepTitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sleepPhase {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.62);
+}
+
 .sleepTrackWrap {
   position: relative;
   flex: 1;
@@ -396,14 +388,14 @@
   min-width: 0;
   height: 100%;
   z-index: 2;
-  padding: 0 10px;
+  padding: 0 6px;
 }
 
 .sleepTrack {
   width: 100%;
-  height: 16px;
+  height: 14px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(148, 163, 184, 0.16);
   overflow: hidden;
   position: relative;
 }
@@ -411,14 +403,20 @@
 .sleepFill {
   height: 100%;
   border-radius: 999px;
-  transition: none;
+  background: linear-gradient(16deg, #5999ff, #001b65);
+  transition: width 0s linear;
+  will-change: width;
+}
+
+.sleepCard:has(.sleepRange:active) .sleepFill {
+  transition: none !important;
 }
 
 .sleepThumb {
   position: absolute;
   top: 50%;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
   background: #ffffff;
   border: 2px solid rgba(37, 99, 235, 0.9);
@@ -436,6 +434,33 @@
   opacity: 0;
   cursor: pointer;
   z-index: 5;
+  touch-action: none;
+}
+
+.sleepMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  min-width: 84px;
+  z-index: 2;
+}
+
+.sleepValue,
+.sleepMessage {
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sleepMessage {
+  font-size: 11px;
+  color: rgba(15, 23, 42, 0.62);
+  white-space: normal;
+  text-align: right;
+  line-height: 1.2;
 }
 
 .domainCard {

@@ -37,12 +37,14 @@ export default function DailySummaryCard({
   const waterGoalMl = goals.waterGoalMl || 2000;
   const waterMl = dailyState?.waterMl || 0;
 
-  // Estado local para agua - permite arrastar sem atualizar imediatamente o estado global
+  // Estado local para a hidratação, usado como fonte única para a UI durante o arraste
   const [waterMlLocal, setWaterMlLocal] = useState(waterMl);
 
   useEffect(() => {
-    setWaterMlLocal(waterMl);
-  }, [waterMl, waterGoalMl]);
+    if (!isDragging) {
+      setWaterMlLocal(waterMl);
+    }
+  }, [waterMl, isDragging]);
 
 
   // Estado local para os minutos de sono, para permitir arrastar o slider sem atualizar imediatamente o estado global
@@ -65,26 +67,27 @@ export default function DailySummaryCard({
     onSleepChange(value);
   };
 
- // Define a função para obter o gradiente de preenchimento com base nos minutos de sono
-  const getSleepFillGradient = (minutes) => {
-  if (minutes <= 420) {
-    // até 7h → azul mais suave / pouco descanso
-    return 'linear-gradient(90deg, #60a5fa 0%, #2563eb 100%)';
-  }
-
-  if (minutes <= 540) {
-    // 7h a 9h → azul equilibrado / sono ideal
-    return 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)';
-  }
-
-  // 9h a 12h → azul profundo / sono intenso
-  return 'linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%)';
-};
-
-const sleepFillStyle = {
-  width: `${sleepPercent}%`,
-  background: getSleepFillGradient(sleepMinutesLocal),
-};
+  const sleepMoonPhase = useMemo(() => {
+    if (sleepMinutesLocal <= 120) {
+      return { icon: '🌑', message: 'Sono insuficiente' };
+    }
+    if (sleepMinutesLocal <= 240) {
+      return { icon: '🌒', message: 'Descanso parcial' };
+    }
+    if (sleepMinutesLocal <= 360) {
+      return { icon: '🌓', message: 'Sono aceitável' };
+    }
+    if (sleepMinutesLocal <= 540) {
+      return { icon: '🌕', message: 'Faixa ideal' };
+    }
+    if (sleepMinutesLocal <= 600) {
+      return { icon: '🌖', message: 'Descanso elevado' };
+    }
+    if (sleepMinutesLocal <= 660) {
+      return { icon: '🌗', message: 'Sono prolongado' };
+    }
+    return { icon: '🌘', message: 'Um pouco demais' };
+  }, [sleepMinutesLocal]);
 
 
 
@@ -103,9 +106,9 @@ const sleepFillStyle = {
     ...(dailyState?.workout?.plan || []),
     ...(dailyState?.workout?.exercises || []),
   ];
-  const waterProgress = isDragging
+  const waterProgress = waterGoalMl > 0
     ? Math.round(Math.min(100, (waterMlLocal / waterGoalMl) * 100))
-    : (dailyState.waterProgress ?? 0);
+    : 0;
 
   const workoutGoal = activities.length || 1;
   const nextWorkout = activities.find((activity) => !activity.completed);
@@ -168,6 +171,7 @@ const sleepFillStyle = {
 
   // Handlers para Mouse
   const handleWaterMouseDown = (e) => {
+    e.preventDefault();
     setIsDragging(true);
     const newMl = calculateWaterFromPosition(e.clientX);
     setWaterMlLocal(newMl);
@@ -175,26 +179,29 @@ const sleepFillStyle = {
 
   const handleWaterMouseMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     const newMl = calculateWaterFromPosition(e.clientX);
     setWaterMlLocal(newMl);
   };
 
   const handleWaterMouseUp = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     setIsDragging(false);
     
     const finalMl = calculateWaterFromPosition(e.clientX);
     setWaterMlLocal(finalMl);
     
-    // Calcular quanto adicionar (diferença entre final e atual)
-    const difference = Math.max(0, finalMl - waterMl);
-    if (difference > 0) {
+    // Persistir o valor final, inclusive quando o usuário reduz a barra
+    const difference = finalMl - waterMl;
+    if (difference !== 0) {
       onQuickWater(difference);
     }
   };
 
   // Handlers para Touch
   const handleWaterTouchStart = (e) => {
+    e.preventDefault();
     setIsDragging(true);
     const touch = e.touches[0];
     const newMl = calculateWaterFromPosition(touch.clientX);
@@ -203,6 +210,7 @@ const sleepFillStyle = {
 
   const handleWaterTouchMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     const touch = e.touches[0];
     const newMl = calculateWaterFromPosition(touch.clientX);
     setWaterMlLocal(newMl);
@@ -210,15 +218,16 @@ const sleepFillStyle = {
 
   const handleWaterTouchEnd = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     setIsDragging(false);
     
     const touch = e.changedTouches[0];
     const finalMl = calculateWaterFromPosition(touch.clientX);
     setWaterMlLocal(finalMl);
     
-    // Calcular quanto adicionar (diferença entre final e atual)
-    const difference = Math.max(0, finalMl - waterMl);
-    if (difference > 0) {
+    // Persistir o valor final, inclusive quando o usuário reduz a barra
+    const difference = finalMl - waterMl;
+    if (difference !== 0) {
       onQuickWater(difference);
     }
   };
@@ -352,21 +361,18 @@ const sleepFillStyle = {
         </span>
       </button>
 
-      <div className={styles.sleepCard} style={{ position: 'relative' }}>
-        <div className={styles.sleepBackgroundFill} style={sleepFillStyle} />
-
-        <div
-          className={styles.sleepOverlay}
-          style={{ width: `${sleepPercent}%` }}
-          aria-hidden="true"
-        >
+      <div className={styles.sleepCard}>
+        <div className={styles.moonWrap}>
+          <div className={styles.moon} aria-hidden="true">{sleepMoonPhase.icon}</div>
+          <div className={styles.moonMeta}>
+            <span className={styles.sleepTitle}>Sono</span>
+            <span className={styles.sleepPhase}>{sleepMoonPhase.label}</span>
+          </div>
         </div>
-
-        <span className={styles.sleepLabel}>Horas dormidas</span>
 
         <div className={styles.sleepTrackWrap}>
           <div className={styles.sleepTrack}>
-            <div className={styles.sleepFill} style={{ width: `${sleepPercent}%`, background: getSleepFillGradient(sleepMinutesLocal) }} />
+            <div className={styles.sleepFill} style={{ width: `${sleepPercent}%` }} />
             <div className={styles.sleepThumb} style={{ left: `${sleepPercent}%` }} />
           </div>
 
@@ -382,8 +388,12 @@ const sleepFillStyle = {
             aria-label="Horas dormidas"
           />
         </div>
+
+        <div className={styles.sleepMeta}>
           <span className={styles.sleepValue}>{sleepHoursLabel}</span>
+          <span className={styles.sleepMessage}>{sleepMoonPhase.message}</span>
         </div>
+      </div>
 
     </section>
   );
