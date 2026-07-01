@@ -6,7 +6,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: white;
+  background: linear-gradient(180deg, #7991ff36, #00299d);
   border-top: 1px solid #e5e7eb;
   padding: 0.75rem 0;
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
@@ -22,7 +22,7 @@
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   text-decoration: none;
-  color: #6b7280;
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

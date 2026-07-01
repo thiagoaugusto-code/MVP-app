@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
@@ -19,6 +19,7 @@ import {
 } from '../constants/meals';
 import styles from './Dashboard.module.css';
 import WorkoutRoutineSetup from './WorkoutRoutineSetup';
+import { getAdjacentCategoryIndex } from './dashboardChecklistUtils';
 
 
 function getMoodIcon(progressScore = 0) {
@@ -54,6 +55,10 @@ const Dashboard = () => {
   const [hasInitializedRoutine, setHasInitializedRoutine] = useState(() => 
     localStorage.getItem('hasInitializedRoutine') === 'true'
   );
+  const [activeChecklistCategoryIndex, setActiveChecklistCategoryIndex] = useState(0);
+  const [isDraggingChecklist, setIsDraggingChecklist] = useState(false);
+  const [dragOffsetX, setDragOffsetX] = useState(0);
+  const touchStartX = useRef(null);
   const progressScore = dailyState?.progressScore ?? 0;
 
 // NOVO: ESTADOS PARA REGISTRO DE REFEIÇÃO
@@ -299,6 +304,60 @@ const Dashboard = () => {
     ? Math.round((completedActivities / totalActivities) * 100)
     : 0;
 
+  const checklistCategories = [
+    { key: 'alimentacao', label: 'Alimentação' },
+    { key: 'treino', label: 'Treino' },
+    { key: 'cotidiano', label: 'Cotidiano' },
+  ];
+
+  const activeChecklistCategory =
+    checklistCategories[activeChecklistCategoryIndex] || checklistCategories[0];
+
+  const navigateChecklistCategory = useCallback((direction) => {
+    setActiveChecklistCategoryIndex((prev) =>
+      getAdjacentCategoryIndex(prev, direction, checklistCategories.length)
+    );
+  }, [checklistCategories.length]);
+
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+    setIsDraggingChecklist(true);
+    setDragOffsetX(0);
+  };
+
+  const handleTouchMove = (event) => {
+    if (touchStartX.current === null) return;
+
+    const currentX = event.touches[0]?.clientX ?? null;
+    if (currentX === null) return;
+
+    setDragOffsetX(currentX - touchStartX.current);
+  };
+
+  const handleTouchEnd = (event) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = event.changedTouches[0]?.clientX ?? null;
+
+    if (touchEndX === null) {
+      setIsDraggingChecklist(false);
+      setDragOffsetX(0);
+      return;
+    }
+
+    const delta = touchEndX - touchStartX.current;
+
+    if (delta > 70) {
+      navigateChecklistCategory(-1);
+    } else if (delta < -70) {
+      navigateChecklistCategory(1);
+    }
+
+    touchStartX.current = null;
+    setIsDraggingChecklist(false);
+    setDragOffsetX(0);
+  };
+
   if (loading || !dailyState) {
     return <div className="text-gray-900 dark:text-white">Carregando...</div>;
   }
@@ -356,46 +415,103 @@ const Dashboard = () => {
           </section>*/}
 
           <section className={styles.section}>
-            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Alimentação</h2>
-            <div className={styles.checklist}>
+            <div className={styles.checklistHeader}>
+              <div className={styles.checklistNav}>
+                {activeChecklistCategoryIndex > 0 && (
+                  <button
+                    type="button"
+                    className={styles.navArrow}
+                    aria-label="Categoria anterior"
+                    onClick={() => navigateChecklistCategory(-1)}
+                  >
+                    ‹
+                  </button>
+                )}
 
-              {meals.map((meal) => (
-                <CheckItem
-                  key={meal.id}
-                  id={meal.id}
-                  type="meal"
-                  label={getMealLabel(meal.mealType)}
-                  checked={isMealRegistered(meal)}
-                  onChange={(checked) => handleMealToggle(meal.id, checked)}
-                  onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
-                  onCameraClick={() => openRegisterModal(meal.id)}
-                />
-              ))}
-             </div>
-          </section>
+                <div className={styles.categoryTabs} role="tablist" aria-label="Categorias do checklist">
+                  {checklistCategories.map((category, index) => (
+                    <button
+                      key={category.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={index === activeChecklistCategoryIndex}
+                      className={`${styles.categoryTab} ${index === activeChecklistCategoryIndex ? styles.categoryTabActive : ''}`}
+                      onClick={() => setActiveChecklistCategoryIndex(index)}
+                    >
+                      {category.label}
+                    </button>
+                  ))}
+                </div>
 
-          <section className={styles.section}>  
-            <h2 className={`${styles.sectionTitle} text-gray-900 dark:text-white`}>Checklist Treino</h2>
-            <div className={styles.checklist}>
-              {activities.map((activity) => (
-                <CheckItem
-                  key={activity.id}
-                  id={activity.id}
-                  type="workout"
-                  label={activity.name}
-                  checked={Boolean(activity.completed)}
-                  onChange={(checked) =>
-                    applyAction('TOGGLE_WORKOUT_ACTIVITY', {
-                      activityId: activity.id,
-                      done: checked,
-                    })
-                  }
-                  onLabelClick={() => navigate('/workout')}
-                />
-              ))}
+                {activeChecklistCategoryIndex < checklistCategories.length - 1 && (
+                  <button
+                    type="button"
+                    className={styles.navArrow}
+                    aria-label="Próxima categoria"
+                    onClick={() => navigateChecklistCategory(1)}
+                  >
+                    ›
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div
+              className={styles.checklistSurface}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                transform: isDraggingChecklist ? `translateX(${dragOffsetX}px)` : undefined,
+                opacity: isDraggingChecklist ? 0.94 : undefined,
+              }}
+            >
+              {activeChecklistCategory.key === 'alimentacao' && (
+                <div className={styles.checklist}>
+                  {meals.map((meal) => (
+                    <CheckItem
+                      key={meal.id}
+                      id={meal.id}
+                      type="meal"
+                      label={getMealLabel(meal.mealType)}
+                      checked={isMealRegistered(meal)}
+                      onChange={(checked) => handleMealToggle(meal.id, checked)}
+                      onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
+                      onCameraClick={() => openRegisterModal(meal.id)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {activeChecklistCategory.key === 'treino' && (
+                <div className={styles.checklist}>
+                  {activities.map((activity) => (
+                    <CheckItem
+                      key={activity.id}
+                      id={activity.id}
+                      type="workout"
+                      label={activity.name}
+                      checked={Boolean(activity.completed)}
+                      onChange={(checked) =>
+                        applyAction('TOGGLE_WORKOUT_ACTIVITY', {
+                          activityId: activity.id,
+                          done: checked,
+                        })
+                      }
+                      onLabelClick={() => navigate('/workout')}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {activeChecklistCategory.key === 'cotidiano' && (
+                <div className={styles.emptyCategory}>
+                  <p>Nenhum hábito adicionado ainda.</p>
+                  <span>Adicione atividades pelo calendário para vê-las aqui.</span>
+                </div>
+              )}
             </div>
           </section>
-           
 
           <section className={styles.section}>
             <InsightCard />
