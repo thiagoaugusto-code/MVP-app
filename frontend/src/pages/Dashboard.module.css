@@ -57,7 +57,7 @@
   margin-bottom: 0rem;
   margin-top: 0.5rem;
   background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid #002988;
   border-radius: 16px;
   padding: 14px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 55%);
@@ -96,7 +96,6 @@
   gap: 0.5rem;
   overflow-x: auto;
   padding-bottom: 0.2rem;
-  padding-top: 0.4rem;
 }
 
 .categoryTabs::-webkit-scrollbar {
@@ -105,7 +104,7 @@
 
 .categoryTab {
   border: none;
-  background: #ffffff;
+  background: #f8fafc;
   color: #64748b;
   padding: 0.6rem 0.8rem;
   border-radius: 999px;
@@ -130,20 +129,27 @@
 .navArrow {
   width: 2.25rem;
   height: 2.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
   background: #ffffff;
   color: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
 }
 
 .navArrow:active {
-  transform: scale(1.1);
+  transform: scale(0.94);
 }
 
+.navArrow:hover {
+  background: #f8fbff;
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.12);
+}
 
 .checklistSurface {
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
