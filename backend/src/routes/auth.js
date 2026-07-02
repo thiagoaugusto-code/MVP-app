@@ -21,6 +21,7 @@ router.post('/register', async (req, res) => {
         role: userRole,
       },
     });
+    const {password, ...publicUser} = user; // Exclude password from the response
 
     // Criar perfil baseado no role
     if (userRole === 'USER') {
@@ -39,7 +40,7 @@ router.post('/register', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, role: userRole }, process.env.JWT_SECRET);
-    res.json({ token, user: { ...user, role: userRole } });
+    res.json({ token, user: publicUser });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'Erro no cadastro' });
@@ -63,8 +64,9 @@ router.post('/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
+    const {password, ...publicUser} = user; // Exclude password from the response
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-    res.json({ token, user });
+    res.json({ token, user: publicUser });
   } catch (error) {
     res.status(400).json({ message: 'Erro no login' });
   }

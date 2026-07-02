@@ -343,9 +343,8 @@ async function getDailyState(userId, date) {
 
   const userExists = await prisma.user.findUnique({
     where: { id: userId },
+    select: { id: true },
   });
-
-  console.log("USER EXISTS:", userExists);
 
   if (!userExists) {
     throw new Error("Usuário não existe no banco");
