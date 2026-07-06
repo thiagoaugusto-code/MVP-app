@@ -195,6 +195,7 @@
 .clickable:active {
   transform: scale(0.98);
 }
+
 .waterButton {
   position: relative;
   width: 100%;
