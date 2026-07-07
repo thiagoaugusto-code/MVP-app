@@ -18,6 +18,7 @@ model User {
   avatar    String?
   role      String   @default("USER")  // USER, COLLABORATOR, NUTRITIONIST, PERSONAL, INSTRUCTOR, COACH
   streak    Int      @default(0)
+  hasSeenWorkoutSetupModal Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -241,6 +242,9 @@ model Meal {
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   date              DateTime  @default(now())
   mealType          String    // breakfast, lunch, dinner, snack, pre_workout, post_workout
+  displayName       String?
+  scheduledTime     String?
+  isCustom          Boolean   @default(false)
   inGoal            Boolean   @default(true)
   registered        Boolean   @default(false)
   photoUrl          String?

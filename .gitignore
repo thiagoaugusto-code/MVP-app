@@ -30,6 +30,7 @@ logs
 # Database
 *.db
 *.sqlite
+*.db-journal
 
 # Meal photo uploads
 backend/uploads/
