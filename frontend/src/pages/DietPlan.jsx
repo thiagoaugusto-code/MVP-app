@@ -6,6 +6,7 @@ import { dietAPI, dailyStateAPI } from '../services/api';
 import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
 import styles from './DietPlan.module.css';
 import MealRegisterModal from '../components/MealRegisterModal';
+import AddMealModal from '../components/AddMealModal';
 import { Camera } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -17,6 +18,7 @@ const DietPlan = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showAddMealModal, setShowAddMealModal] = useState(false);
   const [registerMealId, setRegisterMealId] = useState(null);
   const [registerMode, setRegisterMode] = useState('manual');
   const [manualNote, setManualNote] = useState('');
@@ -102,6 +104,22 @@ const DietPlan = () => {
     setPhotoPreview('');
     setPhotoData('');
   };
+
+
+  const openAddMealModal = () => {
+  setShowAddMealModal(true);
+};
+const closeAddMealModal = () => {
+  setShowAddMealModal(false);
+};
+
+const handleCreateMeal = (meal) => {
+
+    console.log(meal);
+
+    closeAddMealModal();
+
+};
 
   const handlePhotoSelect = (e) => {
     const file = e.target.files?.[0];
@@ -247,6 +265,16 @@ const DietPlan = () => {
               );
             })}
           </section>
+
+          <button className="_mealSection_1x79g_163" onClick={openAddMealModal}>
+              <h3>Adicionar Refeição</h3>
+          </button>
+
+          <AddMealModal
+            open={showAddMealModal}
+            onClose={closeAddMealModal}
+            onSubmit={handleCreateMeal}
+          />
 
           <MealRegisterModal
             open={showRegisterModal}

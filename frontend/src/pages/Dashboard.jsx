@@ -372,13 +372,12 @@ const Dashboard = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.greeting}>
-             {/* Imagem rotativa de boas-vindas */}
             <div className="text-2xl animate-pulse">
               {getMoodIcon(progressScore)}
             </div>
 
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
-            <h1 className="text-gray-600 dark:text-gray-300">Hoje é um ótimo dia para se cuidar!
+            <h1 className="text-gray-600 dark:text-gray-300">Bom dia! {/*mudar conforme hora para tarde/noite*/}
               <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
             </h1> 
 
