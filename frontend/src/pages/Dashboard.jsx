@@ -472,7 +472,7 @@ const Dashboard = () => {
                       key={meal.id}
                       id={meal.id}
                       type="meal"
-                      label={getMealLabel(meal.mealType)}
+                      label={meal.displayName || getMealLabel(meal.mealType)}
                       checked={isMealRegistered(meal)}
                       onChange={(checked) => handleMealToggle(meal.id, checked)}
                       onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
