@@ -2,8 +2,8 @@ import styles from './AdherenceCard.module.css';
 
 const AdherenceCard = ({ adherence }) => {
   const getColor = (value) => {
-    if (value >= 80) return 'green';
-    if (value >= 60) return 'yellow';
+    if (value >= 90) return 'green';
+    if (value >= 30) return 'yellow';
     return 'red';
   };
 
@@ -24,8 +24,8 @@ const AdherenceCard = ({ adherence }) => {
         />
       </div>
       <p className={styles.label}>
-        {adherence >= 80 ? 'Excelente aderência!' : 
-         adherence >= 60 ? 'Boa aderência' : 
+        {adherence >= 90 ? 'Excelente aderência!' : 
+         adherence >= 30 ? 'Boa aderência' : 
          'Aderência baixa - precisam de ajustes'}
       </p>
     </div>
