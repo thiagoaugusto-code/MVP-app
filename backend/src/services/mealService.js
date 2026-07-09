@@ -256,7 +256,7 @@ async function createCustomMeal(userId, { name, scheduledTime }, date = new Date
     data: {
       userId,
       date: dayStart,
-      mealType: 'custom',
+      mealType: `custom_${Date.now()}`,
       displayName: name.trim(),
       scheduledTime,
       isCustom: true,
