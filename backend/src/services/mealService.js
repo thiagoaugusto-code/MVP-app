@@ -193,6 +193,8 @@ async function ensureDailyMeals(userId, date = new Date()) {
         inGoal: defaultInGoalFor(mealType),
         registered: false,
         completed: false,
+        displayName: label,
+        isCustom: false,
       },
       include: { foodItems: true },
     });
@@ -247,6 +249,28 @@ async function registerMeal(meal, { mode, photoData, note }) {
   throw new Error('Modo de registro inválido');
 }
 
+async function createCustomMeal(userId, { name, scheduledTime }, date = new Date()) {
+  const dayStart = startOfDay(date);
+
+  return prisma.meal.create({
+    data: {
+      userId,
+      date: dayStart,
+      mealType: 'custom',
+      displayName: name.trim(),
+      scheduledTime,
+      isCustom: true,
+      inGoal: true,
+      registered: false,
+      completed: false,
+    },
+
+    include: {
+      foodItems: true,
+    },
+  });
+}
+
 module.exports = {
   startOfDay,
   endOfDay,
@@ -260,4 +284,5 @@ module.exports = {
   pickCanonicalMeal,
   MEAL_TYPES,
   mergeMealAttributes,
+  createCustomMeal,
 };
