@@ -9,6 +9,7 @@ const {
   registerMeal,
   setMealRegistered,
   startOfDay,
+  createCustomMeal,
 } = require('../services/mealService');
 
 const router = express.Router();
@@ -74,6 +75,45 @@ router.post('/', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar refeição' });
   }
 });
+
+// Endpoint para criar uma refeição personalizada
+router.post('/custom', authMiddleware, async (req, res) => {
+  try {
+    const { name, scheduledTime } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({
+        error: 'Nome da refeição é obrigatório',
+      });
+    }
+
+    const meal = await createCustomMeal(
+      req.user.id,
+      {
+        name,
+        scheduledTime,
+      }
+    );
+
+    await syncDailyStateForMeal(req.user.id, meal.date);
+
+    const { meals } = await ensureDailyMeals(
+      req.user.id,
+      meal.date
+    );
+
+    res.json(formatMealsResponse(meals));
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Erro ao criar refeição personalizada',
+    });
+  }
+});
+
+
+
 
 router.patch('/:id', authMiddleware, async (req, res) => {
   try {
