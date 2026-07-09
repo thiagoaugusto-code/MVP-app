@@ -144,12 +144,23 @@ export default function DailySummaryCard({
     if (meals.length === 0) return null;
     const order = getMealOrderByTime();
     const byType = new Map(meals.map((m) => [m.mealType, m]));
+
     for (const t of order) {
       const m = byType.get(t);
-      if (m && !isMealRegistered(m)) return { type: t, status: 'pending' };
+      if (m && !isMealRegistered(m)) 
+        return { 
+          type: t,
+          displayName: m.displayName || getMealLabel(t), 
+          status: 'pending' };
     }
+
     const pending = meals.find((m) => !isMealRegistered(m));
-    if (pending) return { type: pending.mealType, status: 'pending' };
+    if (pending) 
+      return { 
+        type: pending.mealType, 
+        displayName: pending.displayName || getMealLabel(pending.mealType),
+        status: 'pending' };
+
     return null;
   }, [meals]);
 
@@ -308,7 +319,7 @@ export default function DailySummaryCard({
           </div>
 
           <div className={styles.domainMain}>
-            <span>Próxima refeição: {nextMeal ? getMealLabel(nextMeal.type) : 'Tudo feito'}</span>
+            <span>Próxima refeição: {nextMeal ? (nextMeal.displayName || getMealLabel(nextMeal.type)) : 'Tudo feito'}</span>
           </div>
 
           <div className={styles.bar}>

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dietAPI, dailyStateAPI } from '../services/api';
-import { MEAL_TYPES, computeMealProgress, isMealRegistered } from '../constants/meals';
+import { MEAL_TYPES, computeMealProgress, isMealRegistered, getMealLabel } from '../constants/meals';
 import styles from './DietPlan.module.css';
 import MealRegisterModal from '../components/MealRegisterModal';
 import AddMealModal from '../components/AddMealModal';
@@ -218,17 +218,13 @@ const handleCreateMeal = (meal) => {
           {loading && <p className={styles.loading}>Carregando...</p>}
 
           <section className={styles.meals}>
-            {MEAL_TYPES.map((type) => {
-              const meal = meals.find(
-                (m) => m.mealType === type.mealType
-              );
-
-              if (!meal) return null;
+            {meals.map((meal) => {
 
               return (
                 <div key={meal.id} className={styles.mealSection}>
                   <div className={styles.mealHeader}>
-                    <h3>{type.label}</h3>
+
+                    <h3>{meal.displayName || getMealLabel(meal.mealType)}</h3>
 
                     <div className={styles.mealActions}>
                       {isMealRegistered(meal) ? (
@@ -275,7 +271,7 @@ const handleCreateMeal = (meal) => {
                         {meal.photoUrl && (
                           <img
                             src={photoSrc(meal.photoUrl)}
-                            alt={`Registro ${type.label}`}
+                            alt={`Registro ${meal.displayName || getMealLabel(meal.mealType)}`}
                             className={styles.mealPhoto}
                           />
                         )}
