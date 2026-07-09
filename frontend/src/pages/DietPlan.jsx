@@ -159,6 +159,32 @@ const handleCreateMeal = (meal) => {
     }
   };
 
+  const handleCreateCustomMeal = async ({ name, time }) => {
+    setSubmitting(true);
+
+    try {
+      const response = await dietAPI.createCustomMeal({
+        name,
+        scheduledTime: time,
+      });
+
+      applyMealsResponse(response);
+
+      window.dispatchEvent(
+        new CustomEvent("meal-state-changed")
+      );
+
+      setShowAddMealModal(false);
+    } catch (err) {
+      alert(
+        err.response?.data?.error ||
+        "Erro ao adicionar refeição"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const photoSrc = (url) => {
     if (!url) return '';
     if (url.startsWith('http') || url.startsWith('data:')) return url;
@@ -272,8 +298,9 @@ const handleCreateMeal = (meal) => {
 
           <AddMealModal
             open={showAddMealModal}
-            onClose={closeAddMealModal}
-            onSubmit={handleCreateMeal}
+            onClose={() => setShowAddMealModal(false)}
+            onSubmit={handleCreateCustomMeal}
+            submitting={submitting}
           />
 
           <MealRegisterModal
