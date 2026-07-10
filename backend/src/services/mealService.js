@@ -182,7 +182,7 @@ async function ensureDailyMeals(userId, date = new Date()) {
 
   const created = [];
 
-  for (const { mealType } of MEAL_TYPES) {
+  for (const { mealType, label } of MEAL_TYPES) {
     if (byType.has(mealType)) continue;
 
     const meal = await prisma.meal.create({
