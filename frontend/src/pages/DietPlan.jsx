@@ -8,6 +8,7 @@ import styles from './DietPlan.module.css';
 import MealRegisterModal from '../components/MealRegisterModal';
 import AddMealModal from '../components/AddMealModal';
 import { Camera } from 'lucide-react';
+import {getTodayDateKey} from '../utils/date';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -30,7 +31,7 @@ const DietPlan = () => {
     setLoading(true);
     setError('');
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayDateKey();
       
       
       const response = await dailyStateAPI.get(today);

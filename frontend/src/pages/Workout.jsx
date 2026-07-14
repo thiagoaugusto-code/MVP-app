@@ -5,8 +5,10 @@ import { dailyStateAPI } from '../services/api';
 import WorkoutRoutineSetup from '../pages/WorkoutRoutineSetup';
 import { buildVisibleWorkouts } from '../constants/workout';
 import styles from './Workout.module.css';
+import { getTodayDateKey } from '../utils/date';
 
-const dateKey = new Date().toISOString().split('T')[0]; // 🔥 FALTAVA ISSO
+
+const dateKey = getTodayDateKey();
 
 const Workout = () => {
   const [plan, setPlan] = useState([]);
