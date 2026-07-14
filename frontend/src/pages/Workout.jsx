@@ -17,6 +17,9 @@ const Workout = () => {
 
   const [showModal, setShowModal] = useState(false);
 
+  const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [showContextModal, setShowContextModal] = useState(false);
+
   const [newWorkout, setNewWorkout] = useState({
     name: '',
     duration: '',
@@ -62,6 +65,11 @@ const Workout = () => {
         done,
       },
     });
+
+    const openWorkoutContext = (workout) => {
+      setSelectedWorkout(workout);
+      setShowContextModal(true);
+    };
 
     const res = await dailyStateAPI.get(dateKey);
     const state = res.data.state;
@@ -184,14 +192,28 @@ const Workout = () => {
                   )}
                 </div>
 
-                <input
-                  type="checkbox"
-                  checked={workout.completed}
-                  onChange={(e) =>
-                    toggleWorkout(workout.id, e.target.checked)
-                  }
-                  className={styles.checkbox}
-                />
+
+                <div className={styles.workoutActions}>
+
+                  <button
+                    className={styles.contextButton}
+                    onClick={() => openWorkoutContext(workout)}
+                  >
+                    🏋️
+                  </button>
+
+
+                  <input
+                    type="checkbox"
+                    checked={workout.completed}
+                    onChange={(e) =>
+                      toggleWorkout(workout.id, e.target.checked)
+                    }
+                    className={styles.checkbox}
+                  />
+
+                </div>
+
               </div>
             ))}
           </section>
