@@ -20,6 +20,7 @@ const Workout = () => {
 
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showContextModal, setShowContextModal] = useState(false);
+  const [workoutContexts, setWorkoutContexts] = useState({});
 
   const [newWorkout, setNewWorkout] = useState({
     name: '',
@@ -193,6 +194,15 @@ const Workout = () => {
                       {workout.specifications.join(' • ')}
                     </span>
                   )}
+                  {workoutContexts[workout.id] && (
+                    <div className={styles.contextDetails}>
+                      {workoutContexts[workout.id].map((item, index) => (
+                        <span key={index}>
+                          • {item.label}: {item.value}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
 
@@ -315,14 +325,23 @@ const Workout = () => {
           {showContextModal && (
             <WorkoutContextModal
               workout={selectedWorkout}
-              onClose={() =>
-                setSelectedWorkout(null)
-              }
+              initialContext={
+                workoutContexts[selectedWorkout.id] || []}
+              onClose={() => {
+                setSelectedWorkout(null);
+                setShowContextModal(false);
+              }}
               onSave={(data) => {
                 console.log(
                   'Salvar contexto:',
                   data
                 );
+
+
+                setWorkoutContexts(prev => ({
+                  ...prev,
+                  [data.workoutId]: data.context
+                }));
 
                 setSelectedWorkout(null);
                 setShowContextModal(false);

@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './WorkoutContextModal.module.css';
 
 export default function WorkoutContextModal({
   workout,
+  initialContext = [],
   onClose,
   onSave,
 }) {
 
-  const [contexts, setContexts] = useState([]);
+  const [contexts, setContexts] = useState(initialContext);
 
   const [newContext, setNewContext] = useState({
     label: '',
@@ -15,16 +16,26 @@ export default function WorkoutContextModal({
   });
 
 
+  useEffect(() => {
+    setContexts(initialContext);
+  }, [initialContext]);
+
+
   function addContext() {
-    if (!newContext.label || !newContext.value) return;
+    if (!newContext.label.trim() || !newContext.value.trim()) {
+      return;
+    }
+
+
+    const newItem = {
+      label: newContext.label.trim(),
+      value: newContext.value.trim(),
+    };
 
 
     setContexts(prev => [
       ...prev,
-      {
-        label: newContext.label,
-        value: newContext.value,
-      }
+      newItem
     ]);
 
 
@@ -65,7 +76,10 @@ export default function WorkoutContextModal({
             {workout.name}
           </h2>
 
-          <button onClick={onClose}>
+          <button
+            type="button"
+            onClick={onClose}
+          >
             ✕
           </button>
 
@@ -102,16 +116,20 @@ export default function WorkoutContextModal({
 
 
         <button
+          type="button"
           onClick={addContext}
         >
           + Adicionar informação
         </button>
 
 
-        <div>
+        <div className={styles.contextList}>
 
           {contexts.map((item,index)=>(
-            <div key={index}>
+            <div
+              key={index}
+              className={styles.contextItem}
+            >
               <strong>
                 {item.label}
               </strong>
@@ -124,6 +142,7 @@ export default function WorkoutContextModal({
 
 
         <button
+          type="button"
           onClick={handleSave}
         >
           Salvar contexto
