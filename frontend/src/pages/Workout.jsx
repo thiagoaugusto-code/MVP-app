@@ -3,12 +3,16 @@ import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { dailyStateAPI } from '../services/api';
 import WorkoutRoutineSetup from '../pages/WorkoutRoutineSetup';
+import { buildVisibleWorkouts } from '../constants/workout';
 import styles from './Workout.module.css';
 
 const dateKey = new Date().toISOString().split('T')[0]; // 🔥 FALTAVA ISSO
 
 const Workout = () => {
-  const [workouts, setWorkouts] = useState([]);
+  const [plan, setPlan] = useState([]);
+  const [executions, setExecutions] = useState([]);
+  const visibleWorkouts = buildVisibleWorkouts(plan, executions);
+
   const [showModal, setShowModal] = useState(false);
 
   const [newWorkout, setNewWorkout] = useState({
@@ -37,14 +41,11 @@ const Workout = () => {
     console.log('WORKOUT:', state.workout);
     console.log('PLAN:', state.workout?.plan);
 
-    // 🔥 EXECUÇÃO REAL (NÃO MEXE)
-    const realWorkout = state.workout?.exercises || [];
+    const dailyExecutions = state.workout?.exercises || [];
+    const dailyPlan = state.workout?.plan || [];
 
-    // 🆕 PLANO DO DIA (NOVA CAMADA)
-    const plan = state.workout?.plan || [];
-
-    // 👉 mantém execução, mas se não houver exercícios reais, usa plano
-    setWorkouts(realWorkout.length ? realWorkout : plan);
+    setExecutions(dailyExecutions);
+    setPlan(dailyPlan);
   }
 
   // -----------------------------
@@ -63,11 +64,8 @@ const Workout = () => {
     const res = await dailyStateAPI.get(dateKey);
     const state = res.data.state;
 
-      setWorkouts(
-        state?.workout?.exercises?.length
-          ? state.workout.exercises
-          : state?.workout?.plan || []
-      );
+      setExecutions(state.workout?.exercises || []);
+      setPlan(state.workout?.plan || []);
   };
 
   // -----------------------------
@@ -80,14 +78,17 @@ const Workout = () => {
       date: dateKey,
       action: 'ADD_WORKOUT_ACTIVITY', // 🔥 AGORA É BACKEND
       payload: {
-        name: newWorkout.name,
+        name: newWorkout.name.charAt(0).toUpperCase() + newWorkout.name.slice(1), // Começa com letra maiúscula
         duration: Number(newWorkout.duration),
         intensity: newWorkout.intensity,    
       },
     });
 
     const res = await dailyStateAPI.get(dateKey);
-    setWorkouts(res.data.state.workout?.exercises || []);
+
+    setExecutions(res.data.state.workout?.exercises || []);
+    setPlan(res.data.state.workout?.plan || []);
+
 
     setNewWorkout({
       name: '',
@@ -101,10 +102,14 @@ const Workout = () => {
   // -----------------------------
   // UI HELPERS
   // -----------------------------
-  const totalDuration = workouts.reduce((sum, w) => sum + w.duration, 0);
-  const completedDuration = workouts
+  const totalDuration = visibleWorkouts.reduce(
+    (sum, w) => sum + (w.duration || 0),
+    0
+  );
+
+  const completedDuration = visibleWorkouts
     .filter(w => w.completed)
-    .reduce((sum, w) => sum + w.duration, 0);
+    .reduce((sum, w) => sum + (w.duration || 0), 0);
 
   const getIntensityColor = (intensity) => {
     switch (intensity) {
@@ -150,7 +155,7 @@ const Workout = () => {
               <div>
                 <p className={styles.label}>Exercícios</p>
                 <p className={styles.value}>
-                  {workouts.filter(w => w.completed).length}/{workouts.length}
+                  {visibleWorkouts.filter(w => w.completed).length}/{visibleWorkouts.length}
                 </p>
               </div>
             </div>
@@ -158,7 +163,7 @@ const Workout = () => {
 
           {/* ---------------- WORKOUT LIST ---------------- */}
           <section className={styles.workouts}>
-            {workouts.map(workout => (
+            {visibleWorkouts.map(workout => (
               <div
                 key={workout.id}
                 className={`${styles.workoutItem} ${
