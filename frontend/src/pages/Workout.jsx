@@ -6,6 +6,7 @@ import WorkoutRoutineSetup from '../pages/WorkoutRoutineSetup';
 import { buildVisibleWorkouts } from '../constants/workout';
 import styles from './Workout.module.css';
 import { getTodayDateKey } from '../utils/date';
+import WorkoutContextModal from '../components/WorkoutContextModal';
 
 
 const dateKey = getTodayDateKey();
@@ -53,6 +54,13 @@ const Workout = () => {
     setPlan(dailyPlan);
   }
 
+  function openWorkoutContext(workout) {
+      console.log('Abrindo contexto para o treino:', workout);
+
+      setSelectedWorkout(workout);
+      setShowContextModal(true);
+    };
+
   // -----------------------------
   // TOGGLE WORKOUT
   // -----------------------------
@@ -65,11 +73,6 @@ const Workout = () => {
         done,
       },
     });
-
-    const openWorkoutContext = (workout) => {
-      setSelectedWorkout(workout);
-      setShowContextModal(true);
-    };
 
     const res = await dailyStateAPI.get(dateKey);
     const state = res.data.state;
@@ -306,6 +309,24 @@ const Workout = () => {
                 setShowRoutineModal(false);
                 load ();
               }} 
+            />
+          )}
+
+          {showContextModal && (
+            <WorkoutContextModal
+              workout={selectedWorkout}
+              onClose={() =>
+                setSelectedWorkout(null)
+              }
+              onSave={(data) => {
+                console.log(
+                  'Salvar contexto:',
+                  data
+                );
+
+                setSelectedWorkout(null);
+                setShowContextModal(false);
+              }}
             />
           )}
 

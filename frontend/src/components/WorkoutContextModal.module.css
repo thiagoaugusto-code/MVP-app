@@ -1,0 +1,61 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+}
+
+
+.modal {
+  width: 90%;
+  max-width: 400px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.header h2 {
+  margin: 0;
+}
+
+
+.header button {
+  border: none;
+  background: transparent;
+
+  font-size: 20px;
+
+  cursor: pointer;
+}
+
+
+.modal button {
+  padding: 12px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  cursor: pointer;
+}
