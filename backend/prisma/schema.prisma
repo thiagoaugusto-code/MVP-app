@@ -73,7 +73,7 @@ model DailyUserState {
   hasWorkoutRoutine Boolean @default(false)
   
 
-  /// JSON string: [{ id, name, durationMin, completed, secondsDone }]
+  /// JSON string: [{ id, name, durationMin, completed, secondsDone, context:[{label,value}], notes }]
   exercises        String?
   completedWorkoutIds String?
   /// JSON string: snapshot of meals

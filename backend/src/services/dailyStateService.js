@@ -237,7 +237,11 @@ async function rebuildDailyUserState(userId, date) {
   });
 
   const exercises = row.exercises
-    ? JSON.parse(row.exercises)
+    ? JSON.parse(row.exercises).map(ex => ({
+        ...ex,
+        context: ex.context || [],
+        notes: ex.notes || '',
+      }))
     : [];
 
   const completedWorkoutIds =
@@ -507,6 +511,9 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         intensity: payload.intensity,
         completed: false,
         secondsDone: 0,
+
+        context: [],
+        notes: '',
       };
 
       await prisma.dailyUserState.update({
