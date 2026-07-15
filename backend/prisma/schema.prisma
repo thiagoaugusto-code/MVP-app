@@ -75,7 +75,14 @@ model DailyUserState {
 
   /// JSON string: [{ id, name, durationMin, completed, secondsDone, context:[{label,value}], notes }]
   exercises        String?
+
+  /// JSON string: registros de execução do treino no dia
+  /// [{ workoutId, workoutName, context, notes }]
+  workoutLogs      String? 
+
   completedWorkoutIds String?
+ 
+
   /// JSON string: snapshot of meals
   mealsSnapshot    String?
   /// JSON string: checklist items
