@@ -10,6 +10,8 @@ export default function WorkoutContextModal({
 
   const [contexts, setContexts] = useState(initialContext);
 
+  const [notes, setNotes] = useState('');
+
   const [newContext, setNewContext] = useState({
     label: '',
     value: '',
@@ -52,6 +54,7 @@ export default function WorkoutContextModal({
       workoutId: workout.id,
       workoutName: workout.name,
       context: contexts,
+      notes
     };
 
 
@@ -92,7 +95,7 @@ export default function WorkoutContextModal({
 
 
         <input
-          placeholder="Tipo (ex: Grupo muscular)"
+          placeholder="Ex: Peito(Supino), Boxe, Corrida, etc."
           value={newContext.label}
           onChange={(e)=>
             setNewContext({
@@ -104,7 +107,7 @@ export default function WorkoutContextModal({
 
 
         <input
-          placeholder="Valor (ex: Peito)"
+          placeholder="Ex: 80 kg, 21 km, Parque Ibirapuera, No-Gi..."  
           value={newContext.value}
           onChange={(e)=>
             setNewContext({
@@ -114,12 +117,19 @@ export default function WorkoutContextModal({
           }
         />
 
+        
+        <textarea
+          placeholder="Como foi?"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+
 
         <button
           type="button"
           onClick={addContext}
         >
-          + Adicionar informação
+          Registrar contexto
         </button>
 
 
@@ -145,8 +155,9 @@ export default function WorkoutContextModal({
           type="button"
           onClick={handleSave}
         >
-          Salvar contexto
+          Salvar contexto registrado
         </button>
+        <p>Certifique-se de registrar antes de salvar para que apareça no card</p>
 
 
       </div>

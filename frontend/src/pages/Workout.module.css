@@ -300,3 +300,25 @@
 
   color: #6b7280;
 }
+
+.notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+
+  margin-top: 0.6rem;
+
+  font-size: 0.82rem;
+  line-height: 1.45;
+
+  color: #4b5563;
+}
+
+.notes span {
+  flex-shrink: 0;
+}
+
+.notes p {
+  margin: 0;
+  white-space: pre-wrap;
+}

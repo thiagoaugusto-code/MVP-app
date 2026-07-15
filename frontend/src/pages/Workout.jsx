@@ -21,6 +21,7 @@ const Workout = () => {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showContextModal, setShowContextModal] = useState(false);
   const [workoutContexts, setWorkoutContexts] = useState({});
+  const [workoutNotes, setWorkoutNotes] = useState({});
 
   const [newWorkout, setNewWorkout] = useState({
     name: '',
@@ -203,6 +204,12 @@ const Workout = () => {
                       ))}
                     </div>
                   )}
+                  {workoutNotes[workout.id] && (
+                    <div className={styles.notes}>
+                      <span>📝</span>
+                      <p>{workoutNotes[workout.id]}</p>
+                    </div>
+                  )}
                 </div>
 
 
@@ -212,7 +219,7 @@ const Workout = () => {
                     className={styles.contextButton}
                     onClick={() => openWorkoutContext(workout)}
                   >
-                    🏋️
+                    📝
                   </button>
 
 
@@ -341,6 +348,11 @@ const Workout = () => {
                 setWorkoutContexts(prev => ({
                   ...prev,
                   [data.workoutId]: data.context
+                }));
+
+                setWorkoutNotes(prev => ({
+                  ...prev,
+                  [data.workoutId]: data.notes
                 }));
 
                 setSelectedWorkout(null);
