@@ -338,11 +338,31 @@ const Workout = () => {
                 setSelectedWorkout(null);
                 setShowContextModal(false);
               }}
-              onSave={(data) => {
-                console.log(
-                  'Salvar contexto:',
-                  data
-                );
+              onSave={async (data) => {
+                try {
+
+                  await dailyStateAPI.applyAction({
+                    date: dateKey,
+                    action: 'UPDATE_WORKOUT_CONTEXT',
+                    payload: data,
+                  });
+
+
+                  console.log(
+                    'Contexto enviado:',
+                    data
+                  );
+
+
+                } catch(error) {
+
+                  console.error(
+                    'Erro ao salvar contexto:',
+                    error
+                  );
+
+                }
+              
 
 
                 setWorkoutContexts(prev => ({

@@ -107,7 +107,7 @@ export default function WorkoutContextModal({
 
 
         <input
-          placeholder="Ex: 80 kg, 21 km, Parque Ibirapuera, No-Gi..."  
+          placeholder="Ex: 80 kg, 21 km, Sparring, No-Gi..."  
           value={newContext.value}
           onChange={(e)=>
             setNewContext({
