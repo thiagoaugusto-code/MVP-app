@@ -620,6 +620,58 @@ async function applyDailyAction(userId, date, action, payload = {}) {
       break;
     }
 
+    case 'UPDATE_WORKOUT_CONTEXT': {
+
+      const current = await prisma.dailyUserState.findUnique({
+        where: {
+          userId_date: {
+            userId,
+            date: day,
+          },
+        },
+      });
+
+
+      const exercises =
+        current?.exercises
+          ? JSON.parse(current.exercises)
+          : [];
+
+
+      const updatedExercises = exercises.map(ex => {
+
+        if (ex.id === payload.workoutId) {
+
+          return {
+            ...ex,
+            context: payload.context || [],
+            notes: payload.notes || '',
+          };
+
+        }
+
+        return ex;
+
+      });
+
+
+      await prisma.dailyUserState.update({
+        where: {
+          userId_date: {
+            userId,
+            date: day,
+          },
+        },
+
+        data: {
+          exercises: JSON.stringify(updatedExercises),
+        },
+      });
+
+
+      break;
+    }
+
     case 'SET_SESSIONS': {
       await prisma.dailyUserState.update({
         where: {
