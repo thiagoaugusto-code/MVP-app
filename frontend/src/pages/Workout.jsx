@@ -19,8 +19,8 @@ const Workout = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [selectedWorkout, setSelectedWorkout] = useState(null);
-  const [showContextModal, setShowContextModal] = useState(false);
-  const [workoutContexts, setWorkoutContexts] = useState({});
+  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
+  const [workoutRecords, setWorkoutRecords] = useState({});
   const [workoutNotes, setWorkoutNotes] = useState({});
 
   const [newWorkout, setNewWorkout] = useState({
@@ -45,35 +45,35 @@ const Workout = () => {
     const state = res.data.state;
 
 
-     console.log('STATE COMPLETO:', state);
+    console.log('STATE COMPLETO:', state);
     console.log('WORKOUT:', state.workout);
     console.log('PLAN:', state.workout?.plan);
 
     const dailyExecutions = state.workout?.exercises || [];
     const dailyPlan = state.workout?.plan || [];
 
-    
-    const contexts = {};
+
+    const records = {};
 
     dailyExecutions.forEach(ex => {
-      contexts[ex.id] = ex.records || [];
+      records[ex.id] = ex.records || [];
     });
 
     dailyPlan.forEach(routine => {
-      contexts[routine.id] = routine.records || [];
+      records[routine.id] = routine.records || [];
     });
 
     setExecutions(dailyExecutions);
     setPlan(dailyPlan);
 
-    setWorkoutContexts(contexts);
+    setWorkoutRecords(records);
   }
 
-  function openWorkoutContext(workout) {
-      console.log('Abrindo contexto para o treino:', workout);
+  function openWorkoutRecords(workout) {
+      console.log('Abrindo Registro para o treino:', workout);
 
       setSelectedWorkout(workout);
-      setShowContextModal(true);
+      setShowWorkoutModal(true);
     };
 
   // -----------------------------
@@ -209,10 +209,10 @@ const Workout = () => {
                     </span>
                   )}
                     
-                  {workoutContexts[workout.id] && (
+                  {workoutRecords[workout.id] && (
                     <div className={styles.contextDetails}>
 
-                      {workoutContexts[workout.id].map((record, index) => (
+                      {workoutRecords[workout.id].map((record, index) => (
                         <div key={index}>
 
                           {record.exercise && (
@@ -244,7 +244,7 @@ const Workout = () => {
 
                   <button
                     className={styles.contextButton}
-                    onClick={() => openWorkoutContext(workout)}
+                    onClick={() => openWorkoutRecords(workout)}
                   >
                     📝
                   </button>
@@ -356,14 +356,14 @@ const Workout = () => {
             />
           )}
 
-          {showContextModal && (
+          {showWorkoutModal && (
             <WorkoutContextModal
               workout={selectedWorkout}
               initialContext={
-                workoutContexts[selectedWorkout.id] || []}
+                workoutRecords[selectedWorkout.id] || []}
               onClose={() => {
                 setSelectedWorkout(null);
-                setShowContextModal(false);
+                setShowWorkoutModal(false);
               }}
               onSave={async (data) => {
                 try {
@@ -384,14 +384,14 @@ const Workout = () => {
                 } catch(error) {
 
                   console.error(
-                    'Erro ao salvar contexto:',
+                    'Erro ao salvar registros:',
                     error
                   );
 
                 }
 
 
-                setWorkoutContexts(prev => ({
+                setWorkoutRecords(prev => ({
                   ...prev,
                   [data.workoutId]: data.records,
                 }));
