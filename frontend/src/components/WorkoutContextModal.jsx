@@ -1,50 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './WorkoutContextModal.module.css';
 
 export default function WorkoutContextModal({
   workout,
-  initialContext = [],
   onClose,
   onSave,
 }) {
 
-  const [contexts, setContexts] = useState(initialContext);
-
-  const [notes, setNotes] = useState('');
-
-  const [newContext, setNewContext] = useState({
-    label: '',
-    value: '',
-  });
-
-
-  useEffect(() => {
-    setContexts(initialContext);
-  }, [initialContext]);
-
-
-  function addContext() {
-    if (!newContext.label.trim() || !newContext.value.trim()) {
-      return;
+  const [records, setRecords] = useState([
+    {
+      id: Date.now(),
+      exercise: '',
+      value: '',
+      notes: '',
     }
+  ]);
 
 
-    const newItem = {
-      label: newContext.label.trim(),
-      value: newContext.value.trim(),
-    };
+  function addRecord() {
 
-
-    setContexts(prev => [
+    setRecords(prev => [
       ...prev,
-      newItem
+      {
+        id: Date.now(),
+        exercise: '',
+        value: '',
+        notes: '',
+      }
     ]);
 
+  }
 
-    setNewContext({
-      label: '',
-      value: '',
-    });
+
+  function updateRecord(id, field, value) {
+
+    setRecords(prev =>
+      prev.map(record =>
+        record.id === id
+          ? {
+              ...record,
+              [field]: value,
+            }
+          : record
+      )
+    );
+
   }
 
 
@@ -53,18 +53,18 @@ export default function WorkoutContextModal({
     const data = {
       workoutId: workout.id,
       workoutName: workout.name,
-      context: contexts,
-      notes
+      records,
     };
 
 
     console.log(
-      'CONTEXTO DO TREINO:',
+      'REGISTROS DO TREINO:',
       data
     );
 
 
     onSave(data);
+
   }
 
 
@@ -90,74 +90,80 @@ export default function WorkoutContextModal({
 
 
         <p>
-          Adicione informações sobre essa atividade
+          Registre sua execução
         </p>
 
 
-        <input
-          placeholder="Ex: Peito(Supino), Boxe, Corrida, etc."
-          value={newContext.label}
-          onChange={(e)=>
-            setNewContext({
-              ...newContext,
-              label:e.target.value
-            })
-          }
-        />
+        {records.map((record, index) => (
+
+          <div
+            key={record.id}
+            className={styles.contextItem}
+          >
+
+            <h3>
+              Registro {index + 1}
+            </h3>
 
 
-        <input
-          placeholder="Ex: 80 kg, 21 km, Sparring, No-Gi..."  
-          value={newContext.value}
-          onChange={(e)=>
-            setNewContext({
-              ...newContext,
-              value:e.target.value
-            })
-          }
-        />
+            <input
+              placeholder="Exercício (ex: Supino reto 4x10)"
+              value={record.exercise}
+              onChange={(e)=>
+                updateRecord(
+                  record.id,
+                  'exercise',
+                  e.target.value
+                )
+              }
+            />
 
-        
-        <textarea
-          placeholder="Como foi?"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+
+            <input
+              placeholder="Carga, distância, tempo..."
+              value={record.value}
+              onChange={(e)=>
+                updateRecord(
+                  record.id,
+                  'value',
+                  e.target.value
+                )
+              }
+            />
+
+
+            <textarea
+              placeholder="Como foi?"
+              value={record.notes}
+              onChange={(e)=>
+                updateRecord(
+                  record.id,
+                  'notes',
+                  e.target.value
+                )
+              }
+            />
+
+          </div>
+
+        ))}
 
 
         <button
           type="button"
-          onClick={addContext}
+          onClick={addRecord}
         >
-          Registrar contexto
+          + Adicionar registro
         </button>
 
-
-        <div className={styles.contextList}>
-
-          {contexts.map((item,index)=>(
-            <div
-              key={index}
-              className={styles.contextItem}
-            >
-              <strong>
-                {item.label}
-              </strong>
-              :
-              {item.value}
-            </div>
-          ))}
-
-        </div>
 
 
         <button
           type="button"
           onClick={handleSave}
         >
-          Salvar contexto registrado
+          Salvar treino
         </button>
-        <p>Certifique-se de registrar antes de salvar para que apareça no card</p>
 
 
       </div>
