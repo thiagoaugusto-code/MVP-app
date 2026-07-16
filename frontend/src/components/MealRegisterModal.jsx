@@ -49,7 +49,7 @@ const MealRegisterModal = ({
 
           {registerMode === 'manual' ? (
             <textarea
-              placeholder="Descreva o que você comeu..."
+              placeholder="Conte como foi sua refeição..."
               value={manualNote}
               onChange={(e) => setManualNote(e.target.value)}
               required
