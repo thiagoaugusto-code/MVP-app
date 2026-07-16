@@ -87,12 +87,9 @@ export default function WorkoutContextModal({
           </button>
 
         </div>
-
-
         <p>
           Registre sua execução
         </p>
-
 
         {records.map((record, index) => (
 

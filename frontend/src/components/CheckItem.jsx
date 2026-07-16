@@ -1,19 +1,19 @@
 import styles from './CheckItem.module.css';
 import { Camera } from 'lucide-react';
 
+const CheckItem = ({
+  id,
+  type,
+  label,
+  checked,
+  value,
+  maxValue,
+  onChange,
+  onCameraClick,
+  isMealRegistered,
+  onRegisterClick,
+}) => {
 
-
-  const CheckItem = ({
-    id,
-    type,
-    label,
-    checked,
-    value,
-    maxValue,
-    onChange,
-    onCameraClick,
-    isMealRegistered,
-  }) => {  
   const isWater = type === 'water';
   const isSleep = type === 'sleep';
   const isMeal = type === 'meal';
@@ -27,10 +27,13 @@ import { Camera } from 'lucide-react';
             {value}/{maxValue} {isWater ? 'L' : 'h'}
           </div>
         </div>
+
         <div className={styles.progressBar}>
           <div
             className={styles.progress}
-            style={{ width: `${Math.min((value / maxValue) * 100, 100)}%` }}
+            style={{
+              width: `${Math.min((value / maxValue) * 100, 100)}%`
+            }}
           />
         </div>
       </div>
@@ -39,6 +42,7 @@ import { Camera } from 'lucide-react';
 
   return (
     <div className={styles.item}>
+
       <div className={styles.content}>
         <input
           type="checkbox"
@@ -48,13 +52,18 @@ import { Camera } from 'lucide-react';
           className={styles.checkbox}
         />
 
-        <label htmlFor={`check-${id}`} className={styles.label}>
+        <label
+          htmlFor={`check-${id}`}
+          className={styles.label}
+        >
           {label}
         </label>
       </div>
 
+
       <div className={styles.right}>
-        {isMeal ? (
+
+        {isMeal && (
           <button
             type="button"
             onClick={onCameraClick}
@@ -64,12 +73,21 @@ import { Camera } from 'lucide-react';
           >
             {isMealRegistered ? '✓' : <Camera size={25} />}
           </button>
-        ) : (
-          <span className={`${styles.indicator} ${checked ? styles.checked : ''}`}>
-            ✓
-          </span>
         )}
+
+
+        {type === 'workout' && (
+          <button
+            type="button"
+            onClick={onRegisterClick}
+            className={styles.cameraButton}
+          >
+            📝
+          </button>
+        )}
+
       </div>
+
     </div>
   );
 };

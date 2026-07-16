@@ -214,19 +214,16 @@ const Workout = () => {
 
                       {workoutRecords[workout.id].map((record, index) => (
                         <div key={index}>
-
                           {record.exercise && (
                             <span>
                               🏋️ {record.exercise}
                             </span>
                           )}
-
                           {record.value && (
                             <span>
                               ⚖️ {record.value}
                             </span>
                           )}
-
                           {record.notes && (
                             <span>
                               📝 {record.notes}
@@ -241,7 +238,6 @@ const Workout = () => {
 
 
                 <div className={styles.workoutActions}>
-
                   <button
                     className={styles.contextButton}
                     onClick={() => openWorkoutRecords(workout)}

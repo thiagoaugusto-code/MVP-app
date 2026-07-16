@@ -9,6 +9,7 @@ import InsightCard from '../components/InsightCard';
 import DailySummaryCard from '../components/DailySummaryCard';
 import { useToast } from '../components/toast/ToastProvider';
 import MealRegisterModal from '../components/MealRegisterModal';
+import WorkoutContextModal from '../components/WorkoutContextModal';
 
 import { usersAPI, dailyStateAPI, dietAPI } from '../services/api';
 import {
@@ -64,6 +65,16 @@ const Dashboard = () => {
 // NOVO: ESTADOS PARA REGISTRO DE REFEIÇÃO
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [registerMealId, setRegisterMealId] = useState(null);
+
+
+  // NOVO: ESTADOS PARA REGISTRO DE TREINO
+  const [showWorkoutModal, setShowWorkoutModal] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const workoutRecords =
+  dailyState?.workout?.exercises?.reduce((acc, item) => {
+    acc[item.id] = item.records || [];
+    return acc;
+  }, {}) || {};
 
   const [registerMode, setRegisterMode] = useState('manual');
   const [manualNote, setManualNote] = useState('');
@@ -498,6 +509,10 @@ const Dashboard = () => {
                         })
                       }
                       onLabelClick={() => navigate('/workout')}
+                      onRegisterClick={() => {
+                        setSelectedWorkout(activity);
+                        setShowWorkoutModal(true);
+                      }}
                     />
                   ))}
                 </div>
@@ -569,7 +584,7 @@ const Dashboard = () => {
             await applyAction('SET_SESSIONS', { sessions });
 
             localStorage.setItem('hasInitializedRoutine', 'true');
-            sethasInitializedRoutine(true);
+            setHasInitializedRoutine(true);
             setShowSetup(false);
 
             await loadData();
@@ -589,6 +604,29 @@ const Dashboard = () => {
         onPhotoSelect={handlePhotoSelect}    
         submitting={submitting}
       />
+      {showWorkoutModal && selectedWorkout && (
+      <WorkoutContextModal
+        workout={selectedWorkout}
+        initialContext={
+          workoutRecords[selectedWorkout.id] || []
+        }
+        onClose={() => {
+          setSelectedWorkout(null);
+          setShowWorkoutModal(false);
+        }}
+        onSave={async (data) => {
+
+          await dailyStateAPI.applyAction({
+            date: dateKey,
+            action:'UPDATE_WORKOUT_CONTEXT',
+            payload:data,
+          });
+          await loadData();
+          setSelectedWorkout(null);
+          setShowWorkoutModal(false);
+        }}
+      />
+    )}
 
       <BottomNavigation />
     </div>
