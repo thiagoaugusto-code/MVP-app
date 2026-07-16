@@ -637,6 +637,11 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           ? JSON.parse(current.exercises)
           : [];
 
+      const workoutLog = 
+        current?.workoutLog
+          ? JSON.parse(current.workoutLog)
+          : [];
+
 
       const updatedExercises = exercises.map(ex => {
 
