@@ -641,8 +641,12 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         current?.workoutLog
           ? JSON.parse(current.workoutLog)
           : [];
+      
+      // Verifica se o ID do treino começa com "routine-"
+      const isRoutine = 
+        String(payload.workoutId).startsWith('routine-');
 
-
+        
       const updatedExercises = exercises.map(ex => {
 
         if (ex.id === payload.workoutId) {
