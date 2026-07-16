@@ -52,19 +52,21 @@ const Workout = () => {
     const dailyExecutions = state.workout?.exercises || [];
     const dailyPlan = state.workout?.plan || [];
 
+    
     const contexts = {};
-    const notes = {};
 
     dailyExecutions.forEach(ex => {
-      contexts[ex.id] = ex.context || [];
-      notes[ex.id] = ex.notes || '';
+      contexts[ex.id] = ex.records || [];
+    });
+
+    dailyPlan.forEach(routine => {
+      contexts[routine.id] = routine.records || [];
     });
 
     setExecutions(dailyExecutions);
     setPlan(dailyPlan);
 
     setWorkoutContexts(contexts);
-    setWorkoutNotes(notes);
   }
 
   function openWorkoutContext(workout) {
@@ -206,22 +208,36 @@ const Workout = () => {
                       {workout.specifications.join(' • ')}
                     </span>
                   )}
+                    
                   {workoutContexts[workout.id] && (
                     <div className={styles.contextDetails}>
-                      {workoutContexts[workout.id].map((item, index) => (
-                        <span key={index}>
-                          • {item.label}: {item.value}
-                        </span>
+
+                      {workoutContexts[workout.id].map((record, index) => (
+                        <div key={index}>
+
+                          {record.exercise && (
+                            <span>
+                              🏋️ {record.exercise}
+                            </span>
+                          )}
+
+                          {record.value && (
+                            <span>
+                              ⚖️ {record.value}
+                            </span>
+                          )}
+
+                          {record.notes && (
+                            <span>
+                              📝 {record.notes}
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
-                  {workoutNotes[workout.id] && (
-                    <div className={styles.notes}>
-                      <span>📝</span>
-                      <p>{workoutNotes[workout.id]}</p>
-                    </div>
-                  )}
                 </div>
+                      
 
 
                 <div className={styles.workoutActions}>
@@ -360,7 +376,7 @@ const Workout = () => {
 
 
                   console.log(
-                    'Contexto enviado:',
+                    'Registros enviado:',
                     data
                   );
 
@@ -373,17 +389,11 @@ const Workout = () => {
                   );
 
                 }
-              
 
 
                 setWorkoutContexts(prev => ({
                   ...prev,
-                  [data.workoutId]: data.context
-                }));
-
-                setWorkoutNotes(prev => ({
-                  ...prev,
-                  [data.workoutId]: data.notes
+                  [data.workoutId]: data.records,
                 }));
 
                 setSelectedWorkout(null);
