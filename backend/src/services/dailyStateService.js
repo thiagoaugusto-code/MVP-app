@@ -637,31 +637,47 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           ? JSON.parse(current.exercises)
           : [];
 
-      const workoutLog = 
-        current?.workoutLog
-          ? JSON.parse(current.workoutLog)
+      const workoutLogs = 
+        current?.workoutLogs
+          ? JSON.parse(current.workoutLogs)
           : [];
       
       // Verifica se o ID do treino começa com "routine-"
       const isRoutine = 
         String(payload.workoutId).startsWith('routine-');
 
-        
-      const updatedExercises = exercises.map(ex => {
 
-        if (ex.id === payload.workoutId) {
+      const updatedExercises = isRoutineWorkout
+        ? exercises
+        : exercises.map(ex => {
 
-          return {
-            ...ex,
-            context: payload.context || [],
-            notes: payload.notes || '',
-          };
+            if (ex.id !== payload.workoutId) {
+              return ex;
+            }
 
-        }
+            return {
+              ...ex,
+              context: payload.context || [],
+              notes: payload.notes || '',
+            };
 
-        return ex;
+          });
 
-      });
+      const updatedWorkoutLogs = isRoutineWorkout
+        ? workoutLogs.map(log => {
+
+            if (log.workoutId !== payload.workoutId) {
+              return log;
+            }
+
+            return {
+              ...log,
+              context: payload.context || [],
+              notes: payload.notes || '',
+            };
+
+          })
+        : workoutLogs;
 
 
       await prisma.dailyUserState.update({
