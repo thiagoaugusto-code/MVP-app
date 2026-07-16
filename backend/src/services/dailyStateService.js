@@ -258,15 +258,26 @@ async function rebuildDailyUserState(userId, date) {
         routines = [];
       }
 
-      const mappedRoutines = routines.map(routine => ({
-        ...routine,
-        id: `routine-${routine.id}`,
-        completed: completedWorkoutIds.includes(`routine-${routine.id}`),
-      }));
-
       const workoutLogs = row.workoutLogs
         ? JSON.parse(row.workoutLogs)
         : [];
+
+      const mappedRoutines = routines.map(routine => {
+
+        const id = `routine-${routine.id}`;
+
+        const savedLog = workoutLogs.find(
+          log => log.workoutId === id
+        );
+
+        return {
+          ...routine,
+          id,
+          completed: completedWorkoutIds.includes(id),
+          records: savedLog?.records || [],
+        };
+
+      });
 
       const synchronizedWorkoutLogs = [...workoutLogs];
 
@@ -278,8 +289,7 @@ async function rebuildDailyUserState(userId, date) {
         if (!alreadyExists) {
           synchronizedWorkoutLogs.push({
             workoutId: routine.id,
-            context: [],
-            notes: '',
+            records: [],
             completed: false,
           });
         }
@@ -683,8 +693,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
 
             return {
               ...ex,
-              context: payload.context || [],
-              notes: payload.notes || '',
+              records: payload.records || [],
             };
 
           });
@@ -698,8 +707,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
 
             return {
               ...log,
-              context: payload.context || [],
-              notes: payload.notes || '',
+              records: payload.records || [],
             };
 
           })
