@@ -52,8 +52,19 @@ const Workout = () => {
     const dailyExecutions = state.workout?.exercises || [];
     const dailyPlan = state.workout?.plan || [];
 
+    const contexts = {};
+    const notes = {};
+
+    dailyExecutions.forEach(ex => {
+      contexts[ex.id] = ex.context || [];
+      notes[ex.id] = ex.notes || '';
+    });
+
     setExecutions(dailyExecutions);
     setPlan(dailyPlan);
+
+    setWorkoutContexts(contexts);
+    setWorkoutNotes(notes);
   }
 
   function openWorkoutContext(workout) {
