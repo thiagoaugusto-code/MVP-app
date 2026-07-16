@@ -264,6 +264,27 @@ async function rebuildDailyUserState(userId, date) {
         completed: completedWorkoutIds.includes(`routine-${routine.id}`),
       }));
 
+      const workoutLogs = row.workoutLogs
+        ? JSON.parse(row.workoutLogs)
+        : [];
+
+      const synchronizedWorkoutLogs = [...workoutLogs];
+
+      for (const routine of mappedRoutines) {
+        const alreadyExists = synchronizedWorkoutLogs.some(
+          log => log.workoutId === routine.id
+        );
+
+        if (!alreadyExists) {
+          synchronizedWorkoutLogs.push({
+            workoutId: routine.id,
+            context: [],
+            notes: '',
+            completed: false,
+          });
+        }
+      }
+
 
       const completedManualExercises =
         exercises.filter(ex => ex.completed).length;
@@ -302,9 +323,9 @@ async function rebuildDailyUserState(userId, date) {
           mealType: m.mealType,
           inGoal: m.inGoal,
           registered: m.registered,
-        }))
-      ),
+        }))),
       checklist: JSON.stringify(checklist),
+      workoutLogs: JSON.stringify(synchronizedWorkoutLogs),
     },
   });
 
@@ -643,8 +664,13 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           : [];
       
       // Verifica se o ID do treino começa com "routine-"
-      const isRoutine = 
+      const isRoutineWorkout = 
         String(payload.workoutId).startsWith('routine-');
+
+
+      console.log('UPDATE_WORKOUT_CONTEXT');
+      console.log('payload.workoutId:', payload.workoutId);
+      console.log('isRoutineWorkout:', isRoutineWorkout);
 
 
       const updatedExercises = isRoutineWorkout
@@ -690,6 +716,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
 
         data: {
           exercises: JSON.stringify(updatedExercises),
+          workoutLogs: JSON.stringify(updatedWorkoutLogs),
         },
       });
 
