@@ -59,10 +59,13 @@ export const workoutsAPI = {
   createLog: (data) => api.post('/workouts', data),
 };
 
-// Progress
+// Progress — facts for Organize page (Insights will reuse overview later)
 export const progressAPI = {
   getLogs: () => api.get('/progress'),
+  getOverview: (days = 90) => api.get('/progress/overview', { params: { days } }),
   createLog: (data) => api.post('/progress', data),
+  updateLog: (id, data) => api.patch(`/progress/${id}`, data),
+  setWeightGoal: (targetWeight) => api.put('/progress/goal', { targetWeight }),
 };
 
 // Daily Checks
