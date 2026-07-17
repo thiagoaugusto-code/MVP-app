@@ -32,6 +32,31 @@ function maxBarValue(values, fallback = 1) {
   return nums.length ? Math.max(...nums) : fallback;
 }
 
+function formatPaceValue(value) {
+  if (value == null || Number.isNaN(Number(value))) return '—';
+  return Number(value).toFixed(1);
+}
+
+function formatWorkoutPaceComparison(pace) {
+  if (!pace) return null;
+  const { delta, direction } = pace;
+  if (direction === 'same' || delta === 0) {
+    return { text: '→ Mesmo ritmo do mês passado', color: '#64748b' };
+  }
+  const absDelta = Math.abs(Number(delta));
+  const treinoLabel = absDelta === 1 ? 'treino' : 'treinos';
+  if (direction === 'up') {
+    return {
+      text: `↑ +${absDelta} ${treinoLabel} vs. mês passado`,
+      color: '#059669',
+    };
+  }
+  return {
+    text: `↓ -${absDelta} ${treinoLabel} vs. mês passado`,
+    color: '#ea580c',
+  };
+}
+
 function SwipeCarousel({ items, renderItem, getKey, ariaLabel, slideClassName, trackClassName }) {
   const trackRef = useRef(null);
   const [active, setActive] = useState(0);
@@ -191,6 +216,8 @@ const Progress = () => {
   const weight = overview?.weight || {};
   const nutrition = overview?.nutrition || {};
   const workout = overview?.workout || {};
+  const workoutPace = overview?.pace?.workout || null;
+  const workoutPaceComparison = formatWorkoutPaceComparison(workoutPace);
   const water = overview?.water || {};
   const sleep = overview?.sleep || {};
   const weekSummary = overview?.weekSummary || {};
@@ -428,7 +455,7 @@ const Progress = () => {
             <div className={styles.categoryBody}>
               <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
-                  <span className={styles.label}>Refeições registradas</span>
+                  <span className={styles.label}>Total de refeições registradas</span>
                   <span className={styles.statValue}>{nutrition.mealsRegistered ?? 0}</span>
                 </div>
                 <div className={styles.statCard}>
@@ -455,7 +482,7 @@ const Progress = () => {
             <div className={styles.categoryBody}>
               <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
-                  <span className={styles.label}>Treinos realizados</span>
+                  <span className={styles.label}>Total de treinos realizados</span>
                   <span className={styles.statValue}>{workout.workoutsCompleted ?? 0}</span>
                 </div>
                 <div className={styles.statCard}>
@@ -463,8 +490,21 @@ const Progress = () => {
                   <span className={styles.statValue}>{workout.exercisesCompleted ?? 0}</span>
                 </div>
                 <div className={styles.statCard}>
-                  <span className={styles.label}>Registros de execução</span>
-                  <span className={styles.statValue}>{workout.executionRecords ?? 0}</span>
+                  <span className={styles.label}>Ritmo atual</span>
+                  <span className={styles.statValue}>
+                    {formatPaceValue(workoutPace?.currentMonth?.weeklyAverage)}
+                    {workoutPace?.currentMonth?.weeklyAverage != null && (
+                      <span className={styles.statSuffix}> treinos/sem</span>
+                    )}
+                  </span>
+                  {workoutPaceComparison && (
+                    <span
+                      className={styles.statSubtitle}
+                      style={{ color: workoutPaceComparison.color }}
+                    >
+                      {workoutPaceComparison.text}
+                    </span>
+                  )}
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.label}>Esta semana</span>

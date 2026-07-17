@@ -206,6 +206,12 @@
   margin-left: 0.15rem;
 }
 
+.statSubtitle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
 .chart {
   display: flex;
   align-items: flex-end;
