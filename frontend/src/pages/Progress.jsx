@@ -594,7 +594,7 @@ const Progress = () => {
                               }`
                             : '—'}
                         </li>
-                        <li>Treinos: {week.workouts}</li>
+                        <li>Treinou: {week.workouts} vezes</li>
                         <li>Alimentação: {week.mealsRegistered} registros</li>
                         <li>
                           Água: {week.water.daysMetGoal} dias na meta
@@ -615,12 +615,12 @@ const Progress = () => {
 
           {/* —— Evolução geral —— */}
           <section className={`${styles.section} ${styles.category}`}>
-            <h2 className={styles.sectionTitle}>Evolução geral</h2>
+            <h2 className={styles.sectionTitle}>Sua caminhada</h2>
             <div className={styles.categoryBody}>
               <div className={styles.overallCard}>
                 <div className={styles.overallGrid}>
                   <div>
-                    <span className={styles.label}>Dias usando o Sage</span>
+                    <span className={styles.label}>Dias vivendo com Sage</span>
                     <span className={styles.overallValue}>{overall.daysUsingSage ?? 0}</span>
                   </div>
                   <div>
@@ -628,11 +628,11 @@ const Progress = () => {
                     <span className={styles.overallValue}>{overall.totalRecords ?? 0}</span>
                   </div>
                   <div>
-                    <span className={styles.label}>Treinos</span>
+                    <span className={styles.label}>Treinos registrados</span>
                     <span className={styles.overallValue}>{overall.workouts ?? 0}</span>
                   </div>
                   <div>
-                    <span className={styles.label}>Refeições</span>
+                    <span className={styles.label}>Refeições acompanhadas</span>
                     <span className={styles.overallValue}>{overall.meals ?? 0}</span>
                   </div>
                   <div>
@@ -640,7 +640,7 @@ const Progress = () => {
                     <span className={styles.overallValue}>{overall.waterDaysTracked ?? 0}</span>
                   </div>
                   <div>
-                    <span className={styles.label}>Registros de peso</span>
+                    <span className={styles.label}>Pesagens registradas</span>
                     <span className={styles.overallValue}>{overall.weightLogs ?? 0}</span>
                   </div>
                 </div>
