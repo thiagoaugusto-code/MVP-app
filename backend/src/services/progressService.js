@@ -167,6 +167,91 @@ function longestStreak(sortedKeys) {
   return best;
 }
 
+function getZonedDateParts(date = new Date()) {
+  const zoned = toZonedTime(new Date(date), BRAZIL_TZ);
+  return {
+    year: zoned.getFullYear(),
+    month: zoned.getMonth(),
+    day: zoned.getDate(),
+  };
+}
+
+function monthKey(year, month) {
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+}
+
+function getMonthBoundsInTz(year, month, endDayInclusive = null) {
+  const zonedStart = toZonedTime(new Date(year, month, 1), BRAZIL_TZ);
+  zonedStart.setHours(0, 0, 0, 0);
+  const start = fromZonedTime(zonedStart, BRAZIL_TZ);
+
+  const lastDay = endDayInclusive ?? new Date(year, month + 1, 0).getDate();
+  const zonedEnd = toZonedTime(new Date(year, month, lastDay), BRAZIL_TZ);
+  zonedEnd.setHours(23, 59, 59, 999);
+  const end = fromZonedTime(zonedEnd, BRAZIL_TZ);
+
+  return { start, end, daysInPeriod: lastDay };
+}
+
+function weeklyAverageFromPeriod(workouts, daysInPeriod) {
+  if (!daysInPeriod || daysInPeriod <= 0) return 0;
+  return Number((workouts / (daysInPeriod / 7)).toFixed(1));
+}
+
+/**
+ * Monthly workout pace — reusable by Progress and future Insights.
+ * Compares weekly average (workouts / week) for current MTD vs full previous month.
+ */
+function computeWorkoutPace(completedWorkoutDates, referenceDate = new Date()) {
+  const { year, month, day } = getZonedDateParts(referenceDate);
+  const prevMonth = month === 0 ? 11 : month - 1;
+  const prevYear = month === 0 ? year - 1 : year;
+
+  const currentBounds = getMonthBoundsInTz(year, month, day);
+  const previousBounds = getMonthBoundsInTz(prevYear, prevMonth);
+
+  const countInRange = (bounds) =>
+    completedWorkoutDates.filter((d) => {
+      const t = new Date(d).getTime();
+      return t >= bounds.start.getTime() && t <= bounds.end.getTime();
+    }).length;
+
+  const currentWorkouts = countInRange(currentBounds);
+  const previousWorkouts = countInRange(previousBounds);
+
+  const currentWeeklyAverage = weeklyAverageFromPeriod(
+    currentWorkouts,
+    currentBounds.daysInPeriod
+  );
+  const previousWeeklyAverage = weeklyAverageFromPeriod(
+    previousWorkouts,
+    previousBounds.daysInPeriod
+  );
+  const delta = Number((currentWeeklyAverage - previousWeeklyAverage).toFixed(1));
+
+  let direction = 'same';
+  if (delta > 0) direction = 'up';
+  else if (delta < 0) direction = 'down';
+
+  return {
+    metric: 'workoutsPerWeek',
+    currentMonth: {
+      key: monthKey(year, month),
+      workouts: currentWorkouts,
+      daysInPeriod: currentBounds.daysInPeriod,
+      weeklyAverage: currentWeeklyAverage,
+    },
+    previousMonth: {
+      key: monthKey(prevYear, prevMonth),
+      workouts: previousWorkouts,
+      daysInPeriod: previousBounds.daysInPeriod,
+      weeklyAverage: previousWeeklyAverage,
+    },
+    delta,
+    direction,
+  };
+}
+
 function buildDayFacts(row) {
   const mealsSnapshot = parseJson(row.mealsSnapshot, []);
   const exercises = parseJson(row.exercises, []);
@@ -241,7 +326,12 @@ async function getProgressOverview(userId, { days = 90 } = {}) {
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 6);
 
-  const [profile, weightLogs, dailyRows, user, mealAgg, allMealRegistered] =
+  const { year: zonedYear, month: zonedMonth } = getZonedDateParts(today);
+  const prevMonthIndex = zonedMonth === 0 ? 11 : zonedMonth - 1;
+  const prevYear = zonedMonth === 0 ? zonedYear - 1 : zonedYear;
+  const paceRangeStart = getMonthBoundsInTz(prevYear, prevMonthIndex).start;
+
+  const [profile, weightLogs, dailyRows, user, mealAgg, allMealRegistered, workoutDaysForPace] =
     await Promise.all([
       ensureStudentProfile(userId),
       listWeightLogs(userId),
@@ -273,6 +363,14 @@ async function getProgressOverview(userId, { days = 90 } = {}) {
         },
         select: { date: true, inGoal: true, totalCalories: true },
         orderBy: { date: 'asc' },
+      }),
+      prisma.dailyUserState.findMany({
+        where: {
+          userId,
+          date: { gte: paceRangeStart, lte: today },
+          workoutCompleted: true,
+        },
+        select: { date: true },
       }),
     ]);
 
@@ -541,6 +639,11 @@ async function getProgressOverview(userId, { days = 90 } = {}) {
     dayFacts.filter((d) => d.waterMl > 0).length +
     sleepDays.length;
 
+  const workoutPace = computeWorkoutPace(
+    workoutDaysForPace.map((row) => row.date),
+    today
+  );
+
   return {
     weight: {
       current: currentWeight,
@@ -585,6 +688,9 @@ async function getProgressOverview(userId, { days = 90 } = {}) {
       daysTracked: sleepDays.length,
       weekly: sleepWeekly,
     },
+    pace: {
+      workout: workoutPace,
+    },
     weekSummary: {
       workouts: weekWorkouts,
       mealsRegistered: thisWeekMeals.length,
@@ -615,4 +721,5 @@ module.exports = {
   setWeightGoal,
   getProgressOverview,
   syncCurrentWeight,
+  computeWorkoutPace,
 };
