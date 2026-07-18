@@ -82,39 +82,6 @@ cd backend
 npm test -- --runInBand
 ```
 
-### Test Suites
-- `tests/admin.test.js` - Admin login and access control
-- `tests/aiChatService.test.js` - AI chat generation and caching
-- `tests/chat.test.js` - Chat database flows
-- `tests/e2e.test.js` - Full application end-to-end scenarios
-- `tests/notificationService.test.js` - Notification system
-- `tests/socketService.test.js` - Socket.io real-time events
-
-### Integration Test (Real OpenAI)
-```bash
-node src/services/aiChatService.test-integration.js
-```
-
-## 🏗️ Architecture
-
-### Backend Stack
-```
-Express.js (API Server)
-├── Routes (chat, meals, users, admin)
-├── Services (AI, notifications, socket)
-├── Middleware (auth, validation)
-└── Database (Prisma + SQLite)
-```
-
-### Frontend Stack
-```
-React 18 (UI Framework)
-├── Components (Chat, Meals, Dashboard)
-├── Context (Auth, User state)
-├── Services (API, Socket.io)
-├── Pages (Login, Dashboard, Chat)
-└── Styles (CSS Modules)
-```
 
 ## 🔐 Security
 
@@ -123,101 +90,6 @@ React 18 (UI Framework)
 - Tokens sent in every request header
 - Auto-refresh on token expiry
 
-### Admin Access
-- **Unified Login:** Use the same login form as regular users
-- **Auto-Detection:** System automatically detects admin credentials
-- **Credentials:** Configured in `.env` (ADMIN_EMAIL, ADMIN_PASSWORD)
-- **Security:** Backend-only validation, never exposed to frontend
-- **Session:** JWT tokens with ADMIN role and expiry
-
-**Login Process:**
-1. Go to login page
-2. Enter admin email/password from `.env`
-3. System automatically grants ADMIN role
-4. Access admin-only features
-
-### Data Privacy
-```
-✅ No passwords in logs
-✅ No API keys in frontend
-✅ Encrypted push subscriptions
-✅ User data properly scoped
-```
-
-## 📁 Project Structure
-
-```
-├── backend/
-│   ├── src/
-│   │   ├── services/
-│   │   │   ├── aiChatService.js
-│   │   │   ├── socketService.js
-│   │   │   └── notificationService.js
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   └── server.js
-│   ├── tests/
-│   ├── prisma/
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Chat.jsx
-│   │   │   ├── ConnectionStatus.jsx
-│   │   │   └── AILoadingMessage.jsx
-│   │   ├── services/
-│   │   ├── context/
-│   │   └── pages/
-│   └── package.json
-│
-└── docs/
-    └── AI_SERVICE_INTEGRATION.md
-```
-
-## 📚 Configuration
-
-### Backend `.env`
-```bash
-PORT=3001
-NODE_ENV=development  
-DATABASE_URL="file:./dev.db"
-JWT_SECRET=your-secret-key
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=SecurePassword123!
-OPENAI_API_KEY=sk-proj-YOUR_KEY
-OPENAI_MODEL=gpt-4-turbo
-AI_API_TIMEOUT=30000
-```
-
-### Frontend `.env`
-```bash
-VITE_API_URL=http://localhost:3001
-```
-
-## 🧪 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Create account
-- `POST /api/auth/login` - Get JWT token (unified for users & admin)
-
-### Chat  
-- `POST /api/chat/ai` - Get AI insight
-- `POST /api/chat/conversations` - Create conversation
-- `GET /api/chat/conversations/:id/messages` - Get messages
-
-### Admin
-- `GET /api/admin/summary` - System overview
-- `POST /api/admin/login` - Admin authentication
-
-## 🚀 Performance Metrics
-
-```
-✅ Chat response: < 100ms
-✅ AI response: < 3s
-✅ API latency: < 500ms
-✅ Socket connection: < 500ms
-```
 
 ## 🔮 Future Features
 
@@ -228,17 +100,6 @@ VITE_API_URL=http://localhost:3001
 - Mobile app (React Native)
 - Wearable integration
 
-## 📝 Commits
-
-```
-feat: integrate real IA API and predictive insights
-test: full application verification (E2E)
-feat: frontend chat integration with socket.io
-feat: real-time chat with socket.io
-feat: push and in-app notifications
-feat: admin login and secure access
-chore: github and future-proofing
-```
 
 ## 📄 License
 
