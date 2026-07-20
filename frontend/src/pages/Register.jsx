@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../components/toast/ToastProvider';
 
 const Register = () => {
-  const [step, setStep] = useState('role'); // role, form, specialty
+  const [step, setStep] = useState('form'); // role, form, specialty
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,14 +37,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await register(name, email, password, role, specialty);
+    const result = await register(name, email, password);
     if (result.success) {
       // Redirecionar baseado no role
-      if (role === 'USER') {
-        navigate('/');
-      } else {
-        navigate('/collaborator');
-      }
+     navigate('/');
     } else {
       toast.error(result.message);
     }
