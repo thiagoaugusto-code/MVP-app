@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
         role: userRole,
       },
     });
-    const {password, ...publicUser} = user; // Exclude password from the response
+    const {password: userPassword, ...publicUser} = user; // Exclude password from the response
 
     // Criar perfil
     await prisma.studentProfile.create({
@@ -55,11 +55,12 @@ router.post('/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
-    const {password, ...publicUser} = user; // Exclude password from the response
+    const {password: userPassword, ...publicUser} = user; // Exclude password from the response
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
     res.json({ token, user: publicUser });
   } catch (error) {
-    res.status(400).json({ message: 'Erro no login' });
+    console.error(error);
+    res.status(400).json({ message: "Erro no login" });
   }
 });
 
