@@ -318,7 +318,7 @@ const Dashboard = () => {
   const checklistCategories = [
     { key: 'alimentacao', label: 'Alimentação' },
     { key: 'treino', label: 'Treino' },
-    { key: 'cotidiano', label: 'Cotidiano' },
+    //{ key: 'cotidiano', label: 'Cotidiano' },
   ];
 
   const activeChecklistCategory =
@@ -518,7 +518,7 @@ const Dashboard = () => {
                 </div>
               )}
 
-              {activeChecklistCategory.key === 'cotidiano' && (
+               {activeChecklistCategory.key === 'cotidiano' && (
                 <div className={styles.emptyCategory}>
                   <p>Nenhum hábito adicionado ainda.</p>
                   <span>Adicione atividades pelo calendário para vê-las aqui.</span>

@@ -365,7 +365,7 @@ export default function DailySummaryCard({
         <div className={styles.waterProgress} style={{ width: `${waterProgress}%` }} />
         <span className={styles.waterPercentage}>{waterProgress}%</span>
         <span className={styles.waterText}>
-          {waterMlLocal >= waterGoalMl ? '✓ Meta de hidratação concluída' : 'Adicionar água'}
+          {waterMlLocal >= waterGoalMl ? '✓ Hidratação concluída' : 'Adicionar água'}
         </span>
         <span className={styles.waterMini}>
           {Math.floor(waterMlLocal / 1000)}.{Math.floor((waterMlLocal % 1000) / 100)}L / {waterGoalMl / 1000}L
