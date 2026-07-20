@@ -8,11 +8,11 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 router.post('/register', async (req, res) => {
-  const { name, email, password, role, specialty } = req.body;
+  const { name, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    const userRole = role && role !== 'USER' ? role : 'USER';
-    
+    const userRole = 'USER';
+
     const user = await prisma.user.create({
       data: {
         name,
@@ -23,21 +23,12 @@ router.post('/register', async (req, res) => {
     });
     const {password, ...publicUser} = user; // Exclude password from the response
 
-    // Criar perfil baseado no role
-    if (userRole === 'USER') {
-      await prisma.studentProfile.create({
-        data: {
-          userId: user.id,
-        },
-      });
-    } else {
-      await prisma.collaboratorProfile.create({
-        data: {
-          userId: user.id,
-          specialty: specialty || 'instructor',
-        },
-      });
-    }
+    // Criar perfil
+    await prisma.studentProfile.create({
+      data: {
+        userId: user.id,
+      },
+    });
 
     const token = jwt.sign({ id: user.id, role: userRole }, process.env.JWT_SECRET);
     res.json({ token, user: publicUser });
