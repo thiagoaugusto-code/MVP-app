@@ -1,18 +1,35 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNavigation from '../components/BottomNavigation';
 import { AuthContext } from '../context/AuthContext';
+import { progressAPI } from '../services/api';
 import styles from './Profile.module.css';
 
 const Profile = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [currentWeight, setCurrentWeight] = useState(null);
+
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  useEffect(() => {
+  const loadCurrentWeight = async () => {
+    try {
+      const response = await progressAPI.getOverview(90);
+      setCurrentWeight(response.data.overview.weight.current);
+    } catch (error) {
+      console.error('Erro ao carregar peso:', error);
+    }
+  };
+
+  loadCurrentWeight();
+}, []);
 
   return (
     <div className={styles.container}>
@@ -36,15 +53,15 @@ const Profile = () => {
             <div className={styles.goals}>
               <div className={styles.goalItem}>
                 <span>Peso</span>
-                <span className={styles.goalValue}>72 kg</span>
+                <span className={styles.goalValue}>{currentWeight !== null ? `${currentWeight} kg` : 'Não registrado'}</span>
               </div>
               <div className={styles.goalItem}>
-                <span>Kcal diária</span>
-                <span className={styles.goalValue}>2000 kcal</span>
+                <span>Altura</span>
+                <span className={styles.goalValue}>-</span>
               </div>
               <div className={styles.goalItem}>
-                <span>Água diária</span>
-                <span className={styles.goalValue}>2 L</span>
+                <span>Media IMC</span>
+                <span className={styles.goalValue}>CALCULAR IMC</span>
               </div>
             </div>
           </section>
