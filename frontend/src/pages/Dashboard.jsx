@@ -38,6 +38,8 @@ function toDateKey(d = new Date()) {
   return `${y}-${m}-${day}`;
 }
 
+const USER_PREFERENCES_KEY = 'sage:userPreferences';
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,7 +94,21 @@ const Dashboard = () => {
         usersAPI.getProfile(),
         dailyStateAPI.getRecent(7),
       ]);
-      setDailyState(stateRes.data.state);
+      const state = stateRes.data.state;
+
+      const savedPreferences = JSON.parse(
+        localStorage.getItem(USER_PREFERENCES_KEY) || '{}'
+      );
+
+      if (savedPreferences.waterGoalMl != null) {
+        state.goals = { 
+          ...state.goals, 
+          waterGoalMl: savedPreferences.waterGoalMl 
+        };
+        
+      }
+
+      setDailyState(state);      
       setUser(userRes.data);
       const active = (recentRes.data.days || []).filter((d) => d.progressScore > 0).length;
       setWeeklyActiveDays(active);
@@ -279,6 +295,17 @@ const Dashboard = () => {
   };
 
   const saveGoals = async () => {
+    const preferences = JSON.parse(
+      localStorage.getItem(USER_PREFERENCES_KEY) || '{}'
+    );
+
+    preferences.waterGoalMl = Number(goalForm.waterGoalMl);
+
+    localStorage.setItem(
+      USER_PREFERENCES_KEY,
+      JSON.stringify(preferences)
+    );
+
     await applyAction('UPDATE_GOAL', {
       caloriesGoal: Number(goalForm.caloriesGoal),
       waterGoalMl: Number(goalForm.waterGoalMl),
