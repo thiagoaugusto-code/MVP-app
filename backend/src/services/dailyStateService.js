@@ -168,6 +168,55 @@ function calculatePillarPoints(progress, pillar) {
   return progress * getNormalizedWeight(pillar);
 }
 
+function getPillarStatus(progress) {
+  if (progress >= 0.8) return "good";
+  if (progress >= 0.5) return "medium";
+  return "low";
+}
+
+
+function buildPillarSummary(pillarProgress) {
+  const summary = {};
+
+  if (pillarProgress.meals) {
+    summary.meals = {
+      percentage: Math.round(pillarProgress.meals.progress * 100),
+      status: getPillarStatus(pillarProgress.meals.progress),
+      label: "Alimentação",
+      icon: "🥗",
+    };
+  }
+
+  if (pillarProgress.water) {
+    summary.water = {
+      percentage: Math.round(pillarProgress.water.progress * 100),
+      status: getPillarStatus(pillarProgress.water.progress),
+      label: "Água",
+      icon: "💧",
+    };
+  }
+
+  if (pillarProgress.sleep) {
+    summary.sleep = {
+      percentage: Math.round(pillarProgress.sleep.progress * 100),
+      status: getPillarStatus(pillarProgress.sleep.progress),
+      label: "Sono",
+      icon: "🌕",
+    };
+  }
+
+  if (pillarProgress.workout) {
+    summary.workout = {
+      percentage: Math.round(pillarProgress.workout.progress * 100),
+      status: getPillarStatus(pillarProgress.workout.progress),
+      label: "Treino",
+      icon: "🏋️",
+    };
+  }
+
+  return summary;
+}
+
 function scoreAndCalendarStatus({
   mealProgress,
   waterMl,
@@ -411,6 +460,8 @@ async function rebuildDailyUserState(userId, date) {
     sleepHours: row.sleepHours,
   });
 
+  const pillarSummary = buildPillarSummary(pillarProgress);
+
   await prisma.dailyUserState.update({
     where: { id: row.id },
     data: {
@@ -431,6 +482,8 @@ async function rebuildDailyUserState(userId, date) {
 
   return {
     date,
+    pillarProgress,
+    pillarSummary,
     goals: {
       caloriesGoal: row.caloriesGoal,
       waterGoalMl: row.waterGoalMl,
@@ -445,7 +498,6 @@ async function rebuildDailyUserState(userId, date) {
     waterProgress: waterProgress.percent,
     progressScore,
     calendarStatus,
-    pillarProgress,
     workout: {
       completed: workoutProgress >= 1,
       progress: workoutProgress,
@@ -457,6 +509,7 @@ async function rebuildDailyUserState(userId, date) {
     checklist,
   };
 }
+
 
 
 // --------------------
