@@ -94,22 +94,12 @@ const Dashboard = () => {
         usersAPI.getProfile(),
         dailyStateAPI.getRecent(7),
       ]);
+
       const state = stateRes.data.state;
 
-      const savedPreferences = JSON.parse(
-        localStorage.getItem(USER_PREFERENCES_KEY) || '{}'
-      );
-
-      if (savedPreferences.waterGoalMl != null) {
-        state.goals = { 
-          ...state.goals, 
-          waterGoalMl: savedPreferences.waterGoalMl 
-        };
-        
-      }
-
-      setDailyState(state);      
+      setDailyState(state);
       setUser(userRes.data);
+      
       const active = (recentRes.data.days || []).filter((d) => d.progressScore > 0).length;
       setWeeklyActiveDays(active);
     } catch (err) {

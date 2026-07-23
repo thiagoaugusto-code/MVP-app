@@ -30,11 +30,22 @@ export default function DailySummaryCard({
   const [isDragging, setIsDragging] = useState(false);
   const waterButtonRef = useRef(null);
   
+  const USER_PREFERENCES_KEY = 'sage:userPreferences';
+
+  const savedPreferences = JSON.parse(
+    localStorage.getItem(USER_PREFERENCES_KEY) || '{}'
+  );
+
   const goals = dailyState?.goals || {};
+
   const calorieGoal = goals.caloriesGoal || 2000;
   const caloriesConsumed = dailyState?.caloriesConsumed || 0;
 
-  const waterGoalMl = goals.waterGoalMl || 2000;
+  const waterGoalMl =
+    goals.waterGoalMl ??
+    savedPreferences.waterGoalMl ??
+  2000;
+
   const waterMl = dailyState?.waterMl || 0;
 
   // Estado local para a hidratação, usado como fonte única para a UI durante o arraste
