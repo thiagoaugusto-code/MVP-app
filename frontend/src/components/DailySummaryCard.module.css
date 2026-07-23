@@ -525,3 +525,11 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
+.pillarMiniSummary {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:0.85rem;
+  white-space:nowrap;
+}

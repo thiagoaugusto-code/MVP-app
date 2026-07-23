@@ -283,6 +283,10 @@ export default function DailySummaryCard({
   const progressScore = dailyState.progressScore ?? 0;
   const calendarStatus = dailyState.calendarStatus || 'red';
 
+  const pillarSummary = dailyState?.pillarSummary || {}
+
+  console.log("PILLAR SUMMARY:", dailyState.pillarSummary)
+
   return (
     <section className={styles.wrap} aria-label="Resumo do dia">
       <div className={styles.header}>
@@ -291,6 +295,13 @@ export default function DailySummaryCard({
           <div className={styles.dayScore} aria-label={`Score do dia: ${progressScore}%`}>
             <div className={styles.dayScoreRow}>
               <span className={styles.dayScoreLabel}>Score do dia</span>
+
+              <div className={styles.pillarMiniSummary}>
+                {Object.values(pillarSummary).map((pillar) => (
+                  <span key={pillar.label}>{pillar.icon}{pillar.percentage}%</span>
+                ))}
+              </div>
+
               <span className={styles.dayScoreValue}>{progressScore}%</span>
             </div>
             <div className={styles.dayScoreTrack}>
