@@ -15,7 +15,7 @@ async function testRealIntegration() {
   console.log('\n🧪 Real OpenAI Integration Test\n');
   console.log('Configuration:', {
     apiKey: process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Missing',
-    model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+    model: process.env.OPENAI_MODEL || '',
     timeout: process.env.AI_API_TIMEOUT || '30000ms'
   });
 
