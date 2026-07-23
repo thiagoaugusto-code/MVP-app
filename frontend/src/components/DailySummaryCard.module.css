@@ -32,7 +32,7 @@
 
 .dayScoreRow {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 6px;
@@ -527,9 +527,45 @@
 }
 
 .pillarMiniSummary {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  font-size:0.85rem;
-  white-space:nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.pillarMiniItem {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+
+.pillarIcon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+
+.pillarPercentage {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.55);
+  letter-spacing: -0.02em;
+}
+@media (max-width: 420px) {
+
+  .pillarMiniSummary {
+    gap: 4px;
+  }
+
+  .pillarIcon {
+    font-size: 12px;
+  }
+
+  .pillarPercentage {
+    font-size: 10px;
+  }
+
 }
