@@ -164,6 +164,10 @@ function sleepQualityFactor(hours) {
   return SLEEP_QUALITY_FACTORS.MINIMUM;
 }
 
+function calculatePillarPoints(progress, pillar) {
+  return progress * getNormalizedWeight(pillar);
+}
+
 function scoreAndCalendarStatus({
   mealProgress,
   waterMl,
@@ -254,7 +258,7 @@ function scoreAndCalendarStatus({
   if (progressScore >= 75) calendarStatus = 'green';
   else if (progressScore >= 35) calendarStatus = 'yellow';
 
-  return { progressScore, calendarStatus };
+  return { progressScore, calendarStatus, pillarProgress };
 }
 
 // --------------------
@@ -398,7 +402,7 @@ async function rebuildDailyUserState(userId, date) {
 
       const hasWorkoutToday = totalExercisesToday > 0;
 
-  const { progressScore, calendarStatus } = scoreAndCalendarStatus({
+  const { progressScore, calendarStatus, pillarProgress } = scoreAndCalendarStatus({
     mealProgress,
     waterMl,
     waterGoalMl,
@@ -441,6 +445,7 @@ async function rebuildDailyUserState(userId, date) {
     waterProgress: waterProgress.percent,
     progressScore,
     calendarStatus,
+    pillarProgress,
     workout: {
       completed: workoutProgress >= 1,
       progress: workoutProgress,
