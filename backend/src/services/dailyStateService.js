@@ -119,6 +119,25 @@ const SCORE_WEIGHTS = {
   SLEEP: 10,
 };
 
+const SCORE_PILLARS = {
+  MEALS: {
+    key: 'meals',
+    defaultWeight: SCORE_WEIGHTS.MEALS,
+  },
+  WATER: {
+    key: 'water',
+    defaultWeight: SCORE_WEIGHTS.WATER,
+  },
+  WORKOUT: {
+    key: 'workout',
+    defaultWeight: SCORE_WEIGHTS.WORKOUT,
+  },
+  SLEEP: {
+    key: 'sleep',
+    defaultWeight: SCORE_WEIGHTS.SLEEP,
+  },
+};
+
 const SLEEP_SCORE_WEIGHT = SCORE_WEIGHTS.SLEEP;
 
 /** Fatores de qualidade (0–1) aplicados ao peso de sono. Fácil de ajustar por faixa. */
@@ -150,20 +169,85 @@ function scoreAndCalendarStatus({
   waterMl,
   waterGoalMl,
   workoutProgress,
+  hasWorkoutToday,
   sleepHours,
 }) {
   const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
+
+  const activePillars = [
+    SCORE_PILLARS.MEALS,
+    SCORE_PILLARS.WATER,
+    SCORE_PILLARS.SLEEP,
+  ];
+
+  if (hasWorkoutToday) {
+    activePillars.push(SCORE_PILLARS.WORKOUT);
+  }
+
+  const totalActiveWeight = activePillars.reduce(
+    (sum, pillar) => sum + pillar.defaultWeight,
+    0
+  );
+
+  const getNormalizedWeight = (pillar) => {
+    return (pillar.defaultWeight / totalActiveWeight) * 100;
+  };
+
   const mealPart =
     inGoalCount > 0
-      ? (registeredCount / inGoalCount) * SCORE_WEIGHTS.MEALS
+      ? (registeredCount / inGoalCount) * 
+        getNormalizedWeight(SCORE_PILLARS.MEALS)
       : 0;
-  const waterPart = computeWaterProgress(waterMl, waterGoalMl).ratio * SCORE_WEIGHTS.WATER;
-  const workoutPart = clamp(workoutProgress, 0, 1) * SCORE_WEIGHTS.WORKOUT;
-  const sleepPart = sleepQualityFactor(sleepHours) * SLEEP_SCORE_WEIGHT;
+
+  const waterPart = 
+    computeWaterProgress(waterMl, waterGoalMl).ratio *
+    getNormalizedWeight(SCORE_PILLARS.WATER);
+
+
+  const sleepPart = sleepQualityFactor(sleepHours) *
+    getNormalizedWeight(SCORE_PILLARS.SLEEP);
+
+  const workoutPart = clamp(workoutProgress, 0, 1) *
+    getNormalizedWeight(SCORE_PILLARS.WORKOUT);
+
+  const pillarProgress = {
+    meals: {
+      progress: inGoalCount > 0
+        ? registeredCount / inGoalCount
+        : 0,
+      weight: getNormalizedWeight(SCORE_PILLARS.MEALS),
+      points: mealPart,
+    },
+
+    water: {
+      progress: computeWaterProgress(waterMl, waterGoalMl).ratio,
+      weight: getNormalizedWeight(SCORE_PILLARS.WATER),
+      points: waterPart,
+    },
+
+    sleep: {
+      progress: sleepQualityFactor(sleepHours),
+      weight: getNormalizedWeight(SCORE_PILLARS.SLEEP),
+      points: sleepPart,
+    },
+  };
+
+  if (hasWorkoutToday) {
+    pillarProgress.workout = {
+      progress: clamp(workoutProgress, 0, 1),
+      weight: getNormalizedWeight(SCORE_PILLARS.WORKOUT),
+      points: workoutPart,
+    };
+  }
+
+  const totalPoints = Object.values(pillarProgress).reduce(
+    (sum, pillar) => sum + pillar.points,
+    0
+  );
 
   const progressScore = Math.round(
-    clamp(mealPart + waterPart + workoutPart + sleepPart, 0, 100)
+    clamp(totalPoints, 0, 100)
   );
 
   let calendarStatus = 'red';
@@ -312,11 +396,14 @@ async function rebuildDailyUserState(userId, date) {
           ? totalCompletedExercises / totalExercisesToday
           : 0;
 
+      const hasWorkoutToday = totalExercisesToday > 0;
+
   const { progressScore, calendarStatus } = scoreAndCalendarStatus({
     mealProgress,
     waterMl,
     waterGoalMl,
     workoutProgress,
+    hasWorkoutToday,
     sleepHours: row.sleepHours,
   });
 
