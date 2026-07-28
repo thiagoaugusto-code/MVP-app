@@ -1,94 +1,77 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  avatar    String?
-  role      String   @default("USER")  // USER, COLLABORATOR, NUTRITIONIST, PERSONAL, INSTRUCTOR, COACH
-  streak    Int      @default(0)
-  hasSeenWorkoutSetupModal Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  mealLogs           MealLog[]
-  workouts           Workout[]
-  progressLogs       ProgressLog[]
-  dailyChecks        DailyCheck[]
-  insights           Insight[]
-  notifications      Notification[]
-  pushSubscriptions  PushSubscription[]
-  workoutRoutines    WorkoutRoutine[]
-  
-  studentProfile     StudentProfile?
-  collaboratorProfile CollaboratorProfile?
-  
-  // Relação para colaborador que acompanha múltiplos alunos
-  managedStudents    StudentProfile[]  @relation("CollaboratorStudents")
-  
-  // Novos relacionamentos
-  studentCollaborators StudentCollaborator[] @relation("StudentCollaborators")
-  collaboratorStudents StudentCollaborator[] @relation("CollaboratorStudents")
-  meals               Meal[]
-  mealSuggestions     MealSuggestion[]
-  
-  // Chat relacionamentos
-  studentConversations    Conversation[] @relation("StudentConversations")
-  collaboratorConversations Conversation[] @relation("CollaboratorConversations")
-  sentMessages            Message[]
-  aiChats                 AIChat[]
-  chatMetrics             ChatMetrics?
-  dailyUserStates         DailyUserState[]
+  id                        Int                   @id @default(autoincrement())
+  name                      String
+  email                     String                @unique
+  password                  String
+  avatar                    String?
+  role                      String                @default("USER")
+  streak                    Int                   @default(0)
+  hasSeenWorkoutSetupModal  Boolean               @default(false)
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  aiChats                   AIChat[]
+  chatMetrics               ChatMetrics?
+  collaboratorProfile       CollaboratorProfile?
+  collaboratorConversations Conversation[]        @relation("CollaboratorConversations")
+  studentConversations      Conversation[]        @relation("StudentConversations")
+  dailyChecks               DailyCheck[]
+  dailyUserStates           DailyUserState[]
+  insights                  Insight[]
+  meals                     Meal[]
+  mealLogs                  MealLog[]
+  mealSuggestions           MealSuggestion[]
+  sentMessages              Message[]
+  notifications             Notification[]
+  progressLogs              ProgressLog[]
+  pushSubscriptions         PushSubscription[]
+  collaboratorStudents      StudentCollaborator[] @relation("CollaboratorStudents")
+  studentCollaborators      StudentCollaborator[] @relation("StudentCollaborators")
+  managedStudents           StudentProfile[]      @relation("CollaboratorStudents")
+  studentProfile            StudentProfile?
+  workouts                  Workout[]
+  workoutRoutines           WorkoutRoutine[]
 }
 
 /// Materialized per-day aggregate: single read model for dashboard, checklist, calendar.
 model DailyUserState {
-  id               Int      @id @default(autoincrement())
-  userId           Int
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  Int      @id @default(autoincrement())
+  userId              Int
   /// Local calendar day key YYYY-MM-DD (server interprets with local dayRange helpers).
-  date            DateTime
-  waterMl          Int      @default(0)
-  waterGoalMl      Int      @default(2000)
-  sleepHours       Float?
-  caloriesGoal     Int      @default(2000)
-  mealsGoal        Int      @default(3)
-  workoutGoal      Int      @default(3)
-  sessions         String?
-  caloriesConsumed Int      @default(0)
-  progressScore    Int      @default(0)
-  calendarStatus   String   @default("red") // green | yellow | red
-  workoutCompleted Boolean  @default(false)
-  hasWorkoutRoutine Boolean @default(false)
-  
-
+  date                DateTime
+  waterMl             Int      @default(0)
+  waterGoalMl         Int      @default(2000)
+  sleepHours          Float?
+  caloriesGoal        Int      @default(2000)
+  mealsGoal           Int      @default(3)
+  workoutGoal         Int      @default(3)
+  sessions            String?
+  caloriesConsumed    Int      @default(0)
+  progressScore       Int      @default(0)
+  calendarStatus      String   @default("red")
+  workoutCompleted    Boolean  @default(false)
+  hasWorkoutRoutine   Boolean  @default(false)
   /// JSON string: [{ id, name, durationMin, completed, secondsDone, context:[{label,value}], notes }]
-  exercises        String?
-
+  exercises           String?
   /// JSON string: registros de execução do treino no dia
   /// [{ workoutId, workoutName, context, notes }]
-  workoutLogs      String? 
-
+  workoutLogs         String?
   completedWorkoutIds String?
- 
-
   /// JSON string: snapshot of meals
-  mealsSnapshot    String?
+  mealsSnapshot       String?
   /// JSON string: checklist items
-  checklist        String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  checklist           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
   @@index([userId, date])
@@ -101,7 +84,7 @@ model MealLog {
   protein   Int?
   carbs     Int?
   fat       Int?
-  mealType  String   // breakfast, lunch, dinner, snack
+  mealType  String
   date      DateTime @default(now())
   completed Boolean  @default(true)
   userId    Int
@@ -109,52 +92,45 @@ model MealLog {
 }
 
 model Workout {
-  id         Int      @id @default(autoincrement())
-
+  id         Int               @id @default(autoincrement())
   userId     Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  date       DateTime @default(now())
-  completed  Boolean  @default(false)
-
+  date       DateTime          @default(now())
+  completed  Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities WorkoutActivity[]
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 
   @@index([userId, date])
 }
 
 model WorkoutActivity {
-  id         Int      @id @default(autoincrement())
-  workoutId  Int
-  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-
-  name       String
-  sets       Int?
-  reps       Int?
-  duration   Int? // segundos ou minutos
-
-  completed  Boolean @default(false)
-
+  id        Int      @id @default(autoincrement())
+  workoutId Int
+  name      String
+  sets      Int?
+  reps      Int?
+  duration  Int?
+  completed Boolean  @default(false)
   updatedAt DateTime @updatedAt
+  workout   Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 }
 
 model ProgressLog {
-  id     Int      @id @default(autoincrement())
-  weight Float?
+  id      Int      @id @default(autoincrement())
+  weight  Float?
   bodyFat Float?
-  notes  String?
-  date   DateTime @default(now())
-  userId Int
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes   String?
+  date    DateTime @default(now())
+  userId  Int
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Insight {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  type      String   // motivation, achievement, tip, warning
+  type      String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   userId    Int
@@ -165,7 +141,7 @@ model Notification {
   id        Int      @id @default(autoincrement())
   title     String
   message   String
-  type      String   // reminder, achievement, tip
+  type      String
   priority  String?  @default("normal")
   metadata  String?
   read      Boolean  @default(false)
@@ -177,17 +153,17 @@ model Notification {
 model PushSubscription {
   id           Int      @id @default(autoincrement())
   userId       Int
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   endpoint     String   @unique
   subscription String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyCheck {
   id     Int      @id @default(autoincrement())
-  type   String   // water, sleep, meal, workout, custom
-  value  Int?     // for water (ml), sleep (hours)
+  type   String
+  value  Int?
   done   Boolean  @default(false)
   date   DateTime @default(now())
   userId Int
@@ -197,169 +173,165 @@ model DailyCheck {
 }
 
 model StudentProfile {
-  id              Int      @id @default(autoincrement())
-  userId          Int      @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  goal            String?  // weight loss, muscle gain, maintenance
-  currentWeight   Float?
-  targetWeight    Float?
-  height          Float?
-  collaboratorId  Int?     // FK para colaborador que acompanha
-  collaborator    User?    @relation("CollaboratorStudents", fields: [collaboratorId], references: [id], onDelete: SetNull)
-  joinedAt        DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  goal           String?
+  currentWeight  Float?
+  targetWeight   Float?
+  height         Float?
+  collaboratorId Int?
+  joinedAt       DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  collaborator   User?    @relation("CollaboratorStudents", fields: [collaboratorId], references: [id])
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CollaboratorProfile {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  specialty    String   // nutritionist, personal trainer, instructor, coach
-  codeOrCRM    String?  // CREF, CRN, etc
-  bio          String?
-  experience   Int?     // years
-  phone        String?
-  price        Float?   // placeholder price
-  focus        String?  // specialty focus
-  studentsCount Int    @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  specialty     String
+  codeOrCRM     String?
+  bio           String?
+  experience    Int?
+  phone         String?
+  price         Float?
+  focus         String?
+  studentsCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model StudentCollaborator {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   studentId      Int
-  student        User     @relation("StudentCollaborators", fields: [studentId], references: [id], onDelete: Cascade)
   collaboratorId Int
-  collaborator   User     @relation("CollaboratorStudents", fields: [collaboratorId], references: [id], onDelete: Cascade)
-  specialty      String   // nutritionist, personal, instructor, coach
-  status         String   @default("pending") // pending, approved, rejected
-  active         Boolean  @default(false)
-  requestedAt    DateTime @default(now())
+  specialty      String
+  status         String    @default("pending")
+  active         Boolean   @default(false)
+  requestedAt    DateTime  @default(now())
   approvedAt     DateTime?
   rejectedAt     DateTime?
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime  @updatedAt
+  collaborator   User      @relation("CollaboratorStudents", fields: [collaboratorId], references: [id], onDelete: Cascade)
+  student        User      @relation("StudentCollaborators", fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, specialty, active]) // only one active per specialty
+  @@unique([studentId, specialty, active])
 }
 
 model Meal {
-  id                Int       @id @default(autoincrement())
-  userId            Int
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date              DateTime  @default(now())
-  mealType          String    // breakfast, lunch, dinner, snack, pre_workout, post_workout
-  displayName       String?
-  scheduledTime     String?
-  isCustom          Boolean   @default(false)
-  inGoal            Boolean   @default(true)
-  registered        Boolean   @default(false)
-  photoUrl          String?
-  registrationNote  String?
-  completed         Boolean   @default(false)
-  totalCalories     Int       @default(0)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  foodItems         FoodItem[]
+  id               Int        @id @default(autoincrement())
+  userId           Int
+  date             DateTime   @default(now())
+  mealType         String
+  displayName      String?
+  scheduledTime    String?
+  isCustom         Boolean    @default(false)
+  inGoal           Boolean    @default(true)
+  registered       Boolean    @default(false)
+  photoUrl         String?
+  registrationNote String?
+  completed        Boolean    @default(false)
+  totalCalories    Int        @default(0)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  foodItems        FoodItem[]
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date, mealType])
 }
 
 model FoodItem {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   mealId    Int
-  meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
   name      String
   quantity  Float
-  unit      String  // g, ml, unit
+  unit      String
   calories  Int
   protein   Int?
   carbs     Int?
   fat       Int?
-  time      DateTime? // horário, e.g., "08:00"
+  time      DateTime?
   notes     String?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  meal      Meal      @relation(fields: [mealId], references: [id], onDelete: Cascade)
 }
 
 model MealSuggestion {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mealType   String
-  aiMode     String?  // objective, motivational, hardcore, welcoming
-  suggestions String? // JSON string of suggested foods
-  createdAt  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  mealType    String
+  aiMode      String?
+  suggestions String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Conversation {
-  id                Int       @id @default(autoincrement())
-  studentId         Int
-  student           User      @relation("StudentConversations", fields: [studentId], references: [id], onDelete: Cascade)
-  collaboratorId    Int
-  collaborator      User      @relation("CollaboratorConversations", fields: [collaboratorId], references: [id], onDelete: Cascade)
-  messages          Message[]
-  lastMessage       String?
-  lastMessageAt     DateTime?
-  studentUnread     Int       @default(0)
-  collaboratorUnread Int     @default(0)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                 Int       @id @default(autoincrement())
+  studentId          Int
+  collaboratorId     Int
+  lastMessage        String?
+  lastMessageAt      DateTime?
+  studentUnread      Int       @default(0)
+  collaboratorUnread Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  collaborator       User      @relation("CollaboratorConversations", fields: [collaboratorId], references: [id], onDelete: Cascade)
+  student            User      @relation("StudentConversations", fields: [studentId], references: [id], onDelete: Cascade)
+  messages           Message[]
 
   @@unique([studentId, collaboratorId])
 }
 
 model Message {
-  id              Int         @id @default(autoincrement())
-  conversationId  Int
-  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderId        Int
-  sender          User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  content         String
-  type            String      @default("text") // text, quick_action, suggestion
-  metadata        String?     // JSON for quick actions or suggestions
-  isAI            Boolean     @default(false)
-  aiMode          String?     // mode used if isAI=true
-  readAt          DateTime?
-  createdAt       DateTime    @default(now())
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  senderId       Int
+  content        String
+  type           String       @default("text")
+  metadata       String?
+  isAI           Boolean      @default(false)
+  aiMode         String?
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model AIChat {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mode            String    // direct, welcoming, hardcore, preventive, celebration
-  prompt          String
-  response        String
-  tokensUsed      Int       @default(0)
-  cost            Float     @default(0)
-  cached          Boolean   @default(false)
-  createdAt       DateTime  @default(now())
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  mode       String
+  prompt     String
+  response   String
+  tokensUsed Int      @default(0)
+  cost       Float    @default(0)
+  cached     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ChatMetrics {
   id              Int       @id @default(autoincrement())
   userId          Int       @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   dailyTokens     Int       @default(0)
   dailyTokensDate DateTime?
   lastResetAt     DateTime  @default(now())
   totalCost       Float     @default(0)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model WorkoutRoutine {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  weekday   Int      // 0 = domingo, 1 = segunda...
-  name      String   // "Peito", "Costas", "Corrida", "Yoga", etc
-
-  type      String   // strength, cardio, yoga, pilates, swim, custom
+  weekday   Int
+  name      String
+  type      String
   enabled   Boolean  @default(true)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, weekday])
 }

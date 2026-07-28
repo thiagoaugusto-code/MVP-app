@@ -37,3 +37,6 @@ backend/uploads/
 
 # Prisma
 prisma/migrations/*/migration.sql
+
+# Backups
+backup/
