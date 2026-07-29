@@ -958,7 +958,8 @@ module.exports = {
 
     const days = await Promise.all(
       rows.map(async (row) => {
-        const state = await rebuildDailyUserState(userId, row.date);
+        const state = await rebuildDailyUserState(userId,
+          row.date.toLocaleDateString('en-CA', { timeZone: BRAZIL_TZ }));
         return {
           ...row,
           progressScore: state.progressScore,
