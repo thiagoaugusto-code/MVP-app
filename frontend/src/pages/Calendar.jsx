@@ -89,8 +89,6 @@ const SUMMARY_ITEMS = [
 ];
 
 const Calendar = () => {
-  alert("VERSÃO NOVA CALENDAR SAGE");
-
   const toast = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dayData, setDayData] = useState({});
@@ -101,8 +99,6 @@ const Calendar = () => {
   }, [currentDate]);
 
   const loadMonthData = async (date) => {
-    
-    alert("CALENDAR NOVA VERSÃO");
 
     setLoading(true);
     try {
@@ -121,6 +117,14 @@ const Calendar = () => {
 
       const map = {};
       (res.data.days || []).forEach((d) => {
+
+        console.log(
+          "DATA CONVERSÃO",
+          d.date,
+          "=>",
+          toDateKey(d.date)
+        );
+
         map[toDateKey(d.date)] = d;
       });
       setDayData(map);
