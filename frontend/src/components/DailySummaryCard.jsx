@@ -326,12 +326,19 @@ export default function DailySummaryCard({
 
               <span className={styles.dayScoreValue}>{progressScore}%</span>
             </div>
+            {/* TODO (UX):
+            // Transformar este header em um navegador diário:
+            // ← Hoje →
+            // - Abrir resumo do dia ao clicar em "Hoje"
+            // - Navegar entre dias pelas setas
+            // - Exibir pendências e concluídos
             <div className={styles.dayScoreTrack}>
               <div
                 className={`${styles.dayScoreFill} ${styles[`status_${calendarStatus}`]}`}
                 style={{ width: `${progressScore}%` }}
               />
-            </div>
+            </div>*/}
+
           </div>
         </div>
       </div>
