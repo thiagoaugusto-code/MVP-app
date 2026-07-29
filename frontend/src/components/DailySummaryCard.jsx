@@ -300,7 +300,7 @@ export default function DailySummaryCard({
     <section className={styles.wrap} aria-label="Resumo do dia">
       <div className={styles.header}>
         <div className={styles.headerMain}>
-          <h2 className={styles.title}>Seu dia de hoje</h2>
+          <h2 className={styles.title}>Seu dia hoje</h2>
           <div className={styles.dayScore} aria-label={`Score do dia: ${progressScore}%`}>
             <div className={styles.dayScoreRow}>
               <span className={styles.dayScoreLabel}>Score dia</span>
