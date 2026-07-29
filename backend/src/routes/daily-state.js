@@ -14,7 +14,9 @@ const router = express.Router();
  */
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const date = req.query.date || new Date();
+    const date = req.query.date || new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/Sao_Paulo'
+    });
 
     const state = await getDailyState(req.user.id, date);
 

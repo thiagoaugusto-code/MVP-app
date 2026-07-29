@@ -525,7 +525,14 @@ async function rebuildDailyUserState(userId, date) {
 // GET STATE
 // --------------------
 async function getDailyState(userId, date) {
-  const day = startOfDay(date);
+
+  const dateKey =
+    typeof date === 'string'
+      ? date
+      : new Date(date).toLocaleDateString('en-CA', {
+          timeZone: BRAZIL_TZ,
+        });
+  const day = startOfDay(dateKey);
 
   console.log("USER ID:", userId);
 
