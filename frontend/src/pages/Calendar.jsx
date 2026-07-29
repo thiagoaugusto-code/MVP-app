@@ -99,6 +99,9 @@ const Calendar = () => {
   }, [currentDate]);
 
   const loadMonthData = async (date) => {
+    
+    alert("CALENDAR NOVA VERSÃO");
+    
     setLoading(true);
     try {
       const year = date.getFullYear();
