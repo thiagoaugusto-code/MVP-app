@@ -37,6 +37,13 @@ function getMonthDaysData(dayData, currentDate) {
 function getDayDisplay(date, dayData, today) {
   const key = toDateKey(date);
   const data = dayData[key];
+
+  console.log("BUSCA DIA CALENDARIO", {
+    date,
+    key,
+    encontrado: data?.progressScore
+  });
+  
   const isFuture = startOfDay(date) > startOfDay(today);
 
   if (isFuture) {
@@ -128,7 +135,7 @@ const Calendar = () => {
 
       console.log("MAP CALENDAR", map);
 
-      
+
       setDayData(map);
     } catch (err) {
       console.error(err);
