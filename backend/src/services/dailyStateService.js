@@ -928,8 +928,13 @@ module.exports = {
       year,
       month
     });
-    const monthStart = new Date(year, month, 1);
-    const monthEnd = new Date(year, month + 1, 0);
+    const monthStart = startOfDay(
+      new Date(year, month, 1)
+    );
+
+    const monthEnd = endOfDay(
+      new Date(year, month + 1, 0)
+    );
 
     const rows = await prisma.dailyUserState.findMany({
       where: {
