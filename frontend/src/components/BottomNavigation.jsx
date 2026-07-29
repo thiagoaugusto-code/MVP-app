@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './BottomNavigation.module.css';
+import { Home, Calendar, TrendingUp } from 'lucide-react';
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const BottomNavigation = () => {
           className={`${styles.navItem} ${isActive('/') && location.pathname === '/' ? styles.active : ''}`}
           title="Dashboard"
         >
-          <span className={styles.icon}>📊</span>
+          <span className={styles.icon}><Home size={22} /></span>
           <span className={styles.label}>Dashboard</span>
         </Link>
         {/* O menu de marketplace só aparece para alunos que não têm um profissional atribuído 
@@ -47,7 +48,7 @@ const BottomNavigation = () => {
           className={`${styles.navItem} ${isActive('/calendar') ? styles.active : ''}`}
           title="Calendário"
         >
-          <span className={styles.icon}>📅</span>
+          <span className={styles.icon}><Calendar size={22} /></span>
           <span className={styles.label}>Calendário</span>
         </Link>
         <Link 
@@ -55,7 +56,7 @@ const BottomNavigation = () => {
           className={`${styles.navItem} ${isActive('/progress') ? styles.active : ''}`}
           title="Progresso"
         >
-          <span className={styles.icon}>📈</span>
+          <span className={styles.icon}><TrendingUp size={22} /></span>
           <span className={styles.label}>Progresso</span>
         </Link>
       </nav>
