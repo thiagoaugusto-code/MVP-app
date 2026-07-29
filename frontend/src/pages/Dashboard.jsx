@@ -427,15 +427,10 @@ const Dashboard = () => {
               <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
             </h1> 
 
-            {/* // TODO (UX):
-              // Transformar este header em um navegador diário:
-              // ← Hoje →
-              // - Abrir resumo do dia ao clicar em "Hoje"
-              // - Navegar entre dias pelas setas
-              // - Exibir pendências e concluídos
+            {/* 🆕 BOTÃO DE ACESSO RÁPIDO AO CALENDÁRIO */}
             <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
               📅
-            </button>*/}
+            </button>
           </section>
 
           <DailySummaryCard
