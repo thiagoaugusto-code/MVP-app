@@ -80,7 +80,7 @@ router.post('/actions', authMiddleware, async (req, res) => {
   try {
     const { date, action, payload } = req.body;
 
-    const finalDate = date || new Date().toISOString();
+    const finalDate = date || new Date();
 
     if (!action) {
       return res.status(400).json({ error: 'action é obrigatório' });
