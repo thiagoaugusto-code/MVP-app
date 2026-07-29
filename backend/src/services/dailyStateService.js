@@ -920,6 +920,12 @@ module.exports = {
       },
     });
 
+    console.log("MONTH ROWS:", rows.map(r => ({
+      date: r.date,
+      progressScore: r.progressScore,
+      calendarStatus: r.calendarStatus
+    })));
+
     if (rows.length === 0) {
       return [];
     }
