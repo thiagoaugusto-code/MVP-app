@@ -386,6 +386,24 @@ const Dashboard = () => {
     setDragOffsetX(0);
   };
 
+  const getGreeting = () => {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // 06:30 → 12:29
+  if (currentMinutes >= 390 && currentMinutes < 750) {
+    return 'Bom dia!';
+  }
+
+  // 12:30 → 18:29
+  if (currentMinutes >= 750 && currentMinutes < 1110) {
+    return 'Boa tarde!';
+  }
+
+  // 18:30 → 06:29
+  return 'Boa noite!';
+};
+
   if (loading || !dailyState) {
     return <div className="text-gray-900 dark:text-white">Carregando...</div>;
   }
@@ -405,7 +423,7 @@ const Dashboard = () => {
             </div>
 
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
-            <h1 className="text-gray-600 dark:text-gray-300">Bom dia! {/*mudar conforme hora para tarde/noite*/}
+            <h1 className="text-gray-600 dark:text-gray-300">{getGreeting()}! {/*mudar conforme hora para tarde/noite*/}
               <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
             </h1> 
 
