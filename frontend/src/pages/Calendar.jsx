@@ -109,8 +109,15 @@ const Calendar = () => {
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
       const res = await dailyStateAPI.getMonth(year, month);
-      
-      console.log("CALENDAR  MONTH RESPONSE:", res.data);
+
+      console.log(
+        "CALENDAR SCORES:",
+        res.data.days.map(d => ({
+          date: d.date,
+          score: d.progressScore,
+          status: d.calendarStatus
+        }))
+      );
 
       const map = {};
       (res.data.days || []).forEach((d) => {
