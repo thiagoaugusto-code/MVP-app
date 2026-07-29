@@ -89,6 +89,8 @@ const SUMMARY_ITEMS = [
 ];
 
 const Calendar = () => {
+  alert("VERSÃO NOVA CALENDAR SAGE");
+
   const toast = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dayData, setDayData] = useState({});
@@ -101,7 +103,7 @@ const Calendar = () => {
   const loadMonthData = async (date) => {
     
     alert("CALENDAR NOVA VERSÃO");
-    
+
     setLoading(true);
     try {
       const year = date.getFullYear();
