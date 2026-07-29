@@ -7,11 +7,9 @@ import { useToast } from '../components/toast/ToastProvider';
 import styles from './Calendar.module.css';
 
 function toDateKey(d) {
-  const x = new Date(d);
-  const y = x.getFullYear();
-  const m = String(x.getMonth() + 1).padStart(2, '0');
-  const day = String(x.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+  if (!d) return null;
+
+  return String(d).split('T')[0];
 }
 
 function isSameDay(a, b) {
@@ -127,6 +125,10 @@ const Calendar = () => {
 
         map[toDateKey(d.date)] = d;
       });
+
+      console.log("MAP CALENDAR", map);
+
+      
       setDayData(map);
     } catch (err) {
       console.error(err);
