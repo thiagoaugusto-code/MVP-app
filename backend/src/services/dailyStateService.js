@@ -25,6 +25,15 @@ const BRAZIL_TZ = 'America/Sao_Paulo';
 // HELPERS (DATE ONLY)
 // --------------------
 function startOfDay(date) {
+  if (typeof date === 'string' && date.length === 10) {
+    const [year, month, day] = date.split('-').map(Number);
+
+    return fromZonedTime(
+      `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 00:00:00`,
+      BRAZIL_TZ
+    );
+  }
+
   const zonedDate = toZonedTime(date, BRAZIL_TZ);
 
   zonedDate.setHours(0, 0, 0, 0);
