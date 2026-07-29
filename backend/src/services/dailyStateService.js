@@ -907,6 +907,11 @@ module.exports = {
   rebuildDailyUserState,
   getRecentSummary,
   getMonthSummary: async (userId, year, month) => {
+     console.log("ENTROU NO GET MONTH SUMMARY", {
+      userId,
+      year,
+      month
+    });
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
