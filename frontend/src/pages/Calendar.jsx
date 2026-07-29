@@ -7,9 +7,16 @@ import { useToast } from '../components/toast/ToastProvider';
 import styles from './Calendar.module.css';
 
 function toDateKey(d) {
-  if (!d) return null;
+  if (!d) return '';
 
-  return String(d).split('T')[0];
+  const date = new Date(d);
+
+  if (isNaN(date.getTime())) {
+    console.error("DATA INVALIDA:", d);
+    return '';
+  }
+
+  return date.toISOString().split('T')[0];
 }
 
 function isSameDay(a, b) {
@@ -38,12 +45,11 @@ function getDayDisplay(date, dayData, today) {
   const key = toDateKey(date);
   const data = dayData[key];
 
-  console.log("BUSCA DIA CALENDARIO", {
-    date,
-    key,
-    encontrado: data?.progressScore
+  console.log("BUSCA FINAL", {
+    dataOriginal: date,
+    chaveGerada: key,
+    encontrado: data
   });
-  
   const isFuture = startOfDay(date) > startOfDay(today);
 
   if (isFuture) {
@@ -111,29 +117,10 @@ const Calendar = () => {
       const month = date.getMonth() + 1;
       const res = await dailyStateAPI.getMonth(year, month);
 
-      console.log(
-        "CALENDAR SCORES:",
-        res.data.days.map(d => ({
-          date: d.date,
-          score: d.progressScore,
-          status: d.calendarStatus
-        }))
-      );
-
       const map = {};
       (res.data.days || []).forEach((d) => {
-
-        console.log(
-          "DATA CONVERSÃO",
-          d.date,
-          "=>",
-          toDateKey(d.date)
-        );
-
         map[toDateKey(d.date)] = d;
       });
-
-      console.log("MAP CALENDAR", map);
 
 
       setDayData(map);
