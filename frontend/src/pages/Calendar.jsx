@@ -137,6 +137,15 @@ const Calendar = () => {
       const month = date.getMonth() + 1;
       const res = await dailyStateAPI.getMonth(year, month);
 
+      console.log("CALENDAR API RESPONSE", {
+        today: new Date(),
+        year,
+        month,
+        days: res.data.days?.filter(
+          d => toDateKey(d.date) === toDateKey(new Date())
+        )
+      });
+
       const map = {};
       (res.data.days || []).forEach((d) => {
         map[toDateKey(d.date)] = d;
