@@ -788,6 +788,8 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         },
       });
 
+      const nowIso = new Date().toISOString();
+
       // --------------------
       // ROTINAS AUTOMÁTICAS
       // --------------------
@@ -796,6 +798,12 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         const completedWorkoutIds =
           current?.completedWorkoutIds
             ? JSON.parse(current.completedWorkoutIds)
+            : [];
+
+        // FIX: Faltava extrair/parsear workoutLogs do banco de dados
+        const workoutLogs = 
+          current?.workoutLogs
+            ? JSON.parse(current.workoutLogs)
             : [];
 
         let updatedCompletedIds = [...completedWorkoutIds];
@@ -809,7 +817,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
             updatedCompletedIds.filter(id => id !== payload.activityId);
         }
 
-        // Atualiza ou insere o log da rotina com a regra estrita do completedAt
+        // Atualiza ou insere o log da rotina
         const updatedLogs = [...workoutLogs];
         const logIndex = updatedLogs.findIndex(log => log.workoutId === payload.activityId);
         
@@ -817,7 +825,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           updatedLogs[logIndex] = {
             ...updatedLogs[logIndex],
             completed: payload.done,
-            completedAt: payload.done ? nowIso : null, // Sempre gera novo timestamp se done=true, limpa se done=false
+            completedAt: payload.done ? nowIso : null,
           };
         } else {
           updatedLogs.push({
@@ -828,8 +836,6 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           });
         }
 
-
-
         const routines = await getTodayWorkoutPlan(userId, day);
         const totalRoutines = routines.length;
         const allRoutinesCompleted =
@@ -837,7 +843,7 @@ async function applyDailyAction(userId, date, action, payload = {}) {
           updatedCompletedIds.length >= totalRoutines;
 
         await prisma.dailyUserState.update({
-          where: { userId_date: { userId, date: day },},
+          where: { userId_date: { userId, date: day } },
           data: {
             completedWorkoutIds: JSON.stringify(updatedCompletedIds),
             workoutLogs: JSON.stringify(updatedLogs),
@@ -855,15 +861,15 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         current?.exercises
           ? JSON.parse(current.exercises)
           : [];
-      
-      const nowIso = new Date().toISOString();
 
+      // FIX: Corrigido erro de digitação `playload.done` -> `payload.done`
       const updated = exercises.map(ex =>
         ex.id === payload.activityId
-          ? { ...ex, 
-            completed: payload.done,
-            completedAt: playload.done ? nowIso : null,
-          }
+          ? { 
+              ...ex, 
+              completed: payload.done,
+              completedAt: payload.done ? nowIso : null,
+            }
           : ex
       );
 
