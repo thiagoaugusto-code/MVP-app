@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://sage-backend-613k.onrender.com/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
