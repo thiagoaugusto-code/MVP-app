@@ -428,6 +428,10 @@ async function rebuildDailyUserState(userId, date) {
       ? JSON.parse(row.completedWorkoutIds)
       : [];
 
+    console.log("BANCO completedWorkoutIds RAW:", row.completedWorkoutIds);
+    console.log("BANCO completedWorkoutIds PARSED:", completedWorkoutIds);
+    console.log("DEBUG MAPPED ROUTINES:", mappedRoutines);
+    
    let routines = [];
 
       try {
