@@ -923,18 +923,17 @@ module.exports = {
   rebuildDailyUserState,
   getRecentSummary,
   getMonthSummary: async (userId, year, month) => {
-     console.log("ENTROU NO GET MONTH SUMMARY", {
-      userId,
-      year,
-      month
-    });
-    const monthStart = startOfDay(
-      new Date(year, month, 1)
-    );
+    console.log("ENTROU NO GET MONTH SUMMARY", { userId, year, month });
 
-    const monthEnd = endOfDay(
-      new Date(year, month + 1, 0)
-    );
+    // ✅ CORREÇÃO: Formata a string de data explícita (Mês no JS é 0-11, então +1)
+    const m = String(month + 1).padStart(2, '0');
+    
+    // Define o primeiro dia do mês às 00:00:00 em Brasília
+    const monthStart = fromZonedTime(`${year}-${m}-01 00:00:00`, BRAZIL_TZ);
+    
+    // Descobre o último dia do mês
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const monthEnd = fromZonedTime(`${year}-${m}-${String(lastDay).padStart(2, '0')} 23:59:59`, BRAZIL_TZ);
 
     const rows = await prisma.dailyUserState.findMany({
       where: {
@@ -944,13 +943,10 @@ module.exports = {
           lte: monthEnd,
         },
       },
+      orderBy: {
+        date: 'asc',
+      },
     });
-
-    console.log("MONTH ROWS:", rows.map(r => ({
-      date: r.date,
-      progressScore: r.progressScore,
-      calendarStatus: r.calendarStatus
-    })));
 
     if (rows.length === 0) {
       return [];
@@ -958,10 +954,15 @@ module.exports = {
 
     const days = await Promise.all(
       rows.map(async (row) => {
-        const state = await rebuildDailyUserState(userId,
-          row.date.toLocaleDateString('en-CA', { timeZone: BRAZIL_TZ }));
+        // ✅ CORREÇÃO: Extrai a string YYYY-MM-DD usando o fuso do Brasil
+        const dateKey = toZonedTime(row.date, BRAZIL_TZ)
+          .toISOString()
+          .split('T')[0];
+
+        const state = await rebuildDailyUserState(userId, dateKey);
         return {
           ...row,
+          date: row.date,
           progressScore: state.progressScore,
           calendarStatus: state.calendarStatus,
           caloriesConsumed: state.caloriesConsumed,
