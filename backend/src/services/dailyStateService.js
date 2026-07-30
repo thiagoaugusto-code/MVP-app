@@ -485,8 +485,8 @@ async function rebuildDailyUserState(userId, date) {
         exercises.filter(ex => ex.completed).length;
 
       const completedRoutineExercises =
-        completedWorkoutIds.length;
-
+        mappedRoutines.filter(r => r.completed).length;
+        
       const totalExercisesToday =
         exercises.length + mappedRoutines.length;
 
