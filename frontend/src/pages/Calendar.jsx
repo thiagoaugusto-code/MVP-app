@@ -9,7 +9,24 @@ import styles from './Calendar.module.css';
 function toDateKey(d) {
   if (!d) return '';
 
-  const date = new Date(d);
+  // Se já for uma string no formato "YYYY-MM-DD...", extrai direto os 10 primeiros caracteres
+  if (typeof d === 'string') {
+    const cleanDate = d.split('T')[0];
+    if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+      return cleanDate;
+    }
+  }
+
+  // Se for um objeto Date (como os dias gerados pelo grid do calendário local)
+  if (d instanceof Date && !isNaN(d.getTime())) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Fallback seguro adicionando T12:00:00 para evitar que o fuso puxe para o dia anterior
+  const date = new Date(typeof d === 'string' ? `${d.split('T')[0]}T12:00:00` : d);
 
   if (isNaN(date.getTime())) {
     return '';
