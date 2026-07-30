@@ -234,33 +234,13 @@ function scoreAndCalendarStatus({
   hasWorkoutToday,
   sleepHours,
 }) {
+  const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
   const hasWater = Number(waterMl) > 0;
   const hasSleep = sleepHours != null && Number(sleepHours) > 0;
   const hasWorkout = Number(workoutProgress) > 0;
 
-  // ✅ TRAVA TOTAL: Se não registrou refeição, nem água, nem sono e nem treino
-  const nadaRegistrado = 
-    registeredCount === 0 && 
-    !hasWater && 
-    !hasSleep && 
-    !hasWorkout;
-
-  if (nadaRegistrado) {
-    return {
-      progressScore: 0,
-      calendarStatus: 'red',
-      pillarProgress: {
-        meals: { progress: 0, weight: SCORE_PILLARS.MEALS.defaultWeight, points: 0 },
-        water: { progress: 0, weight: SCORE_PILLARS.WATER.defaultWeight, points: 0 },
-        sleep: { progress: 0, weight: SCORE_PILLARS.SLEEP.defaultWeight, points: 0 },
-        ...(hasWorkoutToday && { 
-          workout: { progress: 0, weight: SCORE_PILLARS.WORKOUT.defaultWeight, points: 0 } 
-        }),
-      },
-    };
-  } 
-
+  // 1. Identifica os pilares ativos no dia
   const activePillars = [
     SCORE_PILLARS.MEALS,
     SCORE_PILLARS.WATER,
@@ -276,10 +256,34 @@ function scoreAndCalendarStatus({
     0
   );
 
+  // 2. Helper de peso normalizado (Declarado ANTES da trava para uso seguro)
   const getNormalizedWeight = (pillar) => {
     return (pillar.defaultWeight / totalActiveWeight) * 100;
   };
 
+  // 3. TRAVA PARA DIA ZERADO: Se nada foi registrado no dia
+  const nadaRegistrado = 
+    registeredCount === 0 && 
+    !hasWater && 
+    !hasSleep && 
+    !hasWorkout;
+
+  if (nadaRegistrado) {
+    return {
+      progressScore: 0,
+      calendarStatus: 'red',
+      pillarProgress: {
+        meals: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.MEALS), points: 0 },
+        water: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WATER), points: 0 },
+        sleep: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.SLEEP), points: 0 },
+        ...(hasWorkoutToday && { 
+          workout: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WORKOUT), points: 0 } 
+        }),
+      },
+    };
+  }
+
+  // 4. CÁLCULO NORMAL DOS PONTOS
   const mealPart =
     inGoalCount > 0
       ? (registeredCount / inGoalCount) * 
