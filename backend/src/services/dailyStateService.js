@@ -237,6 +237,26 @@ function scoreAndCalendarStatus({
   const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
 
+  //TRAVA PARA DIA ZERADO
+  //Se não marcou NENHUMA refeição, não bebeu água e não tem sono registrado:
+  const notRegister = 
+  registeredCount === 0 && (waterMl === 0 || !waterMl) && (sleepHours == null || sleepHours === 0);
+
+  if (nadaRegistrado) {
+    return {
+      progressScore: 0,
+      calendarStatus: 'red',
+      pillarProgress: {
+        meals: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.MEALS), points: 0 },
+        water: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WATER), points: 0 },
+        sleep: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.SLEEP), points: 0 },
+        ...(hasWorkoutToday && { 
+          workout: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WORKOUT), points: 0 } 
+        }),
+      },
+    };
+  }
+
   const activePillars = [
     SCORE_PILLARS.MEALS,
     SCORE_PILLARS.WATER,
