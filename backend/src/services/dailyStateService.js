@@ -487,6 +487,17 @@ async function rebuildDailyUserState(userId, date) {
 
       const hasWorkoutToday = totalExercisesToday > 0;
 
+
+      console.log({
+        registeredCount: mealProgress.registeredCount,
+        waterMl,
+        sleepHours: row.sleepHours,
+        workoutProgress,
+        totalExercisesToday,
+        totalCompletedExercises,
+        completedWorkoutIds,
+      });
+
   const { progressScore, calendarStatus, pillarProgress } = scoreAndCalendarStatus({
     mealProgress,
     waterMl,
