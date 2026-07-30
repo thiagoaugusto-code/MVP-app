@@ -391,6 +391,13 @@ async function rebuildDailyUserState(userId, date) {
   // SOMENTE refeições da meta
   const activeMeals = allMeals.filter(meal => meal.inGoal);
 
+  console.log("CALENDAR MEALS", allMeals.map(m => ({
+    id: m.id,
+    type: m.mealType,
+    registered: m.registered,
+    date: m.date
+    })));
+
   const mealProgress = computeMealProgress(allMeals);
 
   const caloriesConsumed = allMeals
