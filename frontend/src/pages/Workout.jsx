@@ -212,7 +212,7 @@ const Workout = () => {
                   )}
 
                   {/*Componente de registro temporal*/}
-                  <TemporalRecor completedAt={workout.completedAt} />
+                  <TemporalRecord completedAt={workout.completedAt} />
                     
                   {workoutRecords[workout.id] && (
                     <div className={styles.contextDetails}>
