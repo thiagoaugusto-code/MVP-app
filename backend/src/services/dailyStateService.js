@@ -234,16 +234,19 @@ function scoreAndCalendarStatus({
   hasWorkoutToday,
   sleepHours,
 }) {
-  const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
+  const hasWater = Number(waterMl) > 0;
+  const hasSleep = sleepHours != null && Number(sleepHours) > 0;
+  const hasWorkout = Number(workoutProgress) > 0;
 
-  // ✅ TRAVA SEGURA PARA DIA ZERADO (Sem chamadas a funções externas):
-  const noRegister = 
+  // ✅ TRAVA TOTAL: Se não registrou refeição, nem água, nem sono e nem treino
+  const nadaRegistrado = 
     registeredCount === 0 && 
-    (waterMl === 0 || !waterMl) && 
-    (sleepHours == null || sleepHours === 0);
+    !hasWater && 
+    !hasSleep && 
+    !hasWorkout;
 
-  if (noRegister) {
+  if (nadaRegistrado) {
     return {
       progressScore: 0,
       calendarStatus: 'red',
@@ -256,7 +259,7 @@ function scoreAndCalendarStatus({
         }),
       },
     };
-  }
+  } 
 
   const activePillars = [
     SCORE_PILLARS.MEALS,
