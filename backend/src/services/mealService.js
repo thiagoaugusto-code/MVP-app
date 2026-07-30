@@ -107,12 +107,16 @@ async function dedupeDailyMeals(userId, dayStart, dayEnd) {
       await prisma.meal.deleteMany({ where: { id: { in: duplicateIds } } });
     }
 
+    const withCompletedAt =
+    list.find((m) => m.completedAt)?.completedAt ?? canonical.completedAt;
+
     await prisma.meal.update({
       where: { id: canonical.id },
       data: {
         date: dayStart,
         registered: mergedRegistered,
         completed: mergedRegistered,
+        completedAt: mergedRegistered ? withCompletedAt : null,
         inGoal: mergedInGoal,
         photoUrl: withPhoto?.photoUrl ?? canonical.photoUrl,
         registrationNote: withNote?.registrationNote ?? canonical.registrationNote,
@@ -138,6 +142,7 @@ async function setMealRegistered(meal, registered, extras = {}) {
   const data = {
     registered,
     completed: registered,
+    completedAt: registered ? new Date() : null, 
     date: dayStart,
   };
 
