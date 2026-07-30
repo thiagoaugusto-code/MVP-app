@@ -418,19 +418,29 @@ const Dashboard = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.greeting}>
-            <div className="text-2xl animate-pulse">
-              {getMoodIcon(progressScore)}
-            </div>
+              <div className={styles.greetingContent}>
+              <div className="text-2xl animate-pulse">
+                {getMoodIcon(progressScore)}
+              </div>
 
-             {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
-            <h1 className="text-gray-600 dark:text-gray-300">{getGreeting()}! {/*mudar conforme hora para tarde/noite*/}
-              <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
-            </h1> 
 
-            {/* 🆕 BOTÃO DE ACESSO RÁPIDO AO CALENDÁRIO */}
-            <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
-              📅
-            </button>
+              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
+              <h1 className="text-gray-600 dark:text-gray-300">{getGreeting()}! {/*mudar conforme hora para tarde/noite*/}
+                <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
+              </h1> 
+
+              {/* TODO (UX):
+                  Substituir este botão do calendário por um navegador diário.
+
+                  Ideia:
+                  ← Hoje • 29 Jul →
+
+                  Funcionalidades:
+                  - Abrir resumo do dia ao clicar em "Hoje";
+                  - Navegar entre dias pelas setas;
+                  - Exibir atividades concluídas e pendentes.
+              */}
+              </div>
           </section>
 
           <DailySummaryCard
