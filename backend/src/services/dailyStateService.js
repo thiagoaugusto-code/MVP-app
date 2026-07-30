@@ -237,21 +237,22 @@ function scoreAndCalendarStatus({
   const inGoalCount = mealProgress?.inGoalCount ?? 0;
   const registeredCount = mealProgress?.registeredCount ?? 0;
 
-  //TRAVA PARA DIA ZERADO
-  //Se não marcou NENHUMA refeição, não bebeu água e não tem sono registrado:
-  const notRegister = 
-  registeredCount === 0 && (waterMl === 0 || !waterMl) && (sleepHours == null || sleepHours === 0);
+  // ✅ TRAVA SEGURA PARA DIA ZERADO (Sem chamadas a funções externas):
+  const noRegister = 
+    registeredCount === 0 && 
+    (waterMl === 0 || !waterMl) && 
+    (sleepHours == null || sleepHours === 0);
 
-  if (nadaRegistrado) {
+  if (noRegister) {
     return {
       progressScore: 0,
       calendarStatus: 'red',
       pillarProgress: {
-        meals: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.MEALS), points: 0 },
-        water: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WATER), points: 0 },
-        sleep: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.SLEEP), points: 0 },
+        meals: { progress: 0, weight: SCORE_PILLARS.MEALS.defaultWeight, points: 0 },
+        water: { progress: 0, weight: SCORE_PILLARS.WATER.defaultWeight, points: 0 },
+        sleep: { progress: 0, weight: SCORE_PILLARS.SLEEP.defaultWeight, points: 0 },
         ...(hasWorkoutToday && { 
-          workout: { progress: 0, weight: getNormalizedWeight(SCORE_PILLARS.WORKOUT), points: 0 } 
+          workout: { progress: 0, weight: SCORE_PILLARS.WORKOUT.defaultWeight, points: 0 } 
         }),
       },
     };
@@ -285,7 +286,6 @@ function scoreAndCalendarStatus({
   const waterPart = 
     computeWaterProgress(waterMl, waterGoalMl).ratio *
     getNormalizedWeight(SCORE_PILLARS.WATER);
-
 
   const sleepPart = sleepQualityFactor(sleepHours) *
     getNormalizedWeight(SCORE_PILLARS.SLEEP);
