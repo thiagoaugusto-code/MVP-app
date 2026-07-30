@@ -427,10 +427,10 @@ const Dashboard = () => {
               <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
             </h1> 
 
-            {/* 🆕 BOTÃO DE ACESSO RÁPIDO AO CALENDÁRIO */}
-            <button className={styles.calendarBtn} onClick={() => navigate('/calendar')} type="button">
-              📅
-            </button>
+            {/* TODO:
+            Evoluir este acesso ao calendário para um navegador diário
+              (← Hoje →) com navegação entre dias e resumo do dia.
+          */}
           </section>
 
           <DailySummaryCard
