@@ -520,6 +520,7 @@ const Dashboard = () => {
                       type="meal"
                       label={meal.displayName || getMealLabel(meal.mealType)}
                       checked={isMealRegistered(meal)}
+                      completedAt={meal.completedAt}
                       onChange={(checked) => handleMealToggle(meal.id, checked)}
                       onLabelClick={() => navigate(`/diet?meal=${meal.mealType}`)}
                       onCameraClick={() => openRegisterModal(meal.id)}
@@ -537,6 +538,7 @@ const Dashboard = () => {
                       type="workout"
                       label={activity.name}
                       checked={Boolean(activity.completed)}
+                      completedAt={activity.completedAt}
                       onChange={(checked) =>
                         applyAction('TOGGLE_WORKOUT_ACTIVITY', {
                           activityId: activity.id,

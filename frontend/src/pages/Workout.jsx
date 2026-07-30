@@ -7,6 +7,8 @@ import { buildVisibleWorkouts } from '../constants/workout';
 import styles from './Workout.module.css';
 import { getTodayDateKey } from '../utils/date';
 import WorkoutContextModal from '../components/WorkoutContextModal';
+import TemporalRecord from '../components/commom/TemporalRecord';
+
 
 
 const dateKey = getTodayDateKey();
@@ -208,6 +210,9 @@ const Workout = () => {
                       {workout.specifications.join(' • ')}
                     </span>
                   )}
+
+                  {/*Componente de registro temporal*/}
+                  <TemporalRecor completedAt={workout.completedAt} />
                     
                   {workoutRecords[workout.id] && (
                     <div className={styles.contextDetails}>

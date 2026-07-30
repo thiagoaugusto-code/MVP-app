@@ -7,8 +7,9 @@ import { MEAL_TYPES, computeMealProgress, isMealRegistered, getMealLabel } from 
 import styles from './DietPlan.module.css';
 import MealRegisterModal from '../components/MealRegisterModal';
 import AddMealModal from '../components/AddMealModal';
-import { Camera } from 'lucide-react';
+import { Camera, Import } from 'lucide-react';
 import {getTodayDateKey} from '../utils/date';
+import TemporalRecord from '../components/commom/TemporalRecord';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -226,6 +227,9 @@ const handleCreateMeal = (meal) => {
                   <div className={styles.mealHeader}>
 
                     <h3>{meal.displayName || getMealLabel(meal.mealType)}</h3>
+
+                    {/*Componente universal de registro */}
+                    <TemporalRecord completedAt={meal.completedAt}/>
 
                     <div className={styles.mealActions}>
                       {isMealRegistered(meal) ? (

@@ -1,11 +1,13 @@
 import styles from './CheckItem.module.css';
 import { Camera } from 'lucide-react';
+import TemporalRecord from './commom/TemporalRecord';
 
 const CheckItem = ({
   id,
   type,
   label,
   checked,
+  completedAt,
   value,
   maxValue,
   onChange,
@@ -58,6 +60,9 @@ const CheckItem = ({
         >
           {label}
         </label>
+
+        {/*Componente universal*/}
+        <TemporalRecord completedAt={completedAt}/>
       </div>
 
 
