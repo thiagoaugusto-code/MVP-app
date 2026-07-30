@@ -430,8 +430,8 @@ async function rebuildDailyUserState(userId, date) {
 
     console.log("BANCO completedWorkoutIds RAW:", row.completedWorkoutIds);
     console.log("BANCO completedWorkoutIds PARSED:", completedWorkoutIds);
-    console.log("DEBUG MAPPED ROUTINES:", mappedRoutines);
     
+
    let routines = [];
 
       try {
@@ -461,6 +461,8 @@ async function rebuildDailyUserState(userId, date) {
         };
 
       });
+
+      console.log("DEBUG MAPPED ROUTINES:", mappedRoutines);
 
       const synchronizedWorkoutLogs = [...workoutLogs];
 
