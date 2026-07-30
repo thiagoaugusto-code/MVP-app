@@ -446,17 +446,17 @@ async function rebuildDailyUserState(userId, date) {
         : [];
 
       const mappedRoutines = routines.map(routine => {
-
         const id = `routine-${routine.id}`;
-
         const savedLog = workoutLogs.find(
           log => log.workoutId === id
         );
+        const isCompleted = completedWorkoutIds.includes(id);
 
         return {
           ...routine,
           id,
           completed: completedWorkoutIds.includes(id),
+          completedAt: isCompleted ? (savedLog?.completedAt ?? null) : null,
           records: savedLog?.records || [],
         };
 
@@ -809,20 +809,38 @@ async function applyDailyAction(userId, date, action, payload = {}) {
             updatedCompletedIds.filter(id => id !== payload.activityId);
         }
 
+        // Atualiza ou insere o log da rotina com a regra estrita do completedAt
+        const updatedLogs = [...workoutLogs];
+        const logIndex = updatedLogs.findIndex(log => log.workoutId === payload.activityId);
+        
+        if (logIndex >= 0) {
+          updatedLogs[logIndex] = {
+            ...updatedLogs[logIndex],
+            completed: payload.done,
+            completedAt: payload.done ? nowIso : null, // Sempre gera novo timestamp se done=true, limpa se done=false
+          };
+        } else {
+          updatedLogs.push({
+            workoutId: payload.activityId,
+            records: [],
+            completed: payload.done,
+            completedAt: payload.done ? nowIso : null,
+          });
+        }
+
+
+
         const routines = await getTodayWorkoutPlan(userId, day);
-
         const totalRoutines = routines.length;
-
         const allRoutinesCompleted =
           totalRoutines > 0 &&
           updatedCompletedIds.length >= totalRoutines;
 
         await prisma.dailyUserState.update({
-          where: {
-            userId_date: { userId, date: day },
-          },
+          where: { userId_date: { userId, date: day },},
           data: {
             completedWorkoutIds: JSON.stringify(updatedCompletedIds),
+            workoutLogs: JSON.stringify(updatedLogs),
             workoutCompleted: allRoutinesCompleted,
           },
         });
@@ -837,10 +855,15 @@ async function applyDailyAction(userId, date, action, payload = {}) {
         current?.exercises
           ? JSON.parse(current.exercises)
           : [];
+      
+      const nowIso = new Date().toISOString();
 
       const updated = exercises.map(ex =>
         ex.id === payload.activityId
-          ? { ...ex, completed: payload.done }
+          ? { ...ex, 
+            completed: payload.done,
+            completedAt: playload.done ? nowIso : null,
+          }
           : ex
       );
 
