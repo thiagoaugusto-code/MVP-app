@@ -1,17 +1,27 @@
 import { useContext, useCallback, useState, useEffect, useMemo } from 'react';
 import { DraftContext } from './DraftContext';
 import { mergeDraft } from './mergeDraft';
-import { DRAFT_STATUS } from './types';
+import { DRAFT_STATUS, getDateKey } from './types';
 
 /**
- * Hook reativo para gestão de rascunhos em formulários/views.
+ * Hook reativo para gestão de rascunhos em tempo de execução.
  *
  * @param {string|number} userId - Identificador do usuário logado
- * @param {string} module - Módulo da aplicação (ex: 'workout', 'nutrition')
- * @param {string|number|null} id - ID do recurso ou null para novos registros
- * @param {Object|null} persistedData - Dados originais do registro
+ * @param {string} module - Nome do módulo (ex: 'nutrition', 'workout')
+ * @param {Object} [options]
+ * @param {string} [options.dateKey] - Data do ciclo (padrão: data atual via Sistema Temporal)
+ * @param {string} [options.entityId] - Sub-contexto (ex: 'breakfast', 'workout_a')
+ * @param {string|number|null} [options.id] - ID do registro persistido
+ * @param {Object|null} [options.persistedData] - Dados originais vindos do backend
  */
-export function useDraft(userId, module, id = null, persistedData = null) {
+export function useDraft(userId, module, options = {}) {
+  const {
+    dateKey = getDateKey(),
+    entityId = 'default',
+    id = null,
+    persistedData = null,
+  } = options;
+
   const repository = useContext(DraftContext);
 
   if (!repository) {
@@ -19,39 +29,47 @@ export function useDraft(userId, module, id = null, persistedData = null) {
   }
 
   const [status, setStatus] = useState(DRAFT_STATUS.IDLE);
-  const [draft, setDraft] = useState(() => repository.loadDraft(userId, module, id));
+  const [draft, setDraft] = useState(() =>
+    repository.loadDraft(userId, module, dateKey, entityId, id)
+  );
 
-  // Recarrega o rascunho caso mude o userId, módulo ou id
+  // Efeito reativo para mudanças no contexto temporal ou entidade
   useEffect(() => {
-    const loaded = repository.loadDraft(userId, module, id);
+    const loaded = repository.loadDraft(userId, module, dateKey, entityId, id);
     setDraft(loaded);
     setStatus(loaded ? DRAFT_STATUS.SAVED : DRAFT_STATUS.IDLE);
-  }, [repository, userId, module, id]);
+  }, [repository, userId, module, dateKey, entityId, id]);
 
-  const save = useCallback((payload) => {
-    setStatus(DRAFT_STATUS.PENDING);
-    const saved = repository.saveDraft(userId, module, id, payload);
-    setDraft(saved);
-    setStatus(DRAFT_STATUS.SAVED);
-    return saved;
-  }, [repository, userId, module, id]);
+  const saveDraft = useCallback(
+    (payload) => {
+      setStatus(DRAFT_STATUS.PENDING);
+      const saved = repository.saveDraft(userId, module, dateKey, payload, entityId, id);
+      setDraft(saved);
+      setStatus(DRAFT_STATUS.SAVED);
+      return saved;
+    },
+    [repository, userId, module, dateKey, entityId, id]
+  );
 
-  const update = useCallback((partialPayload) => {
-    setStatus(DRAFT_STATUS.PENDING);
-    const updated = repository.updateDraft(userId, module, id, partialPayload);
-    setDraft(updated);
-    setStatus(DRAFT_STATUS.SAVED);
-    return updated;
-  }, [repository, userId, module, id]);
+  const updateDraft = useCallback(
+    (partialPayload) => {
+      setStatus(DRAFT_STATUS.PENDING);
+      const updated = repository.updateDraft(userId, module, dateKey, partialPayload, entityId, id);
+      setDraft(updated);
+      setStatus(DRAFT_STATUS.SAVED);
+      return updated;
+    },
+    [repository, userId, module, dateKey, entityId, id]
+  );
 
-  const remove = useCallback(() => {
-    const success = repository.deleteDraft(userId, module, id);
+  const deleteDraft = useCallback(() => {
+    const success = repository.deleteDraft(userId, module, entityId, id);
     if (success) {
       setDraft(null);
       setStatus(DRAFT_STATUS.IDLE);
     }
     return success;
-  }, [repository, userId, module, id]);
+  }, [repository, userId, module, entityId, id]);
 
   const mergedData = useMemo(() => {
     return mergeDraft(draft, persistedData);
@@ -61,9 +79,9 @@ export function useDraft(userId, module, id = null, persistedData = null) {
     draft,
     mergedData,
     status,
-    saveDraft: save,
-    updateDraft: update,
-    deleteDraft: remove,
+    saveDraft,
+    updateDraft,
+    deleteDraft,
     hasDraft: Boolean(draft),
   };
 }

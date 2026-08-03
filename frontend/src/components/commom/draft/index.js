@@ -10,4 +10,5 @@ export {
   DRAFT_STORAGE_PREFIX,
   DRAFT_STATUS,
   DRAFT_EVENTS,
+  getDateKey,
 } from './types';
