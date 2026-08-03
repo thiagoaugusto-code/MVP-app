@@ -1,9 +1,9 @@
-import { getDateKey } from '../temporal/dateUtils'; // Importação do Sistema Temporal (Sprint 4.2)
+import { getTodayDateKey } from '../../../utils/date';
 
 /**
  * Re-exportação para garantir que o Draft System utilize a fonte única de verdade temporal.
  */
-export { getDateKey };
+export const getDateKey = () => getTodayDateKey();
 
 /**
  * Versão atual da estrutura do rascunho para migrações

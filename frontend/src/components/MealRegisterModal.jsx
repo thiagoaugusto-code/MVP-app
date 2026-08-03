@@ -1,6 +1,24 @@
+import { useEffect, useRef } from 'react';
 import styles from '../pages/DietPlan.module.css';
+import { AutoSave } from './commom/draft/AutoSave';
+import { useDraft } from './commom/draft/useDraft';
+import { getDateKey } from './commom/draft/types';
 
-const MealRegisterModal = ({
+const getCurrentUserId = () => {
+  if (typeof window === 'undefined') return 'guest';
+
+  try {
+    const storedUser = window.localStorage.getItem('user');
+    if (!storedUser) return 'guest';
+
+    const parsedUser = JSON.parse(storedUser);
+    return parsedUser?.id || parsedUser?.userId || parsedUser?.email || 'guest';
+  } catch {
+    return 'guest';
+  }
+};
+
+const MealRegisterModalContent = ({
   open,
   onClose,
   onSubmit,
@@ -13,6 +31,52 @@ const MealRegisterModal = ({
   onPhotoSelect,
   submitting,
 }) => {
+  const hasHydratedRef = useRef(false);
+  const shouldDeleteDraftRef = useRef(false);
+
+  const { mergedData, saveDraft, deleteDraft } = useDraft(getCurrentUserId(), 'nutrition', {
+    entityId: 'meal_register',
+    dateKey: getDateKey(),
+  });
+
+  useEffect(() => {
+    if (!open) {
+      hasHydratedRef.current = false;
+      return;
+    }
+
+    if (hasHydratedRef.current) return;
+
+    if (mergedData?.registerMode === 'photo' || mergedData?.registerMode === 'manual') {
+      setRegisterMode(mergedData.registerMode);
+    }
+
+    if (typeof mergedData?.manualNote === 'string' && mergedData.manualNote !== manualNote) {
+      setManualNote(mergedData.manualNote);
+    }
+
+    hasHydratedRef.current = true;
+  }, [manualNote, onPhotoSelect, open, photoPreview, setManualNote, setRegisterMode]);
+
+  useEffect(() => {
+    if (!open && shouldDeleteDraftRef.current) {
+      deleteDraft();
+      shouldDeleteDraftRef.current = false;
+    }
+  }, [deleteDraft, open]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    shouldDeleteDraftRef.current = true;
+
+    try {
+      await onSubmit(event);
+    } catch (error) {
+      shouldDeleteDraftRef.current = false;
+      throw error;
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -20,7 +84,7 @@ const MealRegisterModal = ({
       <div className={styles.modalContent}>
         <h3>Registrar refeição</h3>
 
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className={styles.registerTabs}>
             <button
               type="button"
@@ -92,10 +156,32 @@ const MealRegisterModal = ({
               {submitting ? 'Salvando...' : 'Registrar'}
             </button>
           </div>
+
+          <AutoSave
+            data={{ registerMode, manualNote, photoData, photoPreview }}
+            onSave={(draftPayload) => {
+              if (!open) return;
+
+              saveDraft({
+                registerMode: draftPayload.registerMode || 'manual',
+                manualNote: draftPayload.manualNote || '',
+                photoData: draftPayload.photoData || '',
+                photoPreview: draftPayload.photoPreview || '',
+              });
+            }}
+            delay={900}
+            enabled={open}
+          />
         </form>
       </div>
     </div>
   );
+};
+
+const MealRegisterModal = (props) => {
+  if (!props.open) return null;
+
+  return <MealRegisterModalContent {...props} />;
 };
 
 export default MealRegisterModal;
