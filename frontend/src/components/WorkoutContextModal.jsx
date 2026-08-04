@@ -1,41 +1,61 @@
 import { useState } from 'react';
 import styles from './WorkoutContextModal.module.css';
+import { AutoSave, useDraft } from './commom/draft';
+
+const getCurrentUserId = () => {
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) return 'guest';
+
+  try {
+    const parsed = JSON.parse(storedUser);
+    return parsed?.id || parsed?.userId || parsed?.email || 'guest';
+  } catch {
+    return 'guest';
+  }
+};
 
 export default function WorkoutContextModal({
   workout,
+  initialContext = [],
   onClose,
   onSave,
 }) {
+  const { mergedData, updateDraft, deleteDraft } = useDraft(
+    getCurrentUserId(),
+    'workout',
+    {
+      entityId: String(workout.id),
+      id: 'new',
+      persistedData: { records: initialContext || [] },
+    }
+  );
 
-  const [records, setRecords] = useState([
+  const initialRecords = mergedData?.records ?? initialContext ?? [
     {
       id: Date.now(),
       exercise: '',
       value: '',
       notes: '',
-    }
-  ]);
+    },
+  ];
 
+  const [records, setRecords] = useState(initialRecords);
 
   function addRecord() {
-
-    setRecords(prev => [
+    setRecords((prev) => [
       ...prev,
       {
         id: Date.now(),
         exercise: '',
         value: '',
         notes: '',
-      }
+      },
     ]);
-
   }
 
-
   function updateRecord(id, field, value) {
-
-    setRecords(prev =>
-      prev.map(record =>
+    setRecords((prev) =>
+      prev.map((record) =>
         record.id === id
           ? {
               ...record,
@@ -44,27 +64,19 @@ export default function WorkoutContextModal({
           : record
       )
     );
-
   }
 
-
-  function handleSave() {
-
+  async function handleSave() {
     const data = {
       workoutId: workout.id,
       workoutName: workout.name,
       records,
     };
 
+    console.log('REGISTROS DO TREINO:', data);
 
-    console.log(
-      'REGISTROS DO TREINO:',
-      data
-    );
-
-
-    onSave(data);
-
+    await onSave(data);
+    deleteDraft();
   }
 
 
@@ -153,8 +165,6 @@ export default function WorkoutContextModal({
           + Adicionar registro
         </button>
 
-
-
         <button
           type="button"
           onClick={handleSave}
@@ -162,7 +172,14 @@ export default function WorkoutContextModal({
           Salvar treino
         </button>
 
-
+        <AutoSave
+          data={{ records }}
+          onSave={(draftPayload) => {
+            updateDraft({ records: draftPayload.records || [] });
+          }}
+          delay={900}
+          enabled={Boolean(records)}
+        />
       </div>
     </div>
   );
