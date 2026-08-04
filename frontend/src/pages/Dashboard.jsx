@@ -639,6 +639,7 @@ const Dashboard = () => {
         photoPreview={photoPreview}
         photoData={photoData}
         onPhotoSelect={handlePhotoSelect}    
+        mealId={registerMealId}
         submitting={submitting}
       />
       {showWorkoutModal && selectedWorkout && (

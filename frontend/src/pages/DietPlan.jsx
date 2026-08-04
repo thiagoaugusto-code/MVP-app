@@ -315,6 +315,7 @@ const handleCreateMeal = (meal) => {
             photoPreview={photoPreview}
             photoData={photoData}
             onPhotoSelect={handlePhotoSelect}
+            mealId={registerMealId}
             submitting={submitting}
           />
 

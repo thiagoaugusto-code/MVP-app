@@ -30,12 +30,15 @@ const MealRegisterModalContent = ({
   photoData,
   onPhotoSelect,
   submitting,
+  mealId,
 }) => {
   const hasHydratedRef = useRef(false);
   const shouldDeleteDraftRef = useRef(false);
 
   const { mergedData, saveDraft, deleteDraft } = useDraft(getCurrentUserId(), 'nutrition', {
-    entityId: 'meal_register',
+    // Use the provided mealId as entityId so drafts are scoped per meal.
+    // Fallback to a default string for safety when mealId is not provided.
+    entityId: mealId ? String(mealId) : 'meal_register',
     dateKey: getDateKey(),
   });
 
