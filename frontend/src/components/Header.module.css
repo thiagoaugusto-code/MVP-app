@@ -111,8 +111,8 @@
   position: absolute;
   top: 45px;
   right: 0;
-  background: white;
-  color: #333;
+  background: var(--color-card);
+  color: var(--color-text);
   border-radius: 12px;
   padding: 12px;
   width: 180px;
@@ -137,13 +137,13 @@
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #374151;
+  color: var(--color-muted-1);
 }
 
 /* DIVISOR */
 .divider {
   border: none;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
   margin: 6px 0;
 }
 
@@ -163,7 +163,7 @@
 }
 
 .menu button:hover {
-  background: #f1f5f9;
+  background: rgba(148, 163, 184, 0.15);
 }
 
 /* LOGOUT */

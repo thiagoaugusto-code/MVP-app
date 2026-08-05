@@ -19,8 +19,8 @@
 }
 
 .greeting {
-  background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 14px;
   box-shadow: 0 10px 30px rgb(15 23 42 / 55%);
@@ -35,14 +35,14 @@
 .greeting h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
   margin: 0;
   animation: slideDown 0.5s ease;
 }
 
 .greeting p {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--color-muted-1);
   margin: 0;
 }
 
@@ -56,7 +56,7 @@
 .section {
   margin-bottom: 0rem;
   margin-top: 0.5rem;
-  background: white;
+  background: var(--color-card);
   border: 1px solid #002988;
   border-radius: 16px;
   padding: 14px;
@@ -67,7 +67,7 @@
 .sectionTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text);
   margin: 1rem 0 1rem 0;
   padding-bottom: 0.75rem;
   border-bottom: 2px solid #3b82f6;
@@ -104,8 +104,8 @@
 
 .categoryTab {
   border: none;
-  background: #f8fafc;
-  color: #64748b;
+  background: var(--color-card);
+  color: var(--color-muted-1);
   padding: 0.6rem 0.8rem;
   border-radius: 999px;
   font-size: 0.82rem;
@@ -129,9 +129,9 @@
 .navArrow {
   width: 2.25rem;
   height: 2.25rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--color-card);
   color: #3b82f6;
   display: flex;
   align-items: center;
@@ -147,14 +147,14 @@
 }
 
 .navArrow:hover {
-  background: #f8fbff;
+  background: rgba(59, 130, 246, 0.08);
   box-shadow: 0 6px 14px rgba(59, 130, 246, 0.12);
 }
 
 .checklistSurface {
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
   will-change: transform, opacity;
-  background-color: white;
+  background-color: var(--color-card);
   padding: inherit;
   border: 1px solid blue;
   border-radius: 16px;
@@ -165,8 +165,8 @@
   gap: 0.35rem;
   padding: 1rem;
   border-radius: 14px;
-  border: 1px dashed #cbd5e1;
-  background: #f8fafc;
+  border: 1px dashed var(--color-border);
+  background: var(--color-card);
   text-align: center;
 }
 
@@ -174,13 +174,13 @@
   margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--color-text);
 }
 
 .emptyCategory span {
   font-size: 0.9rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--color-muted-1);
 }
 
 .quickLinks {
@@ -196,13 +196,13 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem 0.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem;
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text);
   transition: all 0.2s ease;
 
   span:first-child {
@@ -241,27 +241,24 @@
 .goalsModal {
   width: 100%;
   max-width: 640px;
-  background: white;
+  background: var(--color-card);
   border-radius: 16px 16px 0 0;
   padding: 16px;
   display: grid;
   gap: 10px;
-}
-.dark .goalsModal {
-  background: #1f2937;
-  color: #f9fafb;
 }
 
 .goalsModal h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 800;
+  color: var(--color-text);
 }
 
 .goalsModal p {
   margin: 0;
   font-size: 0.82rem;
-  color: #64748b;
+  color: var(--color-muted-1);
 }
 
 .goalsModal label {
@@ -269,22 +266,17 @@
   gap: 6px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .goalsModal input {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   height: 40px;
   padding: 0 10px;
   font-size: 0.95rem;
-  background: white;
-}
-
-.dark .goalsModal input {
-  background: #111827;
-  color: #f9fafb;
-  border-color: #374151;
+  background: var(--color-card);
+  color: var(--color-text);
 }
 
 .goalsActions {
@@ -295,13 +287,13 @@
 
 .goalsActions button {
   flex: 1;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   height: 40px;
-  background: #f8fafc;
+  background: var(--color-card);
   font-weight: 800;
   cursor: pointer;
-  color: black;
+  color: var(--color-text);
 }
 
 .primaryBtn {
@@ -336,7 +328,7 @@
 
   .sectionTitle {
     font-size: 1rem;
-    color: #1f2937;
+    color: var(--color-text);
   }
   .goalsModal {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
@@ -345,10 +337,10 @@
 
 .calendarBtn {
   font-size: x-large;
-  background: #ffffff;
+  background: var(--color-card);
   border-radius: 8px;
   padding: 2px;
-  border: 1px solid blue;
+  border: 1px solid var(--color-border);
   cursor: pointer;
  transition: transform 0.18s ease, box-shadow 0.18s ease;
   will-change: transform;

@@ -207,17 +207,6 @@
   }
 
 
-  .contextItem input,
-  .contextItem textarea {
-    background:#111827;
-    border-color:#374151;
-    color:white;
-  }
-
-
-  .modal > p {
-    color:#9ca3af;
-  }
 
 
   .modal > button:first-of-type {

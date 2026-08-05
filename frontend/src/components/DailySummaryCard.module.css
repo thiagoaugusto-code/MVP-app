@@ -1,6 +1,6 @@
 .wrap {
-  background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 14px;
   box-shadow: 0 10px 30px rgb(15 23 42 / 55%);
@@ -22,7 +22,7 @@
 .title {
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -41,7 +41,7 @@
 .dayScoreLabel {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(15, 23, 42, 0.5);
+  color: var(--color-muted-1);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -49,7 +49,7 @@
 .dayScoreValue {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text);
   line-height: 1;
   letter-spacing: -0.02em;
 }
@@ -57,7 +57,7 @@
 .dayScoreTrack {
   height: 6px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
 
@@ -82,7 +82,7 @@
 .subtitle {
   margin: 4px 0 0;
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.65);
+  color: var(--color-muted-1);
   font-weight: 600;
 }
 
@@ -97,16 +97,16 @@
 .habitText {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--color-muted-1);
 }
 
 .editGoalsBtn {
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--color-card);
   color: #1d4ed8;
   cursor: pointer;
   border-color: #001b65;
@@ -131,8 +131,8 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
   cursor: pointer;
 }
 
@@ -156,8 +156,8 @@
 
 .secondaryBtn {
   border-radius: 10px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
   font-weight: 800;
   font-size: 12px;
   padding: 8px 10px;
@@ -201,7 +201,7 @@
   width: 100%;
   height: 52px;
   border-radius: 16px;
-  background: #e5e7eb;
+  background: var(--color-card);
   border: none;
   cursor: grab;
   overflow: hidden;
@@ -329,7 +329,7 @@
     margin-top: 16px;
     padding: 7px 6px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.92);
+    background: var(--color-card);
     border-top-width: thin;
     border-color: aqua;
     display: flex;
@@ -371,13 +371,13 @@
 .sleepTitle {
   font-size: 12px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .sleepPhase {
   font-size: 10px;
   font-weight: 700;
-  color: rgba(15, 23, 42, 0.62);
+  color: var(--color-muted-1);
 }
 
 .sleepTrackWrap {
@@ -396,7 +396,7 @@
   width: 100%;
   height: 14px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
   position: relative;
 }
@@ -419,7 +419,7 @@
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--color-card);
   border: 2px solid rgba(37, 99, 235, 0.9);
   box-shadow: 0 3px 10px rgba(37, 99, 235, 0.18);
   transform: translate(-50%, -50%);
@@ -450,7 +450,7 @@
 
 .sleepValue,
 .sleepMessage {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -458,14 +458,14 @@
 
 .sleepMessage {
   font-size: 11px;
-  color: rgba(15, 23, 42, 0.62);
+  color: var(--color-muted-1);
   white-space: normal;
   text-align: right;
   line-height: 1.2;
 }
 
 .domainCard {
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--color-card);
   border: 1px solid #002988;
   border-radius: 16px;
   padding: 12px;
@@ -483,20 +483,20 @@
   align-items: center;
   font-size: 13px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .domainMain {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--color-muted-1);
 }
 
 .bar {
   height: 6px;
   width: 100%;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
   margin-top: 4px;
 }
