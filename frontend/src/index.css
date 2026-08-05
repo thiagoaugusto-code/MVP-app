@@ -1,3 +1,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Centralized theme variables (light + dark) to consolidate Dark Mode colors.
+	 These keep the product identity (no pure black) and provide single-source
+	 values that existing Tailwind utilities can map to. Loaded after Tailwind
+	 so these rules override generated utility classes when needed. */
+:root {
+	--color-bg: #f3f4f6; /* light - similar to bg-gray-100 */
+	--color-card: #ffffff; /* card background */
+	--color-text: #111827; /* main text - like text-gray-900 */
+	--color-muted-1: #6b7280; /* secondary text */
+	--color-muted-2: #9ca3af; /* tertiary/muted */
+	--color-border: #e5e7eb; /* borders */
+}
+
+.dark {
+	--color-bg: rgb(17 24 39); /* deep blue-gray (avoid #000) */
+	--color-card: #1f2937; /* slightly lighter than background for depth */
+	--color-text: #f9fafb; /* light text */
+	--color-muted-1: #9ca3af; /* secondary text in dark */
+	--color-muted-2: #6b7280; /* tertiary muted in dark */
+	--color-border: #374151; /* dark border */
+}
+
+/* Base element styles */
+html, body, #root {
+	background-color: var(--color-bg);
+	color: var(--color-text);
+}
+
+/* Map commonly used Tailwind gray utilities to the centralized variables.
+	 This lets us keep existing classes like `bg-white` and `text-gray-900`
+	 while centralizing color values for light/dark themes. Use !important so
+	 these rules take precedence over generated Tailwind utilities. */
+.bg-gray-100 { background-color: var(--color-bg) !important; }
+.bg-white { background-color: var(--color-card) !important; }
+.bg-gray-200 { background-color: var(--color-card) !important; }
+.bg-gray-300 { background-color: var(--color-card) !important; }
+.bg-gray-900 { background-color: var(--color-bg) !important; }
+.bg-gray-800 { background-color: var(--color-card) !important; }
+
+.text-gray-900 { color: var(--color-text) !important; }
+.text-gray-800 { color: var(--color-text) !important; }
+.text-gray-700 { color: var(--color-muted-1) !important; }
+.text-gray-600 { color: var(--color-muted-1) !important; }
+.text-gray-500 { color: var(--color-muted-2) !important; }
+.text-gray-100 { color: var(--color-text) !important; }
+
+.dark\:text-white { color: var(--color-text) !important; }
+.dark\:text-gray-300 { color: var(--color-muted-1) !important; }
+
+.border-gray-200 { border-color: var(--color-border) !important; }
+.dark\:border-gray-700 { border-color: var(--color-border) !important; }
+
+/* Small utility: ensure cards keep consistent depth and contrast */
+.card-shadow {
+	box-shadow: 0 1px 2px rgba(2,6,23,0.06);
+}
+

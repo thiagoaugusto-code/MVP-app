@@ -114,8 +114,6 @@ const Header = () => {
 
                 <button onClick={() => navigate('/settings')}> ⚙️ Configurações</button>
 
-                <button > 🌙 Tema</button>
-
                 <button className={styles.logout} onClick={() => {
                   logout();
                   navigate('/login');

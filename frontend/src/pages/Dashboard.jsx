@@ -424,8 +424,8 @@ const Dashboard = () => {
 
              {/*} 🆕 MENSAGEM DE BOAS-VINDAS PERSONALIZADA */}
             <h1 className="text-gray-600 dark:text-gray-300">{getGreeting()}! {/*mudar conforme hora para tarde/noite*/}
-              <p className="text-gray-100 dark:text-gray-150">Pequenas escolhas diarias constroem grandes mudanças.</p>
-            </h1> 
+              <p className="text-gray-600 dark:text-gray-300">Pequenas escolhas diarias constroem grandes mudanças.</p>
+            </h1>
 
             {/* TODO:
             Evoluir este acesso ao calendário para um navegador diário
