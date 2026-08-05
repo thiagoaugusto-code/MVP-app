@@ -30,14 +30,17 @@ export default function WorkoutContextModal({
     }
   );
 
-  const initialRecords = mergedData?.records ?? initialContext ?? [
-    {
-      id: Date.now(),
-      exercise: '',
-      value: '',
-      notes: '',
-    },
-  ];
+  const defaultRecord = () => ({
+    id: Date.now(),
+    exercise: '',
+    value: '',
+    notes: '',
+  });
+
+  const resolvedRecords = mergedData?.records ?? initialContext;
+  const initialRecords = Array.isArray(resolvedRecords) && resolvedRecords.length > 0
+    ? resolvedRecords
+    : [defaultRecord()];
 
   const [records, setRecords] = useState(initialRecords);
 
