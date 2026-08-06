@@ -4,7 +4,6 @@
   border-radius: 0.75rem;
   width: 90%;
   max-width: 400px;
-  color: black;
 }
 
 .modalContent h3 {
@@ -26,6 +25,8 @@
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 1rem;
+}
+.modalContent textarea {
   color: black;
 }
 .modalActions {
